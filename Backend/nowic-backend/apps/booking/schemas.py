@@ -23,6 +23,8 @@ class AppointmentIn(Schema):
     service_id: int
     date: date
     time_slot: time
+    email: Optional[str] = None
+    phone: Optional[str] = None
 
 
 class AppointmentOut(Schema):
@@ -32,6 +34,8 @@ class AppointmentOut(Schema):
     date: date
     time_slot: time
     status: str
+    email: Optional[str] = None
+    phone: Optional[str] = None
     cancellation_reason: str
     booked_at: datetime
 

@@ -1,10 +1,11 @@
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowUpRight, Github } from 'lucide-react';
 import SectionHeading from '../components/common/SectionHeading';
 import ScrollReveal from '../components/reveal/ScrollReveal';
-import { api, BASE_URL } from '../lib/api';
-import { useApi } from '../hooks/useApi';
+import { BASE_URL } from '../lib/api';
+import { useContent } from '../context/ContentContext';
 import LoadingSpinner from '../components/LoadingSpinner';
 import ErrorMessage from '../components/ErrorMessage';
 
@@ -25,7 +26,9 @@ function formatCategory(value) {
 
 export default function Portfolio() {
   const [activeCategory, setActiveCategory] = useState('all');
-  const { data: allProjects, loading, error } = useApi(() => api.getPortfolio());
+  const { content, loading } = useContent();
+  const allProjects = content?.portfolioItems || content?.portfolio || [];
+  const error = null;
 
   const projects = Array.isArray(allProjects) ? [...allProjects].sort((a, b) => (a.order ?? 0) - (b.order ?? 0)) : [];
   const categories = ['all', ...new Set(projects.map((p) => p.category).filter(Boolean))];
@@ -45,6 +48,11 @@ export default function Portfolio() {
             title="Selected products from |our studio"
             description="Real products. Real impact. Each built with precision and purpose."
           />
+          <div className="mt-8 flex justify-center">
+            <Link to="/booking" className="outline-btn">
+              Book a Call
+            </Link>
+          </div>
         </div>
       </section>
 
@@ -117,14 +125,20 @@ export default function Portfolio() {
                       </span>
                     )}
                     {/* Hover overlay */}
-                    <div className="absolute inset-0 flex items-center justify-center gap-3 bg-bg/60 backdrop-blur-sm opacity-0 transition-opacity duration-200 group-hover:opacity-100">
-                      <a href={item.live_url} className="portfolio-btn text-xs" target="_blank" rel="noopener noreferrer">
-                        <ArrowUpRight size={13} className="mr-1" /> Demo
-                      </a>
-                      <a href={item.github_url} className="portfolio-btn text-xs" target="_blank" rel="noopener noreferrer">
-                        <Github size={13} className="mr-1" /> Code
-                      </a>
-                    </div>
+                    {(item.live_url || item.github_url) && (
+                      <div className="absolute inset-0 flex items-center justify-center gap-3 bg-bg/60 backdrop-blur-sm opacity-0 transition-opacity duration-200 group-hover:opacity-100">
+                        {item.live_url && (
+                          <a href={item.live_url} className="portfolio-btn text-xs" target="_blank" rel="noopener noreferrer">
+                            <ArrowUpRight size={13} className="mr-1" /> Demo
+                          </a>
+                        )}
+                        {item.github_url && (
+                          <a href={item.github_url} className="portfolio-btn text-xs" target="_blank" rel="noopener noreferrer">
+                            <Github size={13} className="mr-1" /> Code
+                          </a>
+                        )}
+                      </div>
+                    )}
                   </div>
 
                   <div className="p-5">
@@ -162,6 +176,9 @@ export default function Portfolio() {
             <a href="/contact" className="cta-btn mt-8 inline-flex px-8 py-3.5">
               Start a Conversation <ArrowUpRight size={15} className="ml-2" />
             </a>
+            <Link to="/booking" className="outline-btn mt-4 inline-flex px-8 py-3.5">
+              Book a Call
+            </Link>
           </div>
         </ScrollReveal>
       </section>

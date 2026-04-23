@@ -27,7 +27,11 @@ class PortfolioProjectAdmin(admin.ModelAdmin):
 
 @admin.register(ContactSubmission)
 class ContactSubmissionAdmin(admin.ModelAdmin):
-    list_display = ['name', 'email', 'project_type', 'status', 'submitted_at']
+    list_display = ['name', 'email', 'get_project_type_display_label', 'status', 'priority', 'submitted_at']
+    
+    def get_project_type_display_label(self, obj):
+        return obj.get_project_type_display()
+    get_project_type_display_label.short_description = 'Project Type'
     list_filter = ['status']
     search_fields = ['name', 'email', 'project_type']
     readonly_fields = ['submitted_at', 'ip_address']

@@ -1,13 +1,14 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Mail, Phone, MapPin, Send, CheckCircle2, Clock, Zap, MessageCircle } from 'lucide-react';
+import { Mail, Phone, MapPin, CheckCircle2, Clock, Zap, MessageCircle, Calendar, ArrowRight, Rocket } from 'lucide-react';
 import SectionHeading from '../components/common/SectionHeading';
 import ScrollReveal from '../components/reveal/ScrollReveal';
+import { useContent } from '../context/ContentContext';
 import { api } from '../lib/api';
-import { useApi } from '../hooks/useApi';
 import LoadingSpinner from '../components/LoadingSpinner';
 import ErrorMessage from '../components/ErrorMessage';
-import { brand } from '../data/content';
+import { brand, services as fallbackServices } from '../data/content';
 
 const promise = [
   { icon: Clock, text: 'Response within 24 hours' },
@@ -16,11 +17,47 @@ const promise = [
   { icon: MessageCircle, text: 'Direct access to founders' },
 ];
 
-const projectTypes = ['MVP Development', 'Business Website', 'AI Web App', 'Admin Dashboard', 'SaaS Platform', 'API / Backend', 'Other'];
-const budgetOptions = ['Under ₹50K', '₹50K–2L', '₹2L–5L', 'Above ₹5L'];
+// Choices are now fetched from the API to ensure consistency with backend taxonomy.
+const DEFAULT_PROJECT_TYPES = [
+  { label: 'MVP Development', value: 'mvp_development' },
+  { label: 'Business Website', value: 'business_website' },
+  { label: 'AI Web App', value: 'ai_web_app' },
+  { label: 'Admin Dashboard', value: 'admin_dashboard' },
+  { label: 'SaaS Platform', value: 'saas_platform' },
+  { label: 'API / Backend', value: 'api_backend' },
+  { label: 'Other', value: 'other' }
+];
+
+const DEFAULT_BUDGET_OPTIONS = [
+  { label: 'Under ₹50K', value: 'under_50k' },
+  { label: '₹50K–2L', value: '50k_2lac' },
+  { label: '₹2L–5L', value: '2lac_5lac' },
+  { label: 'Above ₹5L', value: 'above_5lac' }
+];
 
 export default function Contact() {
-  const { data: services, loading: servicesLoading, error: servicesError } = useApi(() => api.getServices());
+  const { content, loading } = useContent();
+  const services = content?.services || [];
+  const servicesLoading = loading;
+  const servicesError = null;
+
+  const [choices, setChoices] = useState({ project_types: DEFAULT_PROJECT_TYPES, budget_options: DEFAULT_BUDGET_OPTIONS });
+  const [choicesLoading, setChoicesLoading] = useState(true);
+
+  useEffect(() => {
+    api.getContactChoices()
+      .then(res => {
+        if (res.success) setChoices(res.data);
+        else {
+          setChoices({ project_types: DEFAULT_PROJECT_TYPES, budget_options: DEFAULT_BUDGET_OPTIONS });
+        }
+      })
+      .catch(err => {
+        console.error('Failed to load contact choices:', err);
+        setChoices({ project_types: DEFAULT_PROJECT_TYPES, budget_options: DEFAULT_BUDGET_OPTIONS });
+      })
+      .finally(() => setChoicesLoading(false));
+  }, []);
 
   const contactInfo = [
     { icon: Mail, label: 'Email', value: brand.email || 'hello@nowicstudio.com', href: `mailto:${brand.email || 'hello@nowicstudio.com'}` },
@@ -28,35 +65,83 @@ export default function Contact() {
     { icon: MapPin, label: 'Location', value: brand.location || 'India 🇮🇳', href: '#' },
   ];
 
-  const [form, setForm] = useState({ name: '', email: '', project_type: '', message: '', phone: '', budget: '', service_slug: '' });
+  const [form, setForm] = useState({ name: '', email: '', project_type: '', message: '', phone: '', budget: '', service_slug: '', website: '' });
+  const [errors, setErrors] = useState({});
   const [status, setStatus] = useState('idle');
   const [errorMsg, setErrorMsg] = useState('');
-  const handleChange = (e) => setForm((f) => ({ ...f, [e.target.name]: e.target.value }));
+
+  const validateForm = () => {
+    const newErrors = {};
+    if (!form.name.trim()) newErrors.name = 'Name is required';
+    if (!form.email.trim()) {
+      newErrors.email = 'Email is required';
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) {
+      newErrors.email = 'Invalid email format';
+    }
+    if (form.phone && form.phone.replace(/\D/g, '').length < 10) {
+      newErrors.phone = 'Enter a valid 10-digit number';
+    }
+    if (!form.project_type) newErrors.project_type = 'Please select a project type';
+    if (!form.message.trim()) {
+      newErrors.message = 'Please describe your project';
+    } else if (form.message.length < 20) {
+      newErrors.message = 'Minimum 20 characters required';
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setForm((f) => ({ ...f, [name]: value }));
+    // Clear error when user types
+    if (errors[name]) setErrors(prev => ({ ...prev, [name]: '' }));
+  };
 
   async function handleSubmit(e) {
     e.preventDefault();
+    if (!validateForm()) return;
+
     setStatus('loading');
     setErrorMsg('');
 
     try {
       await api.submitContact({
-        name: form.name,
-        email: form.email,
-        project_type: form.project_type,
-        message: form.message,
-        phone: form.phone || undefined,
+        name: form.name.trim(),
+        email: form.email.trim(),
+        project_type: form.project_type || 'other',
+        message: form.message.trim(),
+        phone: form.phone ? form.phone.replace(/\D/g, '') : undefined,
         budget: form.budget || undefined,
         service_slug: form.service_slug || undefined,
+        website: form.website,
       });
       setStatus('success');
       setForm({ name: '', email: '', project_type: '', message: '', phone: '', budget: '', service_slug: '' });
     } catch (err) {
       setStatus('error');
-      setErrorMsg(err.message || 'Something went wrong');
+      if (err.name === 'ApiError' && err.data?.errors) {
+        // Map Django field errors to frontend error state
+        const fieldErrors = {};
+        Object.entries(err.data.errors).forEach(([field, msgs]) => {
+          fieldErrors[field] = Array.isArray(msgs) ? msgs[0] : msgs;
+        });
+        setErrors(fieldErrors);
+        setErrorMsg('Please check the highlighted fields.');
+      } else {
+        setErrorMsg(err.message || 'Something went wrong');
+      }
     }
   }
 
-  const orderedServices = Array.isArray(services) ? [...services].sort((a, b) => (a.order ?? 0) - (b.order ?? 0)) : [];
+  const apiServices = Array.isArray(services) ? [...services].sort((a, b) => (a.order ?? 0) - (b.order ?? 0)) : [];
+  const orderedServices = apiServices.length
+    ? apiServices
+    : fallbackServices.map((service, index) => ({
+      slug: (service.title || `service-${index + 1}`).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, ''),
+      name: service.title,
+    }));
 
   return (
     <>
@@ -131,6 +216,38 @@ export default function Contact() {
                 <p className="mt-1 text-xs text-muted">Limited slots for Q2 2026</p>
               </div>
             </ScrollReveal>
+
+            {/* ── Book a Call Card ── */}
+            <ScrollReveal delay={0.14}>
+              <div className="relative overflow-hidden rounded-2xl border border-mint/20 bg-[#0b100d] p-5">
+                {/* glow */}
+                <div className="pointer-events-none absolute -top-8 -right-8 h-32 w-32 rounded-full bg-mint/10 blur-2xl" />
+                <div className="flex items-start gap-3">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-mint/10 text-mint">
+                    <Calendar size={18} />
+                  </div>
+                  <div>
+                    <p className="text-[11px] font-bold uppercase tracking-[0.15em] text-mint">Prefer to Talk Directly?</p>
+                    <h4 className="mt-1 font-display text-base font-bold text-text leading-snug">Book a 1-on-1 Strategy Call</h4>
+                    <p className="mt-1.5 text-xs leading-relaxed text-sub">
+                      Skip the wait — choose a slot and speak directly with our founder to map out your project roadmap.
+                    </p>
+                  </div>
+                </div>
+                <div className="mt-4 flex items-center justify-between rounded-xl bg-white/5 px-4 py-3">
+                  <div className="text-xs text-sub">
+                    <span className="block font-semibold text-text">Discovery Session</span>
+                    <span>15–30 min • No commitment</span>
+                  </div>
+                  <Link
+                    to="/booking"
+                    className="group flex items-center gap-1.5 rounded-lg bg-mint px-4 py-2 text-[11px] font-bold uppercase tracking-[0.12em] text-bg transition-all hover:scale-105 hover:shadow-[0_0_20px_rgba(52,217,154,0.3)]"
+                  >
+                    Secure Slot <ArrowRight size={13} className="transition-transform group-hover:translate-x-0.5" />
+                  </Link>
+                </div>
+              </div>
+            </ScrollReveal>
           </div>
 
           {/* Right — Form */}
@@ -147,9 +264,22 @@ export default function Contact() {
                       <div>
                         <span className="block text-[13px] font-semibold text-[#f0f0f3] mb-2 uppercase">Contact Info</span>
                         <div className="grid gap-2">
-                          <input id="contact-name" name="name" required value={form.name} onChange={handleChange} placeholder="Name" className="field !py-2 !h-[36px] !px-3 !text-[12px] bg-[#16171e] focus:bg-[#1e2028]" />
-                          <input id="contact-email" name="email" type="email" required value={form.email} onChange={handleChange} placeholder="Email" className="field !py-2 !h-[36px] !px-3 !text-[12px] bg-[#16171e] focus:bg-[#1e2028]" />
-                          <input id="contact-phone" name="phone" value={form.phone} onChange={handleChange} placeholder="Phone (optional)" className="field !py-2 !h-[36px] !px-3 !text-[12px] bg-[#16171e] focus:bg-[#1e2028]" />
+                          <div className="space-y-1">
+                            <input id="contact-name" name="name" value={form.name} onChange={handleChange} placeholder="Name" className={`field !py-2 !h-[36px] !px-3 !text-[12px] bg-[#16171e] focus:bg-[#1e2028] ${errors.name ? 'border-red-500/50' : ''}`} />
+                            {errors.name && <p className="text-[10px] text-red-400 pl-1">{errors.name}</p>}
+                          </div>
+                          <div className="space-y-1">
+                            <input id="contact-email" name="email" type="email" value={form.email} onChange={handleChange} placeholder="Email" className={`field !py-2 !h-[36px] !px-3 !text-[12px] bg-[#16171e] focus:bg-[#1e2028] ${errors.email ? 'border-red-500/50' : ''}`} />
+                            {errors.email && <p className="text-[10px] text-red-400 pl-1">{errors.email}</p>}
+                          </div>
+                          <div className="space-y-1">
+                            <input id="contact-phone" name="phone" value={form.phone} onChange={handleChange} placeholder="Phone (optional)" className={`field !py-2 !h-[36px] !px-3 !text-[12px] bg-[#16171e] focus:bg-[#1e2028] ${errors.phone ? 'border-red-500/50' : ''}`} />
+                            {errors.phone && <p className="text-[10px] text-red-400 pl-1">{errors.phone}</p>}
+                          </div>
+                          {/* Honeypot field - hidden from users */}
+                          <div className="hidden" aria-hidden="true">
+                            <input type="text" name="website" value={form.website || ''} onChange={handleChange} tabIndex="-1" autoComplete="off" />
+                          </div>
                         </div>
                       </div>
 
@@ -157,31 +287,33 @@ export default function Contact() {
 
                       <div>
                         <span className="block text-[13px] font-semibold text-[#f0f0f3] mb-2 uppercase">Project Type</span>
-                        <select id="contact-type" name="project_type" required value={form.project_type} onChange={handleChange} className="field !py-0 !h-[36px] !px-3 !text-[12px] !cursor-pointer bg-[#16171e] focus:bg-[#1e2028]">
-                          <option value="" disabled>Select type...</option>
-                          {projectTypes.map((pt) => (
-                            <option key={pt} value={pt} style={{ background: '#0e0f14', color: '#f0f0f3' }}>{pt}</option>
+                        <select id="contact-type" name="project_type" value={form.project_type} onChange={handleChange} className={`field !py-0 !h-[36px] !px-3 !text-[12px] !cursor-pointer bg-[#16171e] focus:bg-[#1e2028] ${errors.project_type ? 'border-red-500/50' : ''}`} disabled={choicesLoading}>
+                          <option value="">Select type...</option>
+                          {choices.project_types.map((pt) => (
+                            <option key={pt.value} value={pt.value} className="bg-[#0e0f14] text-[#f0f0f3]">{pt.label}</option>
                           ))}
                         </select>
+                        {errors.project_type && <p className="text-[10px] text-red-400 mt-1 pl-1">{errors.project_type}</p>}
                       </div>
 
                       <hr className="h-px bg-[#34d99a]/30 border-none my-1" />
 
                       <div>
                         <span className="block text-[13px] font-semibold text-[#f0f0f3] mb-2 uppercase">Service</span>
-                        {servicesError ? (
-                          <ErrorMessage message={servicesError} />
-                        ) : servicesLoading ? (
+                        {servicesLoading ? (
                           <div className="flex items-center justify-center rounded-lg bg-[#16171e] py-2">
                             <LoadingSpinner size="sm" />
                           </div>
                         ) : (
+                          <>
                           <select id="contact-service" name="service_slug" value={form.service_slug} onChange={handleChange} className="field !py-0 !h-[36px] !px-3 !text-[12px] !cursor-pointer bg-[#16171e] focus:bg-[#1e2028]">
                             <option value="">Select a service (optional)</option>
                             {orderedServices.map((service) => (
-                              <option key={service.slug} value={service.slug} style={{ background: '#0e0f14', color: '#f0f0f3' }}>{service.name}</option>
+                              <option key={service.slug} value={service.slug} className="bg-[#0e0f14] text-[#f0f0f3]">{service.name}</option>
                             ))}
                           </select>
+                          {servicesError && <p className="mt-1 text-[11px] text-amber-300">Using backup service list while API is unavailable.</p>}
+                          </>
                         )}
                       </div>
 
@@ -189,10 +321,10 @@ export default function Contact() {
 
                       <div>
                         <span className="block text-[13px] font-semibold text-[#f0f0f3] mb-2 uppercase">Budget</span>
-                        <select id="contact-budget" name="budget" value={form.budget} onChange={handleChange} className="field !py-0 !h-[36px] !px-3 !text-[12px] !cursor-pointer bg-[#16171e] focus:bg-[#1e2028]">
+                        <select id="contact-budget" name="budget" value={form.budget} onChange={handleChange} className="field !py-0 !h-[36px] !px-3 !text-[12px] !cursor-pointer bg-[#16171e] focus:bg-[#1e2028]" disabled={choicesLoading}>
                           <option value="">Select budget (optional)</option>
-                          {budgetOptions.map((budget) => (
-                            <option key={budget} value={budget} style={{ background: '#0e0f14', color: '#f0f0f3' }}>{budget}</option>
+                          {choices.budget_options.map((b) => (
+                            <option key={b.value} value={b.value} className="bg-[#0e0f14] text-[#f0f0f3]">{b.label}</option>
                           ))}
                         </select>
                       </div>
@@ -200,8 +332,14 @@ export default function Contact() {
                       <hr className="h-px bg-[#34d99a]/30 border-none my-1" />
 
                       <div>
-                        <span className="block text-[13px] font-semibold text-[#f0f0f3] mb-2 uppercase">Details</span>
-                        <textarea id="contact-message" name="message" required rows={3} value={form.message} onChange={handleChange} placeholder="Describe your idea..." className="field resize-none !py-2 !px-3 !text-[12px] bg-[#16171e] focus:bg-[#1e2028]" />
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="block text-[13px] font-semibold text-[#f0f0f3] uppercase">Details</span>
+                          <span className={`text-[10px] font-bold ${form.message.length > 450 ? 'text-amber-400' : 'text-muted'}`}>
+                            {form.message.length}/500
+                          </span>
+                        </div>
+                        <textarea id="contact-message" name="message" maxLength={500} rows={3} value={form.message} onChange={handleChange} placeholder="Describe your idea..." className={`field resize-none !py-2 !px-3 !text-[12px] bg-[#16171e] focus:bg-[#1e2028] ${errors.message ? 'border-red-500/50' : ''}`} />
+                        {errors.message && <p className="text-[10px] text-red-400 mt-1 pl-1">{errors.message}</p>}
                       </div>
 
                       {status === 'error' && <p className="text-xs text-red-400">{errorMsg}</p>}
@@ -227,27 +365,59 @@ export default function Contact() {
                 </div>
               </div>
             ) : (
-              <div className="card p-7 w-full lg:max-w-[400px] mx-auto lg:ml-auto">
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.96 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  className="flex flex-col items-center py-8 text-center"
-                >
-                  <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-[#34d99a]/10">
-                    <CheckCircle2 size={32} className="text-[#34d99a]" />
+              <motion.div
+                initial={{ opacity: 0, y: 16 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.4, ease: 'easeOut' }}
+                className="w-full lg:max-w-[400px] mx-auto lg:ml-auto space-y-3"
+              >
+                {/* ── Confirmation Card ── */}
+                <div className="card bg-[#0e0f14] p-6">
+                  <div className="flex items-center gap-3">
+                    <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-mint/10">
+                      <CheckCircle2 size={24} className="text-mint" />
+                    </div>
+                    <div>
+                      <h3 className="font-display text-lg font-bold text-text">Inquiry received! 🎉</h3>
+                      <p className="text-xs text-sub mt-0.5">We'll respond with a detailed plan within 24 hours.</p>
+                    </div>
                   </div>
-                  <h3 className="mt-5 font-display text-xl font-bold text-[#f0f0f3]">Sent! 🎉</h3>
-                  <p className="mt-2 text-sm text-[#b0b3c0]">
-                    Thanks! We'll get back within 24 hours.
+                  <div className="mt-4 rounded-xl bg-white/5 px-4 py-3 text-xs text-sub space-y-1">
+                    <p><span className="text-muted">Name:</span> <span className="font-medium text-text">{form.name || '—'}</span></p>
+                    <p><span className="text-muted">Email:</span> <span className="font-medium text-text">{form.email || '—'}</span></p>
+                  </div>
+                </div>
+
+                {/* ── Upsell: Book a Call ── */}
+                <div className="relative overflow-hidden rounded-2xl border border-mint/30 bg-gradient-to-br from-mint/10 via-[#0e0f14] to-[#0e0f14] p-6">
+                  <div className="pointer-events-none absolute -top-10 -right-10 h-40 w-40 rounded-full bg-mint/15 blur-3xl" />
+                  <div className="flex items-center gap-2 mb-3">
+                    <Rocket size={14} className="text-mint" />
+                    <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-mint">Want to move faster?</span>
+                  </div>
+                  <h4 className="font-display text-base font-bold text-text leading-snug">
+                    Skip the wait — book a direct founder call
+                  </h4>
+                  <p className="mt-2 text-xs leading-relaxed text-sub">
+                    Your project brief is saved. Now lock in a 1-on-1 strategy session so we can start scoping immediately — no back-and-forth emails.
                   </p>
-                  <button
-                    onClick={() => { setStatus('idle'); setErrorMsg(''); }}
-                    className="outline-btn mt-6"
-                  >
-                    Send Another
-                  </button>
-                </motion.div>
-              </div>
+                  <div className="mt-5 flex flex-col gap-2 sm:flex-row">
+                    <Link
+                      to={`/booking?name=${encodeURIComponent(form.name)}&email=${encodeURIComponent(form.email)}`}
+                      className="group flex flex-1 items-center justify-center gap-2 rounded-xl bg-mint py-3 text-[11px] font-bold uppercase tracking-[0.15em] text-bg transition-all hover:scale-[1.02] hover:shadow-[0_8px_30px_rgba(52,217,154,0.25)]"
+                    >
+                      <Calendar size={14} /> Book Strategy Session
+                      <ArrowRight size={13} className="ml-1 transition-transform group-hover:translate-x-0.5" />
+                    </Link>
+                    <button
+                      onClick={() => { setStatus('idle'); setErrorMsg(''); }}
+                      className="flex-shrink-0 rounded-xl border border-white/10 bg-white/5 px-5 py-3 text-[11px] font-bold uppercase tracking-widest text-sub hover:bg-white/10 transition-all"
+                    >
+                      New Inquiry
+                    </button>
+                  </div>
+                </div>
+              </motion.div>
             )}
           </ScrollReveal>
         </div>

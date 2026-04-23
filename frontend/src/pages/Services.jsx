@@ -7,10 +7,10 @@ import ScrollReveal from '../components/reveal/ScrollReveal';
 import InteractiveCard from '../components/ui/InteractiveCard';
 import Magnetic from '../components/ui/Magnetic';
 import { useState } from 'react';
-import { api } from '../lib/api';
-import { useApi } from '../hooks/useApi';
+import { useContent } from '../context/ContentContext';
 import LoadingSpinner from '../components/LoadingSpinner';
 import ErrorMessage from '../components/ErrorMessage';
+import { services as fallbackServices } from '../data/content';
 
 function resolveIcon(name) {
   return Icons[name] || Icons.Code2;
@@ -21,6 +21,69 @@ function formatCurrency(value) {
   const numeric = Number(value);
   if (Number.isNaN(numeric)) return String(value);
   return new Intl.NumberFormat('en-IN', { maximumFractionDigits: 0 }).format(numeric);
+}
+
+function toSlug(value) {
+  return String(value || '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/(^-|-$)/g, '');
+}
+
+const LOCAL_SERVICE_IMAGES = {
+  mvp: '/services/mvp.jpg',
+  'api-development': '/services/api.png',
+  api: '/services/api.png',
+  dashboard: '/services/dashboard.png',
+  saas: '/services/saas.png',
+  website: '/services/website.png',
+  'business-website': '/services/website.png',
+  'ai-web-app': '/services/ai.png',
+  ai: '/services/ai.png',
+};
+
+function getServiceImageUrl(service) {
+  const raw = service?.image_url || service?.image || '';
+  const trimmed = String(raw).trim();
+
+  if (trimmed) {
+    if (/^https?:\/\//i.test(trimmed) || trimmed.startsWith('/')) {
+      return trimmed;
+    }
+    return `/${trimmed.replace(/^\/+/, '')}`;
+  }
+
+  const slug = toSlug(service?.slug || service?.name || '');
+  if (LOCAL_SERVICE_IMAGES[slug]) return LOCAL_SERVICE_IMAGES[slug];
+
+  if (slug.includes('mvp')) return LOCAL_SERVICE_IMAGES.mvp;
+  if (slug.includes('api')) return LOCAL_SERVICE_IMAGES.api;
+  if (slug.includes('dashboard')) return LOCAL_SERVICE_IMAGES.dashboard;
+  if (slug.includes('saas')) return LOCAL_SERVICE_IMAGES.saas;
+  if (slug.includes('ai')) return LOCAL_SERVICE_IMAGES.ai;
+  if (slug.includes('website') || slug.includes('web')) return LOCAL_SERVICE_IMAGES.website;
+
+  return null;
+}
+
+function mapFallbackService(service, index) {
+  const mapped = {
+    name: service.title,
+    slug: toSlug(service.title || `service-${index + 1}`),
+    tagline: service.headline || service.title,
+    description: service.description,
+    features: Array.isArray(service.features) ? service.features : [],
+    icon_name: service.icon?.name || 'Code2',
+    image_url: service.image_url || service.image || null,
+    price_starting: null,
+    delivery_days: null,
+    order: index + 1,
+  };
+
+  return {
+    ...mapped,
+    image_url: getServiceImageUrl(mapped),
+  };
 }
 
 function FAQItem({ item, index }) {
@@ -55,7 +118,9 @@ function FAQItem({ item, index }) {
 }
 
 export default function Services() {
-  const { data: services, loading, error } = useApi(() => api.getServices());
+  const { content, loading } = useContent();
+  const services = content?.services || [];
+  const error = null;
   const faqs = [
     {
       q: 'How long does a typical project take?',
@@ -75,7 +140,8 @@ export default function Services() {
     },
   ];
 
-  const orderedServices = Array.isArray(services) ? [...services].sort((a, b) => (a.order ?? 0) - (b.order ?? 0)) : [];
+  const apiServices = Array.isArray(services) ? [...services].sort((a, b) => (a.order ?? 0) - (b.order ?? 0)) : [];
+  const orderedServices = apiServices.length ? apiServices : fallbackServices.map(mapFallbackService);
 
   return (
     <>
@@ -111,9 +177,30 @@ export default function Services() {
             return (
               <ScrollReveal key={service.title} delay={i * 0.06}>
                 <InteractiveCard className="feature-card h-full">
-                  <div className="icon-box mb-4">
-                    <Icon size={18} />
-                  </div>
+                  {getServiceImageUrl(service) ? (
+                    <div className="mb-5 overflow-hidden rounded-xl border border-white/5 bg-surface/30">
+                      <img
+                        src={getServiceImageUrl(service)}
+                        alt={service.name}
+                        loading="lazy"
+                        decoding="async"
+                        fetchPriority="low"
+                        onError={(e) => {
+                          const fallback = LOCAL_SERVICE_IMAGES[toSlug(service.slug || service.name)] || LOCAL_SERVICE_IMAGES.website;
+                          if (e.currentTarget.src !== new URL(fallback, window.location.origin).href) {
+                            e.currentTarget.src = fallback;
+                            return;
+                          }
+                          e.currentTarget.style.display = 'none';
+                        }}
+                        className="h-40 w-full object-cover transition-transform duration-500 group-hover/inter:scale-105"
+                      />
+                    </div>
+                  ) : (
+                    <div className="icon-box mb-4">
+                      <Icon size={18} />
+                    </div>
+                  )}
                   <p className="text-xs font-semibold uppercase tracking-[0.15em] text-mint">
                     {service.name}
                   </p>

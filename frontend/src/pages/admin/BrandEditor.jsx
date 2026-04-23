@@ -44,6 +44,7 @@ export default function BrandEditor() {
             if (savedTimeoutRef.current) {
                 clearTimeout(savedTimeoutRef.current);
             }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
         };
     }, []);
 

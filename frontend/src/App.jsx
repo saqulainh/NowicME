@@ -17,6 +17,10 @@ const ClientDashboard = lazy(() => import('./pages/Dashboard'));
 
 const AdminLogin = lazy(() => import('./pages/admin/AdminLogin'));
 const Dashboard = lazy(() => import('./pages/admin/Dashboard'));
+const LeadsManagement = lazy(() => import('./pages/admin/LeadsManagement'));
+const ProjectsManagement = lazy(() => import('./pages/admin/ProjectsManagement'));
+const UsersManagement = lazy(() => import('./pages/admin/UsersManagement'));
+const InvoicesManagement = lazy(() => import('./pages/admin/InvoicesManagement'));
 const BrandEditor = lazy(() => import('./pages/admin/BrandEditor'));
 const ServicesEditor = lazy(() => import('./pages/admin/ServicesEditor'));
 const PortfolioEditor = lazy(() => import('./pages/admin/PortfolioEditor'));
@@ -49,6 +53,10 @@ export default function App() {
           <Route path="/admin/login" element={<AdminLogin />} />
           <Route path="/admin" element={<AdminLayout />}>
             <Route index element={<Dashboard />} />
+            <Route path="leads" element={<LeadsManagement />} />
+            <Route path="projects" element={<ProjectsManagement />} />
+            <Route path="users" element={<UsersManagement />} />
+            <Route path="invoices" element={<InvoicesManagement />} />
             <Route path="brand" element={<BrandEditor />} />
             <Route path="services" element={<ServicesEditor />} />
             <Route path="portfolio" element={<PortfolioEditor />} />

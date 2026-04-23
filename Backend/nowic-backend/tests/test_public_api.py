@@ -53,7 +53,7 @@ class TestContactAPI:
         payload = {
             "name": "Test User",
             "email": "test@example.com",
-            "project_type": "Web App",
+            "project_type": "ai_web_app",
             "message": "Hello from test"
         }
         response = client.post('/api/v1/public/contact/',
@@ -65,7 +65,7 @@ class TestContactAPI:
     
     def test_invalid_email_rejected(self, client):
         payload = {"name": "Test", "email": "notanemail",
-                   "project_type": "Web", "message": "Hi"}
+                   "project_type": "ai_web_app", "message": "Hi"}
         response = client.post('/api/v1/public/contact/',
                                data=payload, content_type='application/json')
         assert response.status_code == 422
@@ -74,7 +74,7 @@ class TestContactAPI:
         payload = {
             "name": "  John\x00 Doe  ",
             "email": "  John.Doe@Example.COM  ",
-            "project_type": "  Web App  ",
+            "project_type": "  ai_web_app  ",
             "message": "  Build MVP\x00 please  ",
         }
         response = client.post('/api/v1/public/contact/', data=payload, content_type='application/json')
@@ -83,7 +83,7 @@ class TestContactAPI:
         submission = ContactSubmission.objects.latest('id')
         assert submission.name == "John Doe"
         assert submission.email == "john.doe@example.com"
-        assert submission.project_type == "Web App"
+        assert submission.project_type == "ai_web_app"
         assert submission.message == "Build MVP please"
 
         lead = Lead.objects.latest('id')

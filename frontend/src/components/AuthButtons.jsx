@@ -11,13 +11,7 @@ export default function AuthButtons() {
   if (!isLoaded) return null;
 
   if (!isClerkConfigured) {
-    return (
-      <div className="flex items-center gap-3">
-        <Link to="/contact" className="text-sm opacity-70 transition hover:opacity-100">
-          Contact
-        </Link>
-      </div>
-    );
+    return null;
   }
 
   if (isSignedIn) {

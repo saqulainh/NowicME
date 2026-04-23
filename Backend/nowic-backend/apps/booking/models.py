@@ -38,6 +38,8 @@ class Appointment(models.Model):
     )
     date = models.DateField()
     time_slot = models.TimeField()
+    email = models.EmailField(blank=True, null=True)
+    phone = models.CharField(max_length=20, blank=True, null=True)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
     cancellation_reason = models.TextField(blank=True)
     booked_at = models.DateTimeField(auto_now_add=True)

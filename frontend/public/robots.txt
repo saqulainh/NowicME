@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://nowicstudio.com/sitemap.xml

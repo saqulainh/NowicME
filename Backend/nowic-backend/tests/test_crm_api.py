@@ -131,21 +131,21 @@ class TestCrmPagination:
         ContactSubmission.objects.create(
             name='A',
             email='a@example.com',
-            project_type='Web',
+            project_type='business_website',
             message='m1',
             status='new',
         )
         ContactSubmission.objects.create(
             name='B',
             email='b@example.com',
-            project_type='Web',
+            project_type='business_website',
             message='m2',
             status='read',
         )
         ContactSubmission.objects.create(
             name='C',
             email='c@example.com',
-            project_type='Web',
+            project_type='business_website',
             message='m3',
             status='new',
         )

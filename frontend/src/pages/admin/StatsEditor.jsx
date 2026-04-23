@@ -63,7 +63,8 @@ export default function StatsEditor() {
         return () => {
             mounted = false;
         };
-    }, [defaultStats, defaultHighlights]);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
 
     const updateStat = (idx, field, value) => {
         setStats((prev) => prev.map((item, i) => i === idx ? { ...item, [field]: value } : item));

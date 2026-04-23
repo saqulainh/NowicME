@@ -5,7 +5,10 @@ Cache-based rate limiter — no external library required.
 Uses Django's default cache backend.
 """
 import time
+import logging
 from django.core.cache import cache
+
+logger = logging.getLogger(__name__)
 
 
 def get_client_ip(request) -> str:
@@ -56,7 +59,20 @@ class RateLimiter:
         """
         key = self._make_key(identifier)
         start_key = self._make_start_key(identifier)
-        count = cache.get(key)
+        try:
+            count = cache.get(key)
+        except Exception:
+            logger.warning("Cache unavailable in rate limiter; allowing request", exc_info=True)
+            return {
+                "allowed": True,
+                "remaining": self.max_calls,
+                "reset_seconds": self.period,
+                "headers": {
+                    "X-RateLimit-Limit": str(self.max_calls),
+                    "X-RateLimit-Remaining": str(self.max_calls),
+                    "X-RateLimit-Reset": str(self.period),
+                },
+            }
 
         if count is None:
             # First call in this window — set counter with TTL

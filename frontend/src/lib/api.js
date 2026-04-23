@@ -23,6 +23,15 @@ async function parseResponse(response) {
   }
 }
 
+export class ApiError extends Error {
+  constructor(message, data, status) {
+    super(message);
+    this.name = 'ApiError';
+    this.data = data;
+    this.status = status;
+  }
+}
+
 export async function apiCall(endpoint, options = {}) {
   const response = await fetch(buildUrl(endpoint), {
     headers: {
@@ -35,7 +44,7 @@ export async function apiCall(endpoint, options = {}) {
   const data = await parseResponse(response);
 
   if (!response.ok) {
-    throw new Error(data?.error || data?.message || 'API call failed');
+    throw new ApiError(data?.error || data?.message || 'API call failed', data, response.status);
   }
 
   return data;
@@ -67,6 +76,7 @@ export const api = {
   },
   getPortfolioBySlug: (slug) => apiCall(`/api/v1/public/portfolio/${slug}/`),
   submitContact: (data) => apiCall('/api/v1/public/contact/', { method: 'POST', body: JSON.stringify(data) }),
+  getContactChoices: () => apiCall('/api/v1/public/contact/choices/'),
   getBookingServices: () => apiCall('/api/v1/booking/services/'),
   getAvailableSlots: (date, serviceId) => apiCall(`/api/v1/booking/slots/?date=${date}&service_id=${serviceId}`),
   bookAppointment: (token, data) => authApiCall('/api/v1/booking/book/', token, { method: 'POST', body: JSON.stringify(data) }),
@@ -88,6 +98,36 @@ export const api = {
     method: 'PUT',
     body: JSON.stringify({ data }),
   }),
+  // Admin Management
+  admin_me: (token) => authApiCall('/api/v1/admin/me/', token),
+  admin_dashboard: (token) => authApiCall('/api/v1/admin/dashboard/', token),
+  admin_getUsers: (token, params = {}) => {
+    const query = new URLSearchParams(params).toString();
+    return authApiCall(`/api/v1/admin/users/${query ? `?${query}` : ''}`, token);
+  },
+  admin_updateUser: (token, id, data) => authApiCall(`/api/v1/admin/users/${id}/`, token, {
+    method: 'PATCH',
+    body: JSON.stringify(data),
+  }),
+  // CRM
+  crm_getLeads: (token, params = {}) => {
+    const query = new URLSearchParams(params).toString();
+    return authApiCall(`/api/v1/crm/leads/${query ? `?${query}` : ''}`, token);
+  },
+  crm_getProjects: (token) => authApiCall('/api/v1/crm/projects/', token),
+  crm_createProject: (token, data) => authApiCall('/api/v1/crm/projects/', token, {
+    method: 'POST',
+    body: JSON.stringify(data),
+  }),
+  crm_updateProject: (token, id, data) => authApiCall(`/api/v1/crm/projects/${id}/`, token, {
+    method: 'PATCH',
+    body: JSON.stringify(data),
+  }),
+  // Invoices
+  admin_getInvoices: (token, params = {}) => {
+    const query = new URLSearchParams(params).toString();
+    return authApiCall(`/api/v1/admin/invoices/${query ? `?${query}` : ''}`, token);
+  },
 };
 
 export { BASE_URL };

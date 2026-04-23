@@ -56,8 +56,9 @@ export default function FAQEditor() {
             if (timeoutRef.current) {
                 clearTimeout(timeoutRef.current);
             }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
         };
-    }, [defaults]);
+    }, []);
 
     const update = (idx, field, value) => {
         setItems((prev) => prev.map((item, i) => i === idx ? { ...item, [field]: value } : item));

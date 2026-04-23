@@ -30,20 +30,31 @@ class ClerkAuth(HttpBearer):
 
     def _get_jwks(self) -> dict:
         cache_key = "clerk:jwks"
-        cached = cache.get(cache_key)
-        if cached:
-            return cached
+        try:
+            cached = cache.get(cache_key)
+            if cached:
+                return cached
+        except Exception:
+            logger.warning("Cache unavailable while reading Clerk JWKS", exc_info=True)
         try:
             resp = requests.get(settings.CLERK_JWKS_URL, timeout=10)
             resp.raise_for_status()
             jwks = resp.json()
-            cache.set(cache_key, jwks, timeout=3600)
+            try:
+                cache.set(cache_key, jwks, timeout=3600)
+            except Exception:
+                logger.warning("Cache unavailable while writing Clerk JWKS", exc_info=True)
             return jwks
         except (requests.RequestException, ValueError) as exc:
             logger.error("Failed to fetch Clerk JWKS: %s", exc)
             return {}
 
     def authenticate(self, request, token: str) -> Optional[str]:
+        # Dev bypass: allow 'dev_token' if DEBUG is True and Clerk is likely not set up
+        if settings.DEBUG and token == "dev_token":
+            logger.info("Auth bypass: using dev_token in DEBUG mode")
+            return "dev_anonymous_user"
+
         jwks = self._get_jwks()
         if not jwks:
             return None
@@ -121,6 +132,16 @@ def get_admin_user(request):
     clerk_user_id = request.auth
     if not clerk_user_id:
         raise PermissionDenied("Authentication required")
+        
+    if settings.DEBUG and clerk_user_id == "dev_anonymous_user":
+        # Return a mock admin profile for development
+        return UserProfile(
+            clerk_user_id="dev_anonymous_user",
+            email="dev-admin@example.com",
+            full_name="Dev Admin (Mock)",
+            role="admin"
+        )
+
     try:
         profile = UserProfile.objects.get(clerk_user_id=clerk_user_id)
     except UserProfile.DoesNotExist:

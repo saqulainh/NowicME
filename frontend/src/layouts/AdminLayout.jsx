@@ -1,12 +1,23 @@
 import { Navigate, Outlet, NavLink } from 'react-router-dom';
 import { useAdminAuth } from '../context/AdminAuthContext';
+import { useAuth } from '@clerk/clerk-react';
 import {
     LayoutDashboard, Settings, Briefcase, FolderOpen,
     BarChart3, HelpCircle, Info, LogOut, ChevronLeft,
+    Users, MessageSquare, ListTodo, FileText
 } from 'lucide-react';
+
+const CLERK_KEY = (import.meta.env?.VITE_CLERK_PUBLISHABLE_KEY || '').trim();
+const IS_CLERK_CONFIGURED = CLERK_KEY.startsWith('pk_') && !/your|placeholder/i.test(CLERK_KEY);
 
 const sidebarLinks = [
     { to: '/admin', icon: LayoutDashboard, label: 'Dashboard', end: true },
+    { type: 'label', label: 'CRM Management' },
+    { to: '/admin/leads', icon: MessageSquare, label: 'Leads' },
+    { to: '/admin/projects', icon: ListTodo, label: 'Projects' },
+    { to: '/admin/invoices', icon: FileText, label: 'Invoices' },
+    { to: '/admin/users', icon: Users, label: 'Users' },
+    { type: 'label', label: 'Site Content' },
     { to: '/admin/brand', icon: Settings, label: 'Brand' },
     { to: '/admin/services', icon: Briefcase, label: 'Services' },
     { to: '/admin/portfolio', icon: FolderOpen, label: 'Portfolio' },
@@ -15,8 +26,29 @@ const sidebarLinks = [
     { to: '/admin/faqs', icon: HelpCircle, label: 'FAQs' },
 ];
 
-export default function AdminLayout() {
-    const { isLoggedIn, loading, logout, admin } = useAdminAuth();
+/*
+ * Clerk-aware AdminLayout: useAuth() is safe here because this component
+ * is only used when IS_CLERK_CONFIGURED is true, meaning ClerkProvider
+ * is guaranteed to be an ancestor in the component tree (see main.jsx).
+ */
+function ClerkAdminLayout() {
+    const { signOut } = useAuth();
+    return <AdminLayoutUI onLogout={() => signOut()} />;
+}
+
+/*
+ * Fallback when Clerk isn't configured — admin panel can't authenticate,
+ * so it will always redirect to login.
+ */
+function FallbackAdminLayout() {
+    return <AdminLayoutUI onLogout={() => { window.location.href = '/admin/login'; }} />;
+}
+
+/*
+ * Pure presentational layout component, no Clerk dependency.
+ */
+function AdminLayoutUI({ onLogout }) {
+    const { isLoggedIn, loading, admin } = useAdminAuth();
 
     if (loading) {
         return (
@@ -47,22 +79,33 @@ export default function AdminLayout() {
                 {/* Links */}
                 <nav className="flex-1 overflow-y-auto px-3 py-4">
                     <div className="space-y-1">
-                        {sidebarLinks.map(({ to, icon: Icon, label, end }) => (
-                            <NavLink
-                                key={to}
-                                to={to}
-                                end={end}
-                                className={({ isActive }) =>
-                                    `flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-200 ${isActive
-                                        ? 'bg-[#34d99a]/10 text-[#34d99a]'
-                                        : 'text-[#8b8fa3] hover:bg-white/5 hover:text-[#e0e0e8]'
-                                    }`
-                                }
-                            >
-                                <Icon size={16} />
-                                {label}
-                            </NavLink>
-                        ))}
+                        {sidebarLinks.map((link, idx) => {
+                            if (link.type === 'label') {
+                                return (
+                                    <div key={`label-${idx}`} className="px-3 pb-1 pt-4 text-[10px] font-bold uppercase tracking-widest text-[#4a4e5e]">
+                                        {link.label}
+                                    </div>
+                                );
+                            }
+                            
+                            const { to, icon: Icon, label, end } = link;
+                            return (
+                                <NavLink
+                                    key={to}
+                                    to={to}
+                                    end={end}
+                                    className={({ isActive }) =>
+                                        `flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-200 ${isActive
+                                            ? 'bg-[#34d99a]/10 text-[#34d99a]'
+                                            : 'text-[#8b8fa3] hover:bg-white/5 hover:text-[#e0e0e8]'
+                                        }`
+                                    }
+                                >
+                                    <Icon size={16} />
+                                    {label}
+                                </NavLink>
+                            );
+                        })}
                     </div>
                 </nav>
 
@@ -76,7 +119,7 @@ export default function AdminLayout() {
                         Back to Site
                     </a>
                     <button
-                        onClick={logout}
+                        onClick={onLogout}
                         className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm text-red-400 hover:bg-red-500/10 transition-colors"
                     >
                         <LogOut size={16} />
@@ -90,7 +133,7 @@ export default function AdminLayout() {
                 {/* Top bar */}
                 <header className="sticky top-0 z-20 flex h-14 items-center justify-between border-b border-[#1e2028] bg-[#0a0b0f]/80 backdrop-blur-xl px-6">
                     <p className="text-xs text-[#6b6f80]">
-                        Logged in as <span className="font-semibold text-[#34d99a]">{admin?.username || 'Unknown'}</span>
+                        Logged in as <span className="font-semibold text-[#34d99a]">{admin?.full_name || admin?.email || 'Admin'}</span>
                     </p>
                 </header>
 
@@ -101,4 +144,8 @@ export default function AdminLayout() {
             </main>
         </div>
     );
+}
+
+export default function AdminLayout() {
+    return IS_CLERK_CONFIGURED ? <ClerkAdminLayout /> : <FallbackAdminLayout />;
 }

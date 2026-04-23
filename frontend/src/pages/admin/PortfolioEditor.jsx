@@ -8,14 +8,24 @@ const emptyProject = {
     title: '',
     category: '',
     description: '',
-    tags: [],
-    gradient: 'from-mint/25 via-jade/10 to-emerald/20',
-    featured: false,
-    demoUrl: '',
-    githubUrl: '',
+    tech_stack: [],
+    image_url: '',
+    is_featured: false,
+    live_url: '',
+    github_url: '',
 };
 
-const CATEGORY_OPTIONS = ['Full-Stack Platform', 'Business Website', 'AI Web Application', 'Healthcare Platform', 'SaaS Platform', 'Mobile App', 'Dashboard', 'Other'];
+const CATEGORY_OPTIONS = [
+    'MVP Development',
+    'Business Website',
+    'AI Web App',
+    'Admin Dashboard',
+    'SaaS Platform',
+    'API & Backend',
+    'Mobile App',
+    'E-Commerce',
+    'Other'
+];
 
 const createId = () => (typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : `project-${Date.now()}-${Math.random().toString(16).slice(2)}`);
 
@@ -24,7 +34,10 @@ function normalizeProject(item = {}) {
         id: item.id || createId(),
         ...emptyProject,
         ...item,
-        tags: Array.isArray(item.tags) ? item.tags : [],
+        tech_stack: Array.isArray(item.tech_stack) ? item.tech_stack : (Array.isArray(item.tags) ? item.tags : []),
+        is_featured: item.is_featured ?? item.featured ?? false,
+        live_url: item.live_url || item.demoUrl || '',
+        github_url: item.github_url || item.githubUrl || '',
     };
 }
 
@@ -59,8 +72,9 @@ export default function PortfolioEditor() {
             if (savedTimeoutRef.current) {
                 clearTimeout(savedTimeoutRef.current);
             }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
         };
-    }, [defaults]);
+    }, []);
 
     const update = (idx, field, value) => {
         setItems((prev) => prev.map((item, i) => i === idx ? { ...item, [field]: value } : item));
@@ -69,7 +83,7 @@ export default function PortfolioEditor() {
 
     const updateTags = (idx, value) => {
         const tags = value.split(',').map((t) => t.trim()).filter(Boolean);
-        update(idx, 'tags', tags);
+        update(idx, 'tech_stack', tags);
     };
 
     const addItem = () => setItems((prev) => [...prev, normalizeProject()]);
@@ -128,7 +142,7 @@ export default function PortfolioEditor() {
                         <div className="mb-4 flex items-center justify-between">
                             <div className="flex items-center gap-3">
                                 <span className="text-xs font-bold text-[#34d99a]">#{idx + 1}</span>
-                                {item.featured && (
+                                {item.is_featured && (
                                     <span className="flex items-center gap-1 rounded-full bg-[#34d99a]/10 px-2 py-0.5 text-[10px] font-semibold text-[#34d99a]">
                                         <Star size={10} /> Featured
                                     </span>
@@ -154,28 +168,32 @@ export default function PortfolioEditor() {
                                 <textarea id={`description-${item.id}`} value={item.description} onChange={(e) => update(idx, 'description', e.target.value)} rows={2} className="admin-input resize-none" placeholder="Project description" />
                             </div>
                             <div>
-                                <label htmlFor={`tags-${item.id}`} className="admin-label">Tags (comma-separated)</label>
-                                <input id={`tags-${item.id}`} type="text" value={(item.tags || []).join(', ')} onChange={(e) => updateTags(idx, e.target.value)} className="admin-input" placeholder="React, Node.js, PostgreSQL" />
+                                <label htmlFor={`tech_stack-${item.id}`} className="admin-label">Tech Stack (comma-separated)</label>
+                                <input id={`tech_stack-${item.id}`} type="text" value={(item.tech_stack || []).join(', ')} onChange={(e) => updateTags(idx, e.target.value)} className="admin-input" placeholder="React, Node.js, PostgreSQL" />
+                            </div>
+                            <div>
+                                <label htmlFor={`image_url-${item.id}`} className="admin-label">Image URL</label>
+                                <input id={`image_url-${item.id}`} type="text" value={item.image_url || ''} onChange={(e) => update(idx, 'image_url', e.target.value)} className="admin-input" placeholder="/images/project.png or https://..." />
                             </div>
                             <div className="flex items-end gap-4">
-                                <label className="flex items-center gap-2 cursor-pointer" htmlFor={`featured-${item.id}`}>
+                                <label className="flex items-center gap-2 cursor-pointer" htmlFor={`is_featured-${item.id}`}>
                                     <input
-                                        id={`featured-${item.id}`}
+                                        id={`is_featured-${item.id}`}
                                         type="checkbox"
-                                        checked={item.featured || false}
-                                        onChange={(e) => update(idx, 'featured', e.target.checked)}
+                                        checked={item.is_featured || false}
+                                        onChange={(e) => update(idx, 'is_featured', e.target.checked)}
                                         className="h-4 w-4 rounded border-[#1e2028] bg-[#16171e] accent-[#34d99a]"
                                     />
                                     <span className="text-sm text-[#e0e0e8]">Featured Project</span>
                                 </label>
                             </div>
                             <div>
-                                <label htmlFor={`demoUrl-${item.id}`} className="admin-label">Demo URL</label>
-                                <input id={`demoUrl-${item.id}`} type="url" value={item.demoUrl || ''} onChange={(e) => update(idx, 'demoUrl', e.target.value)} className="admin-input" placeholder="https://..." />
+                                <label htmlFor={`live_url-${item.id}`} className="admin-label">Live URL</label>
+                                <input id={`live_url-${item.id}`} type="url" value={item.live_url || ''} onChange={(e) => update(idx, 'live_url', e.target.value)} className="admin-input" placeholder="https://..." />
                             </div>
                             <div>
-                                <label htmlFor={`githubUrl-${item.id}`} className="admin-label">GitHub URL</label>
-                                <input id={`githubUrl-${item.id}`} type="url" value={item.githubUrl || ''} onChange={(e) => update(idx, 'githubUrl', e.target.value)} className="admin-input" placeholder="https://github.com/..." />
+                                <label htmlFor={`github_url-${item.id}`} className="admin-label">GitHub URL</label>
+                                <input id={`github_url-${item.id}`} type="url" value={item.github_url || ''} onChange={(e) => update(idx, 'github_url', e.target.value)} className="admin-input" placeholder="https://github.com/..." />
                             </div>
                         </div>
                     </div>

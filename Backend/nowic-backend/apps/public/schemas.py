@@ -53,6 +53,7 @@ class ContactIn(Schema):
     phone: Optional[str] = None
     budget: Optional[str] = None
     service_slug: Optional[str] = None
+    website: Optional[str] = None  # Honeypot field
 
 
 class ContactOut(Schema):

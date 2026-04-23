@@ -15,7 +15,7 @@ from django.utils import timezone
 from ninja import Query, Router, Schema
 
 from apps.crm.models import Lead, Project
-from apps.crm.schemas import LeadIn, LeadOut, LeadUpdate, ProjectOut, ProjectStatusUpdate
+from apps.crm.schemas import LeadIn, LeadOut, LeadUpdate, ProjectIn, ProjectOut, ProjectStatusUpdate
 from apps.public.models import ContactSubmission
 from apps.public.schemas import ContactAdminOut
 from apps.notifications.utils import notify_all_admins
@@ -264,6 +264,41 @@ def list_projects(
     if status:
         projects = projects.filter(status=status)
     return paginate(projects, page=page, page_size=page_size, serializer=lambda p: ProjectOut.from_orm(p).dict())
+
+
+@router.post('/projects/')
+def create_project(request: HttpRequest, payload: ProjectIn) -> dict:
+    """Create a new project from the admin panel."""
+    admin = _admin(request)
+
+    project = Project.objects.create(
+        name=sanitize_string(payload.name),
+        deadline=payload.deadline,
+        cost=payload.cost,
+        progress=max(0, min(100, payload.progress or 0)),
+        status=payload.status or 'planning',
+    )
+
+    notify_all_admins(
+        'project_created',
+        'New Project Created',
+        f'Project "{project.name}" added to CRM',
+        {'project_id': project.id},
+    )
+
+    log_action(
+        actor_clerk_id=admin.clerk_user_id,
+        actor_email=admin.email,
+        action=AuditAction.PROJECT_UPDATED,
+        resource_type='project',
+        resource_id=project.id,
+        old_value=None,
+        new_value=ProjectOut.from_orm(project).model_dump(mode='json'),
+        ip=request.META.get('REMOTE_ADDR'),
+        user_agent=request.META.get('HTTP_USER_AGENT', ''),
+    )
+
+    return {'success': True, 'data': ProjectOut.from_orm(project).dict()}
 
 
 @router.patch('/projects/{project_id}/')

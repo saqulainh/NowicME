@@ -26,6 +26,18 @@ function attachIcons(items, iconField = 'icon') {
     }));
 }
 
+function normalizeServices(items) {
+    if (!Array.isArray(items)) return items;
+    return items.map((item) => ({
+        ...item,
+        name: item.name || item.title || '',
+        tagline: item.tagline || item.headline || '',
+        icon_name: item.icon_name || item.icon || 'Rocket',
+        price_starting: item.price_starting ?? item.startingPrice ?? null,
+        delivery_days: item.delivery_days ?? item.deliveryTime ?? null,
+    }));
+}
+
 export function ContentProvider({ children }) {
     const [content, setContent] = useState({});
     const [loading, setLoading] = useState(true);
@@ -40,7 +52,10 @@ export function ContentProvider({ children }) {
                 rows.forEach((row) => {
                     if (row.section && row.data !== undefined) {
                         let val = row.data;
-                        if (['services', 'stats', 'highlights', 'whyUs'].includes(row.section)) {
+                        if (row.section === 'services') {
+                            val = normalizeServices(val);
+                            val = attachIcons(val, 'icon');
+                        } else if (['stats', 'highlights', 'whyUs'].includes(row.section)) {
                             val = attachIcons(val);
                         }
                         merged[row.section] = val;

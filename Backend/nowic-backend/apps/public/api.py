@@ -128,6 +128,17 @@ def get_portfolio_project(request: HttpRequest, slug: str):
 
 
 # ─── Contact Form ─────────────────────────────────────────────────────────────
+@router.get("/contact/choices/", auth=None)
+def list_contact_choices(request: HttpRequest):
+    """Expose fixed taxonomy for project types and budget options."""
+    return {
+        "success": True,
+        "data": {
+            "project_types": [{"label": display, "value": key} for key, display in ContactSubmission.PROJECT_TYPE_CHOICES],
+            "budget_options": [{"label": display, "value": key} for key, display in ContactSubmission.BUDGET_CHOICES]
+        }
+    }
+
 
 @router.post("/contact/", auth=None)
 def submit_contact(request: HttpRequest, payload: ContactIn):
@@ -141,7 +152,11 @@ def submit_contact(request: HttpRequest, payload: ContactIn):
     4. Send confirmation email to client
     5. Send notification email to admin
     """
-    # 1. Rate limiting
+    # 1. Rate limiting & Honeypot
+    if payload.website:
+        logger.warning("Honeypot triggered from IP: %s", get_client_ip(request))
+        return 400, {"success": False, "message": "Spam detected"}
+
     ip = get_client_ip(request)
     rl = contact_limiter.check(ip)
     if not rl["allowed"]:
@@ -163,8 +178,8 @@ def submit_contact(request: HttpRequest, payload: ContactIn):
             is_active=True,
         ).only('id').first()
 
-    # 2. Save submission
-    submission = ContactSubmission.objects.create(
+    # 2. Save submission with validation
+    submission = ContactSubmission(
         name=name,
         email=email,
         project_type=project_type,
@@ -174,6 +189,13 @@ def submit_contact(request: HttpRequest, payload: ContactIn):
         service_interest=service_obj,
         ip_address=ip,
     )
+    
+    try:
+        submission.full_clean()
+        submission.save()
+    except DjangoValidationError as exc:
+        logger.error("Contact validation failed: %s", exc)
+        return 422, {"success": False, "message": "Invalid form data", "errors": exc.message_dict}
 
     # 3. Create CRM lead (import here to avoid circular)
     try:

@@ -66,6 +66,14 @@ class ProjectStatusUpdate(Schema):
     status: Optional[str] = None
 
 
+class ProjectIn(Schema):
+    name: str
+    deadline: date
+    cost: Decimal
+    progress: Optional[int] = 0
+    status: Optional[str] = 'planning'
+
+
 # ─── CRM Stats ───────────────────────────────────────────────────────────────
 
 class LeadsByStatus(Schema):

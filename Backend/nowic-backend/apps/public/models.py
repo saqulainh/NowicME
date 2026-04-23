@@ -34,11 +34,15 @@ class ServiceOffering(models.Model):
 
 class PortfolioProject(models.Model):
     CATEGORY_CHOICES = [
-        ('ai', 'AI'),
-        ('saas', 'SaaS'),
+        ('mvp', 'MVP Development'),
+        ('website', 'Business Website'),
+        ('ai_app', 'AI Web App'),
+        ('dashboard', 'Admin Dashboard'),
+        ('saas', 'SaaS Platform'),
+        ('api', 'API & Backend'),
+        ('mobile', 'Mobile App'),
         ('ecommerce', 'E-Commerce'),
-        ('web', 'Web'),
-        ('mobile', 'Mobile'),
+        ('other', 'Other'),
     ]
 
     title = models.CharField(max_length=200)
@@ -98,6 +102,16 @@ class ContactSubmission(models.Model):
         ('high', 'High'),
     ]
 
+    PROJECT_TYPE_CHOICES = [
+        ('mvp_development', 'MVP Development'),
+        ('business_website', 'Business Website'),
+        ('ai_web_app', 'AI Web App'),
+        ('admin_dashboard', 'Admin Dashboard'),
+        ('saas_platform', 'SaaS Platform'),
+        ('api_backend', 'API / Backend'),
+        ('other', 'Other'),
+    ]
+
     BUDGET_CHOICES = [
         ('under_50k', 'Under ₹50K'),
         ('50k_2lac', '₹50K–2L'),
@@ -114,10 +128,15 @@ class ContactSubmission(models.Model):
         blank=True,
         related_name='contact_submissions',
     )
-    project_type = models.CharField(max_length=100, blank=True)
+    project_type = models.CharField(
+        max_length=100, 
+        choices=PROJECT_TYPE_CHOICES,
+        default='other',
+        blank=True
+    )
     message = models.TextField()
     phone = models.CharField(max_length=20, blank=True)
-    budget = models.CharField(max_length=20, choices=BUDGET_CHOICES, blank=True)
+    budget = models.CharField(max_length=100, choices=BUDGET_CHOICES, blank=True)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='new')
     priority = models.CharField(max_length=20, choices=PRIORITY_CHOICES, default='medium')
     replied_at = models.DateTimeField(null=True, blank=True)
@@ -133,6 +152,7 @@ class ContactSubmission(models.Model):
             models.Index(fields=['status']),
             models.Index(fields=['priority']),
             models.Index(fields=['submitted_at']),
+            models.Index(fields=['project_type']),
         ]
 
     def __str__(self):

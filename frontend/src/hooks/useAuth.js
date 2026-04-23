@@ -8,12 +8,13 @@ export function useAuth() {
 
   if (!isClerkConfigured) {
     return {
-      isSignedIn: false,
+      isSignedIn: true,   // treat as signed-in for dev flow
       isLoaded: true,
-      user: null,
-      getApiToken: async () => null,
-      userEmail: undefined,
-      userName: undefined,
+      user: { fullName: 'Dev Admin', primaryEmailAddress: { emailAddress: 'dev@local' } },
+      getApiToken: async () => 'dev_token',
+      userEmail: 'dev@local',
+      userName: 'Dev Admin',
+      isClerkConfigured: false,
     };
   }
 

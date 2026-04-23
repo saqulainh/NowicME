@@ -98,8 +98,9 @@ export default function AboutEditor() {
             if (timeoutRef.current) {
                 clearTimeout(timeoutRef.current);
             }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
         };
-    }, [defaultWhyUs, defaultValues]);
+    }, []);
 
     function normalizeArray(result, fallback, normalizer) {
         if (result.status === 'fulfilled' && result.value) {

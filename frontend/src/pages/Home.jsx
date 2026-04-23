@@ -14,9 +14,9 @@ import MaskText from '../components/reveal/MaskText';
 import BoutiqueReveal from '../components/reveal/BoutiqueReveal';
 import LoadingSpinner from '../components/LoadingSpinner';
 import ErrorMessage from '../components/ErrorMessage';
-import { useApi } from '../hooks/useApi';
-import { api, BASE_URL } from '../lib/api';
-import { brand } from '../data/content';
+import { useContent } from '../context/ContentContext';
+import { BASE_URL } from '../lib/api';
+import { brand, services as fallbackServices } from '../data/content';
 
 /* ── Counter hook ── */
 function useCountUp(target, duration = 1.4) {
@@ -58,6 +58,27 @@ function resolveImageUrl(imageUrl) {
   return `${BASE_URL}${imageUrl.startsWith('/') ? imageUrl : `/${imageUrl}`}`;
 }
 
+function toSlug(value) {
+  return String(value || '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/(^-|-$)/g, '');
+}
+
+function mapFallbackService(service, index) {
+  return {
+    name: service.title,
+    slug: toSlug(service.title || `service-${index + 1}`),
+    tagline: service.headline || service.title,
+    description: service.description,
+    features: Array.isArray(service.features) ? service.features : [],
+    icon_name: service.icon?.name || 'Code2',
+    price_starting: null,
+    delivery_days: null,
+    order: index + 1,
+  };
+}
+
 function StatCard({ item, index, loading }) {
   const ref = useCountUp(item.value);
   const Icon = item.icon;
@@ -75,9 +96,15 @@ function StatCard({ item, index, loading }) {
 }
 
 export default function Home() {
-  const { data: stats, loading: statsLoading } = useApi(() => api.getStats());
-  const { data: services, loading: servicesLoading, error: servicesError } = useApi(() => api.getServices());
-  const { data: portfolioItems, loading: portfolioLoading, error: portfolioError } = useApi(() => api.getPortfolio());
+  const { content, loading } = useContent();
+  const stats = content?.stats || {};
+  const services = content?.services || [];
+  const portfolioItems = content?.portfolioItems || content?.portfolio || [];
+  const statsLoading = loading;
+  const servicesLoading = loading;
+  const servicesError = null;
+  const portfolioLoading = loading;
+  const portfolioError = null;
 
   const statCards = [
     { icon: Icons.Star, label: 'Projects Delivered', value: `${stats?.projects_delivered ?? 0}` },
@@ -95,7 +122,8 @@ export default function Home() {
     { title: 'Architecture That Scales', desc: 'We build for today and tomorrow — clean code that grows with your business.', icon: Icons.Layers },
   ];
 
-  const visibleServices = Array.isArray(services) ? [...services].sort((a, b) => (a.order ?? 0) - (b.order ?? 0)) : [];
+  const apiServices = Array.isArray(services) ? [...services].sort((a, b) => (a.order ?? 0) - (b.order ?? 0)) : [];
+  const visibleServices = apiServices.length ? apiServices : fallbackServices.map(mapFallbackService);
   const featuredProjects = Array.isArray(portfolioItems) ? [...portfolioItems].sort((a, b) => (a.order ?? 0) - (b.order ?? 0)).slice(0, 4) : [];
 
   return (
@@ -400,7 +428,7 @@ export default function Home() {
               </p>
               <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
                 <Link to="/contact" className="cta-btn px-8 py-3.5">
-                  Book a Free Discovery Call <ArrowRight size={15} className="ml-2" />
+                  Start a Conversation <ArrowRight size={15} className="ml-2" />
                 </Link>
                 <Link to="/portfolio" className="outline-btn">See Our Work</Link>
               </div>

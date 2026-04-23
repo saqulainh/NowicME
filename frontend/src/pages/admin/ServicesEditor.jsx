@@ -13,6 +13,8 @@ const emptyService = {
     headline: '',
     description: '',
     features: ['', '', ''],
+    price_starting: '',
+    delivery_days: '',
     color: 'rgba(52,232,161,0.15)',
 };
 
@@ -55,8 +57,9 @@ export default function ServicesEditor() {
             if (timeoutRef.current) {
                 clearTimeout(timeoutRef.current);
             }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
         };
-    }, [defaultServices]);
+    }, []);
 
     const update = (idx, field, value) => {
         setItems((prev) => prev.map((item, i) => i === idx ? { ...item, [field]: value } : item));
@@ -160,6 +163,14 @@ export default function ServicesEditor() {
                             <div className="sm:col-span-2">
                                 <label className="admin-label">Description</label>
                                 <textarea value={item.description} onChange={(e) => update(idx, 'description', e.target.value)} rows={2} className="admin-input resize-none" placeholder="Service description" />
+                            </div>
+                            <div>
+                                <label className="admin-label">Starting Price (₹)</label>
+                                <input type="number" value={item.price_starting || ''} onChange={(e) => update(idx, 'price_starting', e.target.value)} className="admin-input" placeholder="e.g. 49999" />
+                            </div>
+                            <div>
+                                <label className="admin-label">Delivery Days</label>
+                                <input type="number" value={item.delivery_days || ''} onChange={(e) => update(idx, 'delivery_days', e.target.value)} className="admin-input" placeholder="e.g. 7" />
                             </div>
                         </div>
 

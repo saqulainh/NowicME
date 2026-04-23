@@ -88,9 +88,6 @@ export default function Navbar() {
 
         {/* CTA + Menu */}
         <div className="flex items-center gap-3">
-          <Link to="/booking" className="outline-btn hidden md:inline-flex">
-            Book a Call
-          </Link>
           <AuthButtons />
 
           <Link to="/contact" className="cta-btn hidden md:inline-flex">
@@ -133,9 +130,6 @@ export default function Navbar() {
                   {item.label}
                 </NavLink>
               ))}
-              <Link to="/booking" className="outline-btn mt-2 text-center">
-                Book a Call
-              </Link>
               <Link to="/contact" className="cta-btn mt-2 text-center">
                 Start a Project
               </Link>

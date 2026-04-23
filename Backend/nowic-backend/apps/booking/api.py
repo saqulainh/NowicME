@@ -133,13 +133,15 @@ def book_appointment(request: HttpRequest, payload: AppointmentIn) -> dict:
     # 4. Create appointment
     try:
         with transaction.atomic():
-            appointment = Appointment.objects.create(
-                clerk_user_id=clerk_user_id,
-                service=service,
-                date=payload.date,
-                time_slot=payload.time_slot,
-                status="confirmed",
-            )
+                appointment = Appointment.objects.create(
+                    clerk_user_id=clerk_user_id,
+                    service=service,
+                    date=payload.date,
+                    time_slot=payload.time_slot,
+                    email=payload.email,
+                    phone=payload.phone,
+                    status="confirmed",
+                )
     except IntegrityError:
         raise ConflictError("This time slot is already booked. Please choose another.")
 
