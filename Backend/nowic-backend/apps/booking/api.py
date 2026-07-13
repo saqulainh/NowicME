@@ -141,7 +141,8 @@ def book_appointment(request: HttpRequest, payload: AppointmentIn) -> dict:
                 email=payload.email,
                 phone=payload.phone,
                 status="confirmed",
-            )    except IntegrityError:
+            )
+    except IntegrityError:
         raise ConflictError("This time slot is already booked. Please choose another.")
 
     # 5. Send confirmation email (best-effort)

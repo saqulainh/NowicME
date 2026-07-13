@@ -11,7 +11,7 @@
 - [x] Run a quick sanity check for build/runtime issues
 
 ## Services performance/image fixes
-- [ ] Improve image URL resolution with local fallbacks
-- [ ] Add lazy loading + async decode + onError fallback for service images
-- [ ] Keep API/fallback service mapping compatible
-- [ ] Run sanity build after services changes
+- [x] Improve image URL resolution with local fallbacks
+- [x] Add lazy loading + async decode + onError fallback for service images
+- [x] Keep API/fallback service mapping compatible
+- [x] Run sanity build after services changes

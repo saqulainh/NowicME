@@ -1,8 +1,9 @@
 import { useState, useEffect, useRef } from 'react';
-import { Save, CheckCircle2, Plus, Trash2, GripVertical } from 'lucide-react';
+import { Save, CheckCircle2, Plus, Trash2, GripVertical, Image, Upload } from 'lucide-react';
 import { useContent } from '../../context/ContentContext';
 import { useAuth } from '../../hooks/useAuth';
 import { saveSection, fetchSection } from '../../lib/cms';
+import { api } from '../../lib/api';
 
 const ICON_OPTIONS = ['Rocket', 'Building2', 'Bot', 'LayoutDashboard', 'Globe', 'Code2', 'Cpu', 'Layers', 'Sparkles', 'Zap', 'Trophy', 'Users', 'Star', 'ShieldCheck', 'Gauge'];
 
@@ -15,6 +16,7 @@ const emptyService = {
     features: ['', '', ''],
     price_starting: '',
     delivery_days: '',
+    image_url: '',
     color: 'rgba(52,232,161,0.15)',
 };
 
@@ -27,7 +29,9 @@ export default function ServicesEditor() {
     const [items, setItems] = useState([]);
     const [saving, setSaving] = useState(false);
     const [saved, setSaved] = useState(false);
+    const [uploading, setUploading] = useState({});
     const timeoutRef = useRef(null);
+    const fileInputRefs = useRef({});
 
     useEffect(() => {
         let mounted = true;
@@ -95,6 +99,24 @@ export default function ServicesEditor() {
         if (!confirm('Delete this service?')) return;
         setItems((prev) => prev.filter((_, i) => i !== idx));
         setSaved(false);
+    };
+
+    const handleImageUpload = async (idx, file) => {
+        if (!file) return;
+        setUploading((prev) => ({ ...prev, [idx]: true }));
+        try {
+            const token = await getApiToken();
+            const result = await api.admin_uploadMedia(token, file, 'services');
+            if (result.success && result.data?.url) {
+                update(idx, 'image_url', result.data.url);
+            } else {
+                alert(result.error || 'Upload failed');
+            }
+        } catch (err) {
+            alert('Image upload failed: ' + err.message);
+        } finally {
+            setUploading((prev) => ({ ...prev, [idx]: false }));
+        }
     };
 
     const handleSave = async () => {
@@ -173,6 +195,65 @@ export default function ServicesEditor() {
                                 <input type="number" value={item.delivery_days || ''} onChange={(e) => update(idx, 'delivery_days', e.target.value)} className="admin-input" placeholder="e.g. 7" />
                             </div>
                         </div>
+
+                        {/* Image */}
+                        <div className="mt-4">
+                            <label className="admin-label flex items-center gap-1.5"><Image size={13} /> Image</label>
+                            <div className="mt-1 flex flex-col gap-3 sm:flex-row sm:items-start">
+                                {/* Preview */}
+                                {item.image_url ? (
+                                    <div className="relative h-24 w-36 shrink-0 overflow-hidden rounded-lg border border-[#1e2028] bg-[#15161b]">
+                                        <img
+                                            src={item.image_url}
+                                            alt={item.title || 'Service'}
+                                            className="h-full w-full object-cover"
+                                            onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                                        />
+                                        <button
+                                            type="button"
+                                            onClick={() => update(idx, 'image_url', '')}
+                                            className="absolute right-1 top-1 rounded-full bg-black/60 p-1 text-red-400 hover:text-red-300 transition-colors"
+                                            title="Remove image"
+                                        >
+                                            <Trash2 size={10} />
+                                        </button>
+                                    </div>
+                                ) : (
+                                    <div className="flex h-24 w-36 shrink-0 items-center justify-center rounded-lg border border-dashed border-[#2a2c36] bg-[#15161b] text-[#4a4e5e]">
+                                        <Image size={24} />
+                                    </div>
+                                )}
+                                <div className="flex flex-1 flex-col gap-2">
+                                    <input
+                                        type="text"
+                                        value={item.image_url || ''}
+                                        onChange={(e) => update(idx, 'image_url', e.target.value)}
+                                        className="admin-input"
+                                        placeholder="Paste image URL or upload below"
+                                    />
+                                    <input
+                                        ref={(el) => { fileInputRefs.current[idx] = el; }}
+                                        type="file"
+                                        accept="image/*"
+                                        className="hidden"
+                                        onChange={(e) => {
+                                            handleImageUpload(idx, e.target.files?.[0]);
+                                            e.target.value = '';
+                                        }}
+                                    />
+                                    <button
+                                        type="button"
+                                        onClick={() => fileInputRefs.current[idx]?.click()}
+                                        disabled={uploading[idx]}
+                                        className="inline-flex w-fit items-center gap-1.5 rounded-lg border border-[#1e2028] bg-[#15161b] px-3 py-1.5 text-xs font-medium text-[#a0a3b1] transition-colors hover:border-[#34d99a]/40 hover:text-[#34d99a] disabled:opacity-50"
+                                    >
+                                        <Upload size={12} />
+                                        {uploading[idx] ? 'Uploading...' : 'Upload Image'}
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
 
                         {/* Features */}
                         <div className="mt-4">

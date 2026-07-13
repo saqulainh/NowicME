@@ -10,7 +10,11 @@ from typing import Optional
 from django.db.models import F, Q, Sum
 from django.http import HttpRequest
 from django.utils import timezone
-from ninja import Query, Router, Schema
+import uuid
+
+from django.core.files.storage import default_storage
+from ninja import File, Query, Router, Schema
+from ninja.files import UploadedFile
 
 from apps.booking.models import Appointment
 from apps.client.models import Invoice, ProjectClientAssignment, ProjectFile, ProjectUpdate
@@ -138,6 +142,37 @@ def upsert_site_content(request: HttpRequest, section: str, payload: SiteContent
     return {
         'success': True,
         'data': SiteContentOut.from_orm(row).dict(),
+    }
+
+
+ALLOWED_IMAGE_TYPES = {'image/jpeg', 'image/png', 'image/webp', 'image/gif', 'image/svg+xml'}
+MAX_IMAGE_SIZE = 5 * 1024 * 1024  # 5 MB
+
+
+@router.post('/upload/media/')
+def upload_media(request: HttpRequest, file: UploadedFile = File(...), folder: str = 'services'):
+    """Upload an image file to cloud storage and return the URL."""
+    _admin(request)
+
+    if file.content_type not in ALLOWED_IMAGE_TYPES:
+        return {'success': False, 'error': 'Only image files (JPEG, PNG, WebP, GIF, SVG) are allowed.'}
+
+    if file.size > MAX_IMAGE_SIZE:
+        return {'success': False, 'error': 'File size must be under 5 MB.'}
+
+    ext = file.name.rsplit('.', 1)[-1].lower() if '.' in file.name else 'jpg'
+    safe_folder = folder.strip('/').replace('..', '').replace('\\', '') or 'services'
+    filename = f'{safe_folder}/{uuid.uuid4().hex[:12]}.{ext}'
+
+    saved_path = default_storage.save(filename, file)
+    url = default_storage.url(saved_path)
+
+    return {
+        'success': True,
+        'data': {
+            'url': url,
+            'filename': saved_path,
+        },
     }
 
 

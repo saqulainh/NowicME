@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom';
+ import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import * as Icons from 'lucide-react';
 import { ArrowRight, CheckCircle2 } from 'lucide-react';

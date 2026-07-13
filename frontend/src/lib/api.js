@@ -128,6 +128,22 @@ export const api = {
     const query = new URLSearchParams(params).toString();
     return authApiCall(`/api/v1/admin/invoices/${query ? `?${query}` : ''}`, token);
   },
+  // Media Upload
+  admin_uploadMedia: async (token, file, folder = 'services') => {
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('folder', folder);
+    const response = await fetch(buildUrl('/api/v1/admin/upload/media/'), {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${token}` },
+      body: formData,
+    });
+    const data = await parseResponse(response);
+    if (!response.ok) {
+      throw new ApiError(data?.error || data?.message || 'Upload failed', data, response.status);
+    }
+    return data;
+  },
 };
 
 export { BASE_URL };
