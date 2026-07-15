@@ -11,6 +11,7 @@ function buildUrl(endpoint) {
 export function resolveImageUrl(imageUrl) {
   if (!imageUrl) return '';
   if (/^https?:\/\//i.test(imageUrl)) return imageUrl;
+  if (imageUrl.startsWith('/media/')) return imageUrl;
   return `${BASE_URL}${imageUrl.startsWith('/') ? imageUrl : `/${imageUrl}`}`;
 }
 

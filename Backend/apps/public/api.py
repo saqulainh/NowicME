@@ -326,8 +326,21 @@ def convert_paths_endpoint(request):
             if item.startswith('/media/'):
                 relative_path = item.replace('/media/', '')
                 try:
+                    from django.conf import settings
+                    if hasattr(settings, 'CLOUDINARY_STORAGE') and settings.CLOUDINARY_STORAGE.get('CLOUD_NAME'):
+                        import cloudinary
+                        import cloudinary.utils
+                        cloudinary.config(
+                            cloud_name=settings.CLOUDINARY_STORAGE.get('CLOUD_NAME'),
+                            api_key=settings.CLOUDINARY_STORAGE.get('API_KEY'),
+                            api_secret=settings.CLOUDINARY_STORAGE.get('API_SECRET')
+                        )
+                        # Generates the cloudinary URL (url, options)
+                        url, _ = cloudinary.utils.cloudinary_url(relative_path)
+                        return url
                     return default_storage.url(relative_path)
-                except Exception:
+                except Exception as e:
+                    logger.error(f"Failed to convert path {item}: {e}")
                     return item
             return item
         return item

@@ -28,14 +28,14 @@ export default function BrandTitle({ className = '' }) {
 
   return (
     <motion.div 
-      className={`flex items-baseline gap-2 md:gap-4 ${className}`}
+      className={`flex flex-wrap justify-center items-baseline gap-2 md:gap-4 ${className}`}
       variants={containerVars}
       initial="hidden"
       animate="show"
       style={{ fontFamily: "'Outfit', sans-serif" }}
     >
       {/* NOWIC: Bold, tight letter spacing */}
-      <div className="flex font-black tracking-tighter text-[3.5rem] sm:text-[5rem] md:text-[6.5rem] leading-[0.85] text-white" aria-label="NOWIC">
+      <div className="flex font-black tracking-tighter text-[2.75rem] sm:text-[4rem] md:text-[6.5rem] leading-[0.85] text-white" aria-label="NOWIC">
         {nowic.map((char, i) => (
           <span key={`n-${i}`} className="inline-block overflow-hidden pb-1" aria-hidden="true">
             <motion.span 
@@ -51,7 +51,7 @@ export default function BrandTitle({ className = '' }) {
       </div>
 
       {/* STUDIO: Light/Thin, slightly looser spacing, premium gradient */}
-      <div className="flex font-light tracking-wide text-[3.5rem] sm:text-[5rem] md:text-[6.5rem] leading-[0.85] text-transparent bg-clip-text bg-gradient-to-br from-[#bddfbc] via-[#a7cfaa] to-[#8cb88f]" aria-label="STUDIO">
+      <div className="flex font-light tracking-wide text-[2.75rem] sm:text-[4rem] md:text-[6.5rem] leading-[0.85] text-transparent bg-clip-text bg-gradient-to-br from-[#bddfbc] via-[#a7cfaa] to-[#8cb88f]" aria-label="STUDIO">
         {studio.map((char, i) => (
           <span key={`s-${i}`} className="inline-block overflow-hidden pb-1" aria-hidden="true">
             <motion.span 

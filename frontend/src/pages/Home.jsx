@@ -228,7 +228,7 @@ export default function Home() {
       </section>
 
       {/* ═══ SERVICES ═══ */}
-      <section className="container-shell py-24 relative">
+      <section className="relative overflow-hidden py-24">
         {/* Layered spotlights — medium mint for glass refraction */}
         <div className="pointer-events-none absolute -top-20 left-[5%] h-80 w-80 rounded-full bg-mint/[0.12] blur-[100px] z-0" />
         <div className="pointer-events-none absolute top-1/2 right-[8%] h-64 w-64 rounded-full bg-white/[0.05] blur-[80px] z-0" />
@@ -241,7 +241,7 @@ export default function Home() {
           { variant: 'github', bottom: '10%', left: '0%', width: '340px', opacity: 0.2, delay: 1.5 }
         ]} parallaxStrength={0.01} />
 
-        <div className="relative z-10">
+        <div className="container-shell relative z-10">
           <SectionHeading
             eyebrow="Services"
             title="Built for speed. |Crafted for growth."
@@ -347,14 +347,14 @@ export default function Home() {
       </section>
 
       {/* ═══ FEATURED WORK ═══ */}
-      <section className="container-shell py-20 relative">
+      <section className="relative overflow-hidden py-20">
         <div className="engineering-grid" />
         <FloatingPanels panels={[
           { variant: 'mobile', top: '35%', right: '-2%', width: '220px', opacity: 0.3, delay: 1 },
           { variant: 'analytics', bottom: '15%', left: '2%', width: '300px', opacity: 0.22, delay: 2.5 }
         ]} parallaxStrength={0.015} />
 
-        <div className="relative z-10">
+        <div className="container-shell relative z-10">
           <SectionHeading
           eyebrow="Portfolio"
           title="Work that proves |capability"
@@ -516,7 +516,7 @@ export default function Home() {
       </section>
 
       {/* ═══ CTA ═══ */}
-      <section className="container-shell py-24 relative">
+      <section className="relative overflow-hidden py-24">
         {/* Soft white spotlight behind CTA */}
         <div className="pointer-events-none absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-80 w-[500px] rounded-full bg-white/[0.05] blur-[100px] z-0" />
         
@@ -535,7 +535,7 @@ export default function Home() {
               style={{ background: 'radial-gradient(ellipse at 50% 100%, rgba(189,223,188,0.06), transparent 65%)' }}
             />
 
-            <div className="relative z-10">
+            <div className="container-shell relative z-10">
               <p className="eyebrow">Let's Build</p>
               <h3 className="mt-4 font-display text-3xl font-bold text-text sm:text-[2.5rem] sm:leading-[1.15]">
                 Ready to build something{' '}
