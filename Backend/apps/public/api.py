@@ -310,3 +310,35 @@ def submit_review(request: HttpRequest, payload: ReviewIn):
             "message": "Thank you for your review! It will be visible once approved.",
         },
     }
+
+
+@router.get('/convert-paths/', auth=None)
+def convert_paths_endpoint(request):
+    from django.core.files.storage import default_storage
+    from apps.public.models import SiteContent
+    
+    def convert_item(item):
+        if isinstance(item, dict):
+            return {k: convert_item(v) for k, v in item.items()}
+        elif isinstance(item, list):
+            return [convert_item(i) for i in item]
+        elif isinstance(item, str):
+            if item.startswith('/media/'):
+                relative_path = item.replace('/media/', '')
+                try:
+                    return default_storage.url(relative_path)
+                except Exception:
+                    return item
+            return item
+        return item
+
+    updated = 0
+    for content in SiteContent.objects.all():
+        orig = content.data
+        new = convert_item(orig)
+        if new != orig:
+            content.data = new
+            content.save()
+            updated += 1
+    return {"status": "success", "updated_sections": updated}
+

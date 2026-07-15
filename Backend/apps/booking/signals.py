@@ -33,6 +33,9 @@ def sync_booking_service_on_save(sender, instance, created, **kwargs):
     Keep BookingService in sync whenever a ServiceOffering is saved.
     Uses get_or_create so re-saves are idempotent.
     """
+    if kwargs.get('raw'):
+        return
+
     from apps.booking.models import BookingService  # late import avoids circular
 
     defaults = {
