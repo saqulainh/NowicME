@@ -1,8 +1,9 @@
 import { useState, useEffect, useRef } from 'react';
-import { Save, CheckCircle2, Plus, Trash2, Star } from 'lucide-react';
+import { Save, CheckCircle2, Plus, Trash2, Star, ArrowUp, ArrowDown, Eye, ExternalLink, Github, Image, Upload } from 'lucide-react';
 import { useContent } from '../../context/ContentContext';
 import { useAuth } from '../../hooks/useAuth';
 import { saveSection, fetchSection } from '../../lib/cms';
+import { api, resolveImageUrl } from '../../lib/api';
 
 const emptyProject = {
     title: '',
@@ -48,7 +49,11 @@ export default function PortfolioEditor() {
     const [items, setItems] = useState([]);
     const [saving, setSaving] = useState(false);
     const [saved, setSaved] = useState(false);
+    const [uploading, setUploading] = useState({});
+    const [activePreviewIdx, setActivePreviewIdx] = useState(0);
+    const [error, setError] = useState('');
     const savedTimeoutRef = useRef(null);
+    const fileInputRefs = useRef({});
 
     useEffect(() => {
         let mounted = true;
@@ -72,7 +77,6 @@ export default function PortfolioEditor() {
             if (savedTimeoutRef.current) {
                 clearTimeout(savedTimeoutRef.current);
             }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
         };
     }, []);
 
@@ -86,16 +90,59 @@ export default function PortfolioEditor() {
         update(idx, 'tech_stack', tags);
     };
 
-    const addItem = () => setItems((prev) => [...prev, normalizeProject()]);
+    const addItem = () => {
+        setItems((prev) => [...prev, normalizeProject()]);
+        setActivePreviewIdx(items.length);
+        setSaved(false);
+    };
 
     const removeItem = (idx) => {
         if (!confirm('Delete this project?')) return;
         setItems((prev) => prev.filter((_, i) => i !== idx));
+        if (activePreviewIdx >= items.length - 1 && activePreviewIdx > 0) {
+            setActivePreviewIdx(activePreviewIdx - 1);
+        }
         setSaved(false);
+    };
+
+    const moveItem = (idx, direction) => {
+        const list = [...items];
+        if (direction === 'up' && idx > 0) {
+            const temp = list[idx];
+            list[idx] = list[idx - 1];
+            list[idx - 1] = temp;
+            setActivePreviewIdx(idx - 1);
+        } else if (direction === 'down' && idx < list.length - 1) {
+            const temp = list[idx];
+            list[idx] = list[idx + 1];
+            list[idx + 1] = temp;
+            setActivePreviewIdx(idx + 1);
+        }
+        setItems(list);
+        setSaved(false);
+    };
+
+    const handleImageUpload = async (idx, file) => {
+        if (!file) return;
+        setUploading((prev) => ({ ...prev, [idx]: true }));
+        try {
+            const token = await getApiToken();
+            const result = await api.admin_uploadMedia(token, file, 'portfolio');
+            if (result.success && result.data?.url) {
+                update(idx, 'image_url', result.data.url);
+            } else {
+                alert(result.error || 'Upload failed');
+            }
+        } catch (err) {
+            alert('Image upload failed: ' + err.message);
+        } finally {
+            setUploading((prev) => ({ ...prev, [idx]: false }));
+        }
     };
 
     const handleSave = async () => {
         setSaving(true);
+        setError('');
         let saveSucceeded = false;
 
         try {
@@ -108,96 +155,268 @@ export default function PortfolioEditor() {
             }
             savedTimeoutRef.current = setTimeout(() => setSaved(false), 3000);
         } catch (err) {
-            alert('Failed to save: ' + err.message);
+            setError(err?.message || 'Failed to save portfolio items');
         } finally {
             if (saveSucceeded) {
                 try {
                     await refetch();
                 } catch (err) {
-                    console.warn('Saved successfully, but failed to refresh data:', err);
+                    console.warn(err);
                 }
             }
             setSaving(false);
         }
     };
 
+    const previewItem = items[activePreviewIdx];
+
     return (
-        <div>
-            <div className="mb-6 flex items-center justify-between">
+        <div className="space-y-6 relative pb-10">
+            
+            <div className="flex flex-wrap items-center justify-between gap-4 border-b border-white/5 pb-4">
                 <div>
-                    <h1 className="text-2xl font-bold text-[#f0f0f3]">Portfolio</h1>
-                    <p className="mt-1 text-sm text-[#6b6f80]">{items.length} projects</p>
+                    <h1 className="text-2xl font-bold text-[#f0f0f3] tracking-tight">Portfolio Items</h1>
+                    <p className="mt-1 text-sm text-[#6b6f80]">{items.length} works in showcase.</p>
                 </div>
                 <div className="flex gap-2">
-                    <button onClick={addItem} className="admin-add-btn"><Plus size={14} /> Add Project</button>
-                    <button onClick={handleSave} disabled={saving} className="admin-save-btn">
-                        {saved ? <><CheckCircle2 size={14} /> Saved!</> : <><Save size={14} /> {saving ? 'Saving...' : 'Save'}</>}
+                    <button onClick={addItem} className="admin-add-btn text-xs px-3 py-2 flex items-center gap-1">
+                        <Plus size={14} /> Add Project
+                    </button>
+                    <button onClick={handleSave} disabled={saving} className="admin-save-btn text-xs px-4 py-2 flex items-center gap-1.5">
+                        {saved ? <><CheckCircle2 size={14} /> Saved!</> : <><Save size={14} /> {saving ? 'Saving...' : 'Save Changes'}</>}
                     </button>
                 </div>
             </div>
 
-            <div className="space-y-4">
-                {items.map((item, idx) => (
-                    <div key={item.id} className="rounded-xl border border-[#1e2028] bg-[#0e0f14] p-5">
-                        <div className="mb-4 flex items-center justify-between">
-                            <div className="flex items-center gap-3">
-                                <span className="text-xs font-bold text-[#34d99a]">#{idx + 1}</span>
-                                {item.is_featured && (
-                                    <span className="flex items-center gap-1 rounded-full bg-[#34d99a]/10 px-2 py-0.5 text-[10px] font-semibold text-[#34d99a]">
-                                        <Star size={10} /> Featured
-                                    </span>
-                                )}
-                            </div>
-                            <button onClick={() => removeItem(idx)} aria-label="Delete project" className="text-red-400 hover:text-red-300"><Trash2 size={14} /></button>
-                        </div>
+            {error && (
+                <div className="rounded-xl border border-red-500/20 bg-red-500/10 px-4 py-3 text-xs text-red-300">
+                    {error}
+                </div>
+            )}
 
-                        <div className="grid gap-4 sm:grid-cols-2">
+            <div className="grid gap-6 lg:grid-cols-5 items-start">
+                
+                {/* LEFT: Project editor cards */}
+                <div className="lg:col-span-3 space-y-4">
+                    {items.map((item, idx) => (
+                        <div 
+                            key={item.id} 
+                            onClick={() => setActivePreviewIdx(idx)}
+                            className={`stats-glass p-5 border rounded-xl space-y-4 relative group cursor-pointer transition-all ${
+                                activePreviewIdx === idx 
+                                    ? 'border-[#34d99a]/35 shadow-[0_4px_25px_rgba(52,217,154,0.03)] bg-white/[0.03]' 
+                                    : 'border-white/5 hover:border-white/10 hover:bg-white/[0.01]'
+                            }`}
+                        >
+                            
+                            {/* Controls */}
+                            <div className="absolute top-4 right-4 flex items-center gap-2">
+                                <button onClick={(e) => { e.stopPropagation(); moveItem(idx, 'up'); }} disabled={idx === 0} className="p-1 text-[#6b6f80] hover:text-white disabled:opacity-20 transition-colors">
+                                    <ArrowUp size={14} />
+                                </button>
+                                <button onClick={(e) => { e.stopPropagation(); moveItem(idx, 'down'); }} disabled={idx === items.length - 1} className="p-1 text-[#6b6f80] hover:text-white disabled:opacity-20 transition-colors">
+                                    <ArrowDown size={14} />
+                                </button>
+                                <button onClick={(e) => { e.stopPropagation(); removeItem(idx); }} className="p-1 text-red-400/70 hover:text-red-400 transition-colors ml-1">
+                                    <Trash2 size={14} />
+                                </button>
+                            </div>
+
+                            <div className="flex items-center gap-2">
+                                <span className="text-[10px] font-black uppercase tracking-widest bg-[#34d99a]/10 text-[#34d99a] px-2 py-0.5 rounded">
+                                    Project #{idx + 1}
+                                </span>
+                            </div>
+
+                            <div className="grid gap-4 sm:grid-cols-2">
+                                <div>
+                                    <label className="admin-label">Title</label>
+                                    <input type="text" value={item.title} onChange={(e) => update(idx, 'title', e.target.value)} className="admin-input" placeholder="Project name" />
+                                </div>
+                                <div>
+                                    <label className="admin-label">Category</label>
+                                    <select value={item.category} onChange={(e) => update(idx, 'category', e.target.value)} className="admin-input">
+                                        <option value="">Select Category...</option>
+                                        {CATEGORY_OPTIONS.map((c) => <option key={c} value={c}>{c}</option>)}
+                                    </select>
+                                </div>
+                            </div>
+
                             <div>
-                                <label htmlFor={`title-${item.id}`} className="admin-label">Title</label>
-                                <input id={`title-${item.id}`} type="text" value={item.title} onChange={(e) => update(idx, 'title', e.target.value)} className="admin-input" placeholder="Project title" />
+                                <label className="admin-label">Description</label>
+                                <textarea value={item.description} onChange={(e) => update(idx, 'description', e.target.value)} rows={3} className="admin-input resize-none !h-auto py-2" placeholder="Tell us about the project..." />
                             </div>
+
+                            <div className="grid gap-4 sm:grid-cols-2">
+                                <div>
+                                    <label className="admin-label">Tech Stack (comma-separated)</label>
+                                    <input type="text" value={(item.tech_stack || []).join(', ')} onChange={(e) => updateTags(idx, e.target.value)} className="admin-input" placeholder="React, Node.js, SQLite" />
+                                </div>
+                                <div className="flex items-center h-full pt-6">
+                                    <label className="flex items-center gap-2 cursor-pointer select-none">
+                                        <input
+                                            type="checkbox"
+                                            checked={item.is_featured || false}
+                                            onChange={(e) => update(idx, 'is_featured', e.target.checked)}
+                                            className="h-4 w-4 rounded border-white/5 bg-[#16171e] accent-[#34d99a]"
+                                        />
+                                        <span className="text-xs text-[#e0e0e8] flex items-center gap-1 font-bold">
+                                            <Star size={12} className={item.is_featured ? 'text-amber-400 fill-amber-400' : 'text-[#8b8fa3]'} />
+                                            Featured Work
+                                        </span>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div className="grid gap-4 sm:grid-cols-2">
+                                <div>
+                                    <label className="admin-label">Live App URL</label>
+                                    <input type="url" value={item.live_url || ''} onChange={(e) => update(idx, 'live_url', e.target.value)} className="admin-input" placeholder="https://app.nowicstudio.com" />
+                                </div>
+                                <div>
+                                    <label className="admin-label">GitHub Repository URL</label>
+                                    <input type="url" value={item.github_url || ''} onChange={(e) => update(idx, 'github_url', e.target.value)} className="admin-input" placeholder="https://github.com/NowicStudio/..." />
+                                </div>
+                            </div>
+
+                            {/* Cover image uploader */}
                             <div>
-                                <label htmlFor={`category-${item.id}`} className="admin-label">Category</label>
-                                <select id={`category-${item.id}`} value={item.category} onChange={(e) => update(idx, 'category', e.target.value)} className="admin-input">
-                                    <option value="">Select...</option>
-                                    {CATEGORY_OPTIONS.map((c) => <option key={c} value={c}>{c}</option>)}
-                                </select>
+                                <label className="admin-label flex items-center gap-1.5"><Image size={13} /> Project Screenshot</label>
+                                <div className="mt-1 flex flex-col gap-3 sm:flex-row sm:items-start">
+                                    {item.image_url ? (
+                                        <div className="relative h-20 w-28 shrink-0 overflow-hidden rounded-lg border border-white/5 bg-[#15161b]">
+                                            <img
+                                                src={resolveImageUrl(item.image_url)}
+                                                alt={item.title || 'Project Screenshot'}
+                                                className="h-full w-full object-cover"
+                                                onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                                            />
+                                            <button
+                                                type="button"
+                                                onClick={() => update(idx, 'image_url', '')}
+                                                className="absolute right-1 top-1 rounded-full bg-black/60 p-1 text-red-400 hover:text-red-300 transition-colors"
+                                            >
+                                                <Trash2 size={10} />
+                                            </button>
+                                        </div>
+                                    ) : (
+                                        <div className="flex h-20 w-28 shrink-0 items-center justify-center rounded-lg border border-dashed border-white/5 bg-[#15161b] text-[#4a4e5e]">
+                                            <Image size={20} />
+                                        </div>
+                                    )}
+                                    <div className="flex flex-1 flex-col gap-2">
+                                        <input
+                                            type="text"
+                                            value={item.image_url || ''}
+                                            onChange={(e) => update(idx, 'image_url', e.target.value)}
+                                            className="admin-input"
+                                            placeholder="Paste screenshot URL or upload below"
+                                        />
+                                        <input
+                                            ref={(el) => { fileInputRefs.current[idx] = el; }}
+                                            type="file"
+                                            accept="image/*"
+                                            className="hidden"
+                                            onChange={(e) => {
+                                                handleImageUpload(idx, e.target.files?.[0]);
+                                                e.target.value = '';
+                                            }}
+                                        />
+                                        <button
+                                            type="button"
+                                            onClick={() => fileInputRefs.current[idx]?.click()}
+                                            disabled={uploading[idx]}
+                                            className="inline-flex w-fit items-center gap-1.5 rounded-lg border border-white/5 bg-[#15161b] px-3 py-1.5 text-xs font-medium text-[#a0a3b1] transition-colors hover:border-[#34d99a]/40 hover:text-[#34d99a] disabled:opacity-50"
+                                        >
+                                            <Upload size={12} />
+                                            {uploading[idx] ? 'Uploading...' : 'Upload Image'}
+                                        </button>
+                                    </div>
+                                </div>
                             </div>
-                            <div className="sm:col-span-2">
-                                <label htmlFor={`description-${item.id}`} className="admin-label">Description</label>
-                                <textarea id={`description-${item.id}`} value={item.description} onChange={(e) => update(idx, 'description', e.target.value)} rows={2} className="admin-input resize-none" placeholder="Project description" />
-                            </div>
-                            <div>
-                                <label htmlFor={`tech_stack-${item.id}`} className="admin-label">Tech Stack (comma-separated)</label>
-                                <input id={`tech_stack-${item.id}`} type="text" value={(item.tech_stack || []).join(', ')} onChange={(e) => updateTags(idx, e.target.value)} className="admin-input" placeholder="React, Node.js, PostgreSQL" />
-                            </div>
-                            <div>
-                                <label htmlFor={`image_url-${item.id}`} className="admin-label">Image URL</label>
-                                <input id={`image_url-${item.id}`} type="text" value={item.image_url || ''} onChange={(e) => update(idx, 'image_url', e.target.value)} className="admin-input" placeholder="/images/project.png or https://..." />
-                            </div>
-                            <div className="flex items-end gap-4">
-                                <label className="flex items-center gap-2 cursor-pointer" htmlFor={`is_featured-${item.id}`}>
-                                    <input
-                                        id={`is_featured-${item.id}`}
-                                        type="checkbox"
-                                        checked={item.is_featured || false}
-                                        onChange={(e) => update(idx, 'is_featured', e.target.checked)}
-                                        className="h-4 w-4 rounded border-[#1e2028] bg-[#16171e] accent-[#34d99a]"
-                                    />
-                                    <span className="text-sm text-[#e0e0e8]">Featured Project</span>
-                                </label>
-                            </div>
-                            <div>
-                                <label htmlFor={`live_url-${item.id}`} className="admin-label">Live URL</label>
-                                <input id={`live_url-${item.id}`} type="url" value={item.live_url || ''} onChange={(e) => update(idx, 'live_url', e.target.value)} className="admin-input" placeholder="https://..." />
-                            </div>
-                            <div>
-                                <label htmlFor={`github_url-${item.id}`} className="admin-label">GitHub URL</label>
-                                <input id={`github_url-${item.id}`} type="url" value={item.github_url || ''} onChange={(e) => update(idx, 'github_url', e.target.value)} className="admin-input" placeholder="https://github.com/..." />
+
+                        </div>
+                    ))}
+                </div>
+
+                {/* RIGHT: Live Project Preview */}
+                <div className="lg:col-span-2 sticky top-20 stats-glass p-5 border border-white/5 rounded-2xl space-y-6">
+                    <div className="flex items-center gap-1.5 text-xs text-[#8b8fa3] font-bold uppercase tracking-widest border-b border-white/5 pb-3">
+                        <Eye size={14} className="text-[#34d99a]" /> Card Live Preview
+                    </div>
+
+                    {previewItem ? (
+                        <div className="space-y-4">
+                            <p className="text-[10px] text-[#6b6f80] uppercase tracking-widest font-bold">Active Card Mockup</p>
+                            <div className="relative border border-white/5 rounded-2xl bg-[#08090d] overflow-hidden min-h-[300px] flex flex-col justify-between">
+                                <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.015)_1px,transparent_1px)] bg-[size:10px_10px]" />
+                                
+                                <div>
+                                    {/* Cover image mockup */}
+                                    {previewItem.image_url ? (
+                                        <div className="relative h-40 w-full overflow-hidden border-b border-white/5 bg-[#15161b]">
+                                            <img src={resolveImageUrl(previewItem.image_url)} alt="Cover Preview" className="h-full w-full object-cover" />
+                                            {previewItem.is_featured && (
+                                                <span className="absolute top-3 left-3 flex items-center gap-1 rounded-full bg-[#34d99a] text-black px-2 py-0.5 text-[8px] font-black uppercase tracking-wider shadow-lg">
+                                                    <Star size={9} className="fill-black text-black" /> Featured
+                                                </span>
+                                            )}
+                                        </div>
+                                    ) : (
+                                        <div className="flex h-40 w-full items-center justify-center border-b border-white/5 bg-[#15161b] text-[#4a4e5e] relative">
+                                            <Image size={24} />
+                                            {previewItem.is_featured && (
+                                                <span className="absolute top-3 left-3 flex items-center gap-1 rounded-full bg-[#34d99a] text-black px-2 py-0.5 text-[8px] font-black uppercase tracking-wider shadow-lg">
+                                                    <Star size={9} className="fill-black text-black" /> Featured
+                                                </span>
+                                            )}
+                                        </div>
+                                    )}
+
+                                    <div className="p-5 space-y-2">
+                                        <span className="text-[9px] font-bold text-[#34d99a] uppercase tracking-widest bg-[#34d99a]/10 px-2 py-0.5 rounded">
+                                            {previewItem.category || 'Category'}
+                                        </span>
+                                        <h3 className="text-sm font-extrabold text-white pt-1">{previewItem.title || 'Project Name'}</h3>
+                                        <p className="text-[10px] text-[#8b8fa3] leading-relaxed line-clamp-3">{previewItem.description || 'Project description goes here'}</p>
+                                    </div>
+                                </div>
+
+                                <div className="px-5 pb-5 pt-2 border-t border-white/[0.03] flex items-center justify-between z-10">
+                                    {/* Tech tags */}
+                                    <div className="flex flex-wrap gap-1 max-w-[70%]">
+                                        {previewItem.tech_stack.slice(0, 3).map((tag, tIdx) => (
+                                            <span key={tIdx} className="text-[8px] text-[#8b8fa3] border border-white/5 bg-white/[0.02] px-1.5 py-0.5 rounded">
+                                                {tag}
+                                            </span>
+                                        ))}
+                                        {previewItem.tech_stack.length > 3 && (
+                                            <span className="text-[8px] text-[#6b6f80] px-1 py-0.5 font-bold">+{previewItem.tech_stack.length - 3}</span>
+                                        )}
+                                    </div>
+
+                                    {/* Link buttons */}
+                                    <div className="flex gap-2">
+                                        {previewItem.github_url && (
+                                            <a href={previewItem.github_url} target="_blank" rel="noreferrer" className="text-[#8b8fa3] hover:text-white transition-colors">
+                                                <Github size={14} />
+                                            </a>
+                                        )}
+                                        {previewItem.live_url && (
+                                            <a href={previewItem.live_url} target="_blank" rel="noreferrer" className="text-[#34d99a] hover:text-mint transition-colors">
+                                                <ExternalLink size={14} />
+                                            </a>
+                                        )}
+                                    </div>
+                                </div>
+
                             </div>
                         </div>
-                    </div>
-                ))}
+                    ) : (
+                        <div className="text-center py-12 text-xs text-[#6b6f80] italic">Select a portfolio item card on the left to preview it visually.</div>
+                    )}
+                </div>
+
             </div>
         </div>
     );

@@ -129,8 +129,7 @@ class ContactSubmission(models.Model):
         related_name='contact_submissions',
     )
     project_type = models.CharField(
-        max_length=100, 
-        choices=PROJECT_TYPE_CHOICES,
+        max_length=100,
         default='other',
         blank=True
     )
@@ -158,5 +157,27 @@ class ContactSubmission(models.Model):
     def __str__(self):
         return f"{self.name} — {self.status}"
 
+class CustomerReview(models.Model):
+    client_name = models.CharField(max_length=255)
+    company = models.CharField(max_length=255, blank=True, null=True)
+    role = models.CharField(max_length=255, blank=True, null=True)
+    rating = models.IntegerField(default=5)
+    review_text = models.TextField()
+    is_approved = models.BooleanField(default=False)
+    avatar_url = models.URLField(blank=True, null=True, max_length=1000)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at']
+        verbose_name = 'Customer Review'
+        verbose_name_plural = 'Customer Reviews'
+        indexes = [
+            models.Index(fields=['is_approved']),
+            models.Index(fields=['rating']),
+            models.Index(fields=['created_at']),
+        ]
+
+    def __str__(self):
+        return f"Review by {self.client_name} ({self.rating} Stars)"
 
 # Migration needed: makemigrations public

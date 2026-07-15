@@ -21,6 +21,7 @@ from apps.public.schemas import (
     ContactIn,
     ContactOut,
     SiteContentOut,
+    ReviewIn,
 )
 from shared.exceptions import NotFound, RateLimited
 from shared.ratelimit import contact_limiter, get_client_ip
@@ -249,3 +250,63 @@ def get_stats(request: HttpRequest):
         "team_members": settings.TEAM_MEMBERS_COUNT,
     }
     return {"success": True, "data": data}
+
+
+# ─── Reviews ─────────────────────────────────────────────────────────────────
+
+@router.get("/reviews/", auth=None)
+@cache_response('reviews-list', timeout=120, namespace='reviews')
+def list_reviews(request: HttpRequest):
+    """Return all approved customer reviews."""
+    from apps.public.models import CustomerReview
+    from apps.public.schemas import ReviewOut
+    
+    reviews = CustomerReview.objects.filter(is_approved=True)
+    data = [ReviewOut.from_orm(r).dict() for r in reviews]
+    return {"success": True, "data": data}
+
+
+@router.post("/reviews/", auth=None)
+def submit_review(request: HttpRequest, payload: ReviewIn):
+    """Submit a new review (pending approval)."""
+    from apps.public.models import CustomerReview
+    
+    # 1. Rate limiting by IP
+    ip = get_client_ip(request)
+    rl = contact_limiter.check(ip)
+    if not rl["allowed"]:
+        log_security_event('Rate limit exceeded', ip, details='review submission')
+        raise RateLimited(retry_after=rl["reset_seconds"])
+
+    # 2. Sanitize and save
+    review = CustomerReview(
+        client_name=sanitize_string(payload.client_name),
+        company=sanitize_string(payload.company or ""),
+        role=sanitize_string(payload.role or ""),
+        rating=max(1, min(5, payload.rating)), # constrain 1-5
+        review_text=sanitize_string(payload.review_text),
+        avatar_url=payload.avatar_url or "",
+        is_approved=False # always false on create
+    )
+    
+    try:
+        review.full_clean()
+        review.save()
+    except DjangoValidationError as exc:
+        return 422, {"success": False, "message": "Invalid review data", "errors": exc.message_dict}
+
+    # Notify admins
+    notify_all_admins(
+        'new_review',
+        'New Customer Review',
+        f'{review.client_name} submitted a {review.rating}-star review.',
+        {'review_id': review.id},
+    )
+
+    return {
+        "success": True,
+        "data": {
+            "id": review.id,
+            "message": "Thank you for your review! It will be visible once approved.",
+        },
+    }

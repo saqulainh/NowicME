@@ -151,7 +151,10 @@ export default function Footer() {
           <div>
             <p className="mb-3 text-xs font-semibold uppercase tracking-[0.15em] text-muted">Services</p>
             <ul className="space-y-2">
-              {['MVP Development', 'Business Websites', 'AI Web Apps', 'Dashboards', 'SaaS Platforms'].map((s) => (
+              {(Array.isArray(content.services) && content.services.length > 0
+                ? content.services.map(s => s.title || s.name).slice(0, 5)
+                : ['MVP Development', 'Business Websites', 'AI Web Apps', 'Dashboards', 'SaaS Platforms']
+              ).map((s) => (
                 <li key={s}>
                   <Link to="/services" className="text-sm text-sub transition-colors hover:text-text">{s}</Link>
                 </li>

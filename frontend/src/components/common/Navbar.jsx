@@ -33,8 +33,8 @@ export default function Navbar() {
 
   return (
     <header
-      className={`sticky top-0 z-50 transition-all duration-300 ${scrolled
-          ? 'border-b border-subtle bg-bg/80 backdrop-blur-xl'
+      className={`sticky top-0 z-50 transition-all duration-500 ${scrolled
+          ? 'nav-glass border-b border-white/[0.04]'
           : 'border-b border-transparent bg-transparent'
         }`}
     >

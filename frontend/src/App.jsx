@@ -14,6 +14,7 @@ const About = lazy(() => import('./pages/About'));
 const Contact = lazy(() => import('./pages/Contact'));
 const Booking = lazy(() => import('./pages/Booking'));
 const ClientDashboard = lazy(() => import('./pages/Dashboard'));
+const SubmitReview = lazy(() => import('./pages/SubmitReview'));
 
 const AdminLogin = lazy(() => import('./pages/admin/AdminLogin'));
 const Dashboard = lazy(() => import('./pages/admin/Dashboard'));
@@ -27,6 +28,8 @@ const PortfolioEditor = lazy(() => import('./pages/admin/PortfolioEditor'));
 const StatsEditor = lazy(() => import('./pages/admin/StatsEditor'));
 const AboutEditor = lazy(() => import('./pages/admin/AboutEditor'));
 const FAQEditor = lazy(() => import('./pages/admin/FAQEditor'));
+
+const ReviewsManagement = lazy(() => import('./pages/admin/ReviewsManagement'));
 
 export default function App() {
   const location = useLocation();
@@ -46,6 +49,7 @@ export default function App() {
             <Route path="/contact" element={<Contact />} />
             <Route path="/booking" element={<Booking />} />
             <Route path="/dashboard" element={<ClientDashboard />} />
+            <Route path="/review" element={<SubmitReview />} />
             <Route path="*" element={<NotFound />} />
           </Route>
 
@@ -57,6 +61,7 @@ export default function App() {
             <Route path="projects" element={<ProjectsManagement />} />
             <Route path="users" element={<UsersManagement />} />
             <Route path="invoices" element={<InvoicesManagement />} />
+            <Route path="reviews" element={<ReviewsManagement />} />
             <Route path="brand" element={<BrandEditor />} />
             <Route path="services" element={<ServicesEditor />} />
             <Route path="portfolio" element={<PortfolioEditor />} />

@@ -104,3 +104,24 @@ class SiteContentOut(Schema):
     section: str
     data: Any
     updated_at: datetime
+
+
+class ReviewIn(Schema):
+    client_name: str
+    company: Optional[str] = None
+    role: Optional[str] = None
+    rating: int
+    review_text: str
+    avatar_url: Optional[str] = None
+
+
+class ReviewOut(Schema):
+    id: int
+    client_name: str
+    company: Optional[str] = None
+    role: Optional[str] = None
+    rating: int
+    review_text: str
+    is_approved: bool
+    avatar_url: Optional[str] = None
+    created_at: datetime

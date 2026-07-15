@@ -59,10 +59,12 @@ export default function Contact() {
       .finally(() => setChoicesLoading(false));
   }, []);
 
+  const liveBrand = content?.brand || brand;
+
   const contactInfo = [
-    { icon: Mail, label: 'Email', value: brand.email || 'hello@nowicstudio.com', href: `mailto:${brand.email || 'hello@nowicstudio.com'}` },
-    { icon: Phone, label: 'Phone', value: brand.phone || '+91 98765 43210', href: `tel:${(brand.phone || '+91 98765 43210').replace(/\D/g, '')}` },
-    { icon: MapPin, label: 'Location', value: brand.location || 'India 🇮🇳', href: '#' },
+    { icon: Mail, label: 'Email', value: liveBrand.email || 'hello@nowicstudio.com', href: `mailto:${liveBrand.email || 'hello@nowicstudio.com'}` },
+    { icon: Phone, label: 'Phone', value: liveBrand.phone || '+91 98765 43210', href: `tel:${(liveBrand.phone || '+91 98765 43210').replace(/\D/g, '')}` },
+    { icon: MapPin, label: 'Location', value: liveBrand.location || 'India 🇮🇳', href: '#' },
   ];
 
   const [form, setForm] = useState({ name: '', email: '', project_type: '', message: '', phone: '', budget: '', service_slug: '', website: '' });
@@ -287,34 +289,23 @@ export default function Contact() {
 
                       <div>
                         <span className="block text-[13px] font-semibold text-[#f0f0f3] mb-2 uppercase">Project Type</span>
-                        <select id="contact-type" name="project_type" value={form.project_type} onChange={handleChange} className={`field !py-0 !h-[36px] !px-3 !text-[12px] !cursor-pointer bg-[#16171e] focus:bg-[#1e2028] ${errors.project_type ? 'border-red-500/50' : ''}`} disabled={choicesLoading}>
-                          <option value="">Select type...</option>
-                          {choices.project_types.map((pt) => (
-                            <option key={pt.value} value={pt.value} className="bg-[#0e0f14] text-[#f0f0f3]">{pt.label}</option>
-                          ))}
-                        </select>
-                        {errors.project_type && <p className="text-[10px] text-red-400 mt-1 pl-1">{errors.project_type}</p>}
-                      </div>
-
-                      <hr className="h-px bg-[#34d99a]/30 border-none my-1" />
-
-                      <div>
-                        <span className="block text-[13px] font-semibold text-[#f0f0f3] mb-2 uppercase">Service</span>
                         {servicesLoading ? (
                           <div className="flex items-center justify-center rounded-lg bg-[#16171e] py-2">
                             <LoadingSpinner size="sm" />
                           </div>
                         ) : (
                           <>
-                          <select id="contact-service" name="service_slug" value={form.service_slug} onChange={handleChange} className="field !py-0 !h-[36px] !px-3 !text-[12px] !cursor-pointer bg-[#16171e] focus:bg-[#1e2028]">
-                            <option value="">Select a service (optional)</option>
-                            {orderedServices.map((service) => (
-                              <option key={service.slug} value={service.slug} className="bg-[#0e0f14] text-[#f0f0f3]">{service.name}</option>
-                            ))}
-                          </select>
-                          {servicesError && <p className="mt-1 text-[11px] text-amber-300">Using backup service list while API is unavailable.</p>}
+                            <select id="contact-type" name="project_type" value={form.project_type} onChange={handleChange} className={`field !py-0 !h-[36px] !px-3 !text-[12px] !cursor-pointer bg-[#16171e] focus:bg-[#1e2028] ${errors.project_type ? 'border-red-500/50' : ''}`}>
+                              <option value="">Select type...</option>
+                              {orderedServices.map((service) => (
+                                <option key={service.slug} value={service.name} className="bg-[#0e0f14] text-[#f0f0f3]">{service.name}</option>
+                              ))}
+                              <option value="Other" className="bg-[#0e0f14] text-[#f0f0f3]">Other</option>
+                            </select>
+                            {servicesError && <p className="mt-1 text-[11px] text-amber-300">Using backup service list while API is unavailable.</p>}
                           </>
                         )}
+                        {errors.project_type && <p className="text-[10px] text-red-400 mt-1 pl-1">{errors.project_type}</p>}
                       </div>
 
                       <hr className="h-px bg-[#34d99a]/30 border-none my-1" />

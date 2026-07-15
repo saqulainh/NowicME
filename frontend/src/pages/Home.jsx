@@ -7,6 +7,7 @@ import SectionHeading from '../components/common/SectionHeading';
 import ScrollReveal from '../components/reveal/ScrollReveal';
 import FloatingChips from '../components/hero/FloatingChips';
 import HeroDecor from '../components/hero/HeroDecor';
+import FloatingPanels from '../components/ui/FloatingPanels';
 import BrandTitle from '../components/common/BrandTitle';
 import InteractiveCard from '../components/ui/InteractiveCard';
 import Magnetic from '../components/ui/Magnetic';
@@ -84,12 +85,12 @@ function StatCard({ item, index, loading }) {
   const Icon = item.icon;
   return (
     <ScrollReveal delay={index * 0.08}>
-      <div className="card p-6 text-center">
+      <div className="stats-glass p-6 text-center">
         <div className="icon-box mx-auto mb-3">
-          <Icon size={18} />
+          <Icon size={16} />
         </div>
-        <p ref={ref} className="number-stat text-2xl">{loading ? '...' : item.value}</p>
-        <p className="mt-1 text-xs font-medium uppercase tracking-[0.15em] text-muted">{item.label}</p>
+        <p ref={ref} className="number-stat">{loading ? '...' : item.value}</p>
+        <p className="mt-2 text-[11px] font-medium uppercase tracking-[0.18em] text-muted">{item.label}</p>
       </div>
     </ScrollReveal>
   );
@@ -97,7 +98,6 @@ function StatCard({ item, index, loading }) {
 
 export default function Home() {
   const { content, loading } = useContent();
-  const stats = content?.stats || {};
   const services = content?.services || [];
   const portfolioItems = content?.portfolioItems || content?.portfolio || [];
   const statsLoading = loading;
@@ -106,12 +106,17 @@ export default function Home() {
   const portfolioLoading = loading;
   const portfolioError = null;
 
-  const statCards = [
-    { icon: Icons.Star, label: 'Projects Delivered', value: `${stats?.projects_delivered ?? 0}` },
-    { icon: Icons.Trophy, label: 'Happy Clients', value: `${stats?.happy_clients ?? 0}` },
-    { icon: Icons.Code2, label: 'Services', value: `${stats?.services_offered ?? 0}` },
-    { icon: Icons.Users, label: 'Team Members', value: `${stats?.team_members ?? 0}` },
-  ];
+  const apiHighlights = Array.isArray(content?.highlights) ? content.highlights : [];
+  const liveStats = content?.liveStats || {};
+  
+  const statCards = apiHighlights.length > 0
+    ? apiHighlights
+    : [
+        { icon: Icons.Star, label: 'Projects Delivered', value: `${liveStats?.projects_delivered ?? 0}` },
+        { icon: Icons.Trophy, label: 'Happy Clients', value: `${liveStats?.happy_clients ?? 0}` },
+        { icon: Icons.Code2, label: 'Services', value: `${liveStats?.services_offered ?? 0}` },
+        { icon: Icons.Users, label: 'Team Members', value: `${liveStats?.team_members ?? 0}` },
+      ];
 
   const whyUs = [
     { title: 'Execution-First Process', desc: 'We ship in tight sprints with clear milestones — no delays, no excuses.', icon: Icons.Rocket },
@@ -132,6 +137,12 @@ export default function Home() {
       <section className="relative overflow-hidden" style={{ minHeight: '700px' }}>
         {/* Spotlight beams + grid lines (local to Hero) */}
         <HeroDecor />
+
+        {/* Premium Floating Software Backgrounds */}
+        <FloatingPanels panels={[
+          { variant: 'analytics', top: '15%', right: '-2%', width: '280px', opacity: 0.18, delay: 0 },
+          { variant: 'code', bottom: '20%', left: '-5%', width: '260px', opacity: 0.15, delay: 2 }
+        ]} parallaxStrength={0.015} />
 
         {/* Floating tech chips */}
         <FloatingChips />
@@ -217,75 +228,99 @@ export default function Home() {
       </section>
 
       {/* ═══ SERVICES ═══ */}
-      <section className="container-shell py-20">
-        <SectionHeading
-          eyebrow="Services"
-          title="Built for speed. |Crafted for growth."
-          description="Every product we ship is engineered for momentum, market-fit, and long-term scale."
-        />
+      <section className="container-shell py-24 relative">
+        {/* Layered spotlights — medium mint for glass refraction */}
+        <div className="pointer-events-none absolute -top-20 left-[5%] h-80 w-80 rounded-full bg-mint/[0.12] blur-[100px] z-0" />
+        <div className="pointer-events-none absolute top-1/2 right-[8%] h-64 w-64 rounded-full bg-white/[0.05] blur-[80px] z-0" />
+        <div className="pointer-events-none absolute -bottom-10 left-1/3 h-72 w-72 rounded-full bg-emerald/[0.1] blur-[100px] z-0" />
+        
+        {/* Engineering grid and floating panels */}
+        <div className="engineering-grid" />
+        <FloatingPanels panels={[
+          { variant: 'code', top: '15%', right: '-4%', width: '320px', opacity: 0.22, delay: 0 },
+          { variant: 'github', bottom: '10%', left: '0%', width: '340px', opacity: 0.2, delay: 1.5 }
+        ]} parallaxStrength={0.01} />
 
-        {servicesError ? (
-          <ErrorMessage message={servicesError} />
-        ) : servicesLoading ? (
-          <div className="mt-12 flex justify-center py-16">
-            <LoadingSpinner text="Loading services..." />
+        <div className="relative z-10">
+          <SectionHeading
+            eyebrow="Services"
+            title="Built for speed. |Crafted for growth."
+            description="Every product we ship is engineered for momentum, market-fit, and long-term scale."
+          />
+
+          {servicesError ? (
+            <ErrorMessage message={servicesError} />
+          ) : servicesLoading ? (
+            <div className="mt-12 flex justify-center py-16">
+              <LoadingSpinner text="Loading services..." />
+            </div>
+          ) : (
+          <div className="mt-12 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+            {visibleServices.slice(0, 6).map((service, i) => {
+              const Icon = resolveIcon(service.icon_name);
+              return (
+                <ScrollReveal key={service.slug} delay={i * 0.06}>
+                  <InteractiveCard className="feature-card h-full">
+                    <div className="icon-box mb-4">
+                      <Icon size={18} />
+                    </div>
+                    <p className="text-xs font-semibold uppercase tracking-[0.15em] text-mint">
+                      {service.name}
+                    </p>
+                    <h3 className="mt-1.5 font-display text-lg font-bold text-text">{service.tagline}</h3>
+                    <p className="mt-2 text-sm leading-relaxed text-sub">{service.description}</p>
+
+                    <div className="mt-4 flex flex-wrap gap-2 text-[11px] uppercase tracking-[0.14em] text-muted">
+                      {service.price_starting !== null && service.price_starting !== undefined && (
+                        <span className="rounded-full bg-white/5 px-2.5 py-1 text-mint">From ₹{formatCurrency(service.price_starting)}</span>
+                      )}
+                      {service.delivery_days !== null && service.delivery_days !== undefined && (
+                        <span className="rounded-full bg-white/5 px-2.5 py-1">{service.delivery_days} days</span>
+                      )}
+                    </div>
+
+                    <ul className="mt-4 space-y-1.5">
+                      {(service.features || []).map((f) => (
+                        <li key={f} className="flex items-center gap-2 text-xs text-muted">
+                          <CheckCircle2 size={11} className="text-mint shrink-0" />
+                          {f}
+                        </li>
+                      ))}
+                    </ul>
+                  </InteractiveCard>
+                </ScrollReveal>
+              );
+            })}
           </div>
-        ) : (
-        <div className="mt-12 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-          {visibleServices.slice(0, 6).map((service, i) => {
-            const Icon = resolveIcon(service.icon_name);
-            return (
-              <ScrollReveal key={service.slug} delay={i * 0.06}>
-                <InteractiveCard className="feature-card h-full">
-                  <div className="icon-box mb-4">
-                    <Icon size={18} />
-                  </div>
-                  <p className="text-xs font-semibold uppercase tracking-[0.15em] text-mint">
-                    {service.name}
-                  </p>
-                  <h3 className="mt-1.5 font-display text-lg font-bold text-text">{service.tagline}</h3>
-                  <p className="mt-2 text-sm leading-relaxed text-sub">{service.description}</p>
-
-                  <div className="mt-4 flex flex-wrap gap-2 text-[11px] uppercase tracking-[0.14em] text-muted">
-                    {service.price_starting !== null && service.price_starting !== undefined && (
-                      <span className="rounded-full bg-white/5 px-2.5 py-1 text-mint">From ₹{formatCurrency(service.price_starting)}</span>
-                    )}
-                    {service.delivery_days !== null && service.delivery_days !== undefined && (
-                      <span className="rounded-full bg-white/5 px-2.5 py-1">{service.delivery_days} days</span>
-                    )}
-                  </div>
-
-                  <ul className="mt-4 space-y-1.5">
-                    {(service.features || []).map((f) => (
-                      <li key={f} className="flex items-center gap-2 text-xs text-muted">
-                        <CheckCircle2 size={11} className="text-mint shrink-0" />
-                        {f}
-                      </li>
-                    ))}
-                  </ul>
-                </InteractiveCard>
-              </ScrollReveal>
-            );
-          })}
+          )}
         </div>
-        )}
       </section>
 
       {/* ═══ WHY US ═══ */}
-      <section className="py-20">
-        <div className="container-shell">
+      <section className="py-24 relative overflow-hidden">
+        {/* Spotlights — soft ambient lighting */}
+        <div className="pointer-events-none absolute top-0 right-[10%] h-96 w-96 rounded-full bg-mint/[0.08] blur-[120px] z-0" />
+        <div className="pointer-events-none absolute bottom-0 left-[5%] h-64 w-64 rounded-full bg-white/[0.06] blur-[80px] z-0" />
+        
+        {/* Engineering grid and AI workflow panels */}
+        <div className="engineering-grid" />
+        <FloatingPanels panels={[
+          { variant: 'ai', top: '25%', right: '15%', width: '320px', opacity: 0.25, delay: 0.5 }
+        ]} parallaxStrength={0.02} />
+
+        <div className="container-shell relative z-10">
           <div className="grid gap-16 lg:grid-cols-[380px_1fr]">
             {/* Left sticky */}
             <ScrollReveal className="lg:sticky lg:top-24 lg:h-fit">
               <p className="eyebrow">Why Choose Us</p>
-              <h2 className="mt-4 font-display text-3xl font-bold leading-tight text-text sm:text-4xl">
+              <h2 className="mt-4 font-display text-3xl font-bold leading-tight text-text sm:text-[2.5rem] sm:leading-[1.15]">
                 Premium quality with{' '}
                 <span className="text-gradient">startup speed</span>
               </h2>
-              <p className="mt-4 text-base leading-relaxed text-sub">
+              <p className="mt-5 text-base leading-relaxed text-sub/90">
                 Senior engineering discipline combined with AI-powered speed — products that look amazing and scale effortlessly.
               </p>
-              <Link to="/services" className="cta-btn mt-6 inline-flex">
+              <Link to="/services" className="cta-btn mt-8 inline-flex">
                 Explore Services <ArrowRight size={15} className="ml-2" />
               </Link>
             </ScrollReveal>
@@ -312,8 +347,15 @@ export default function Home() {
       </section>
 
       {/* ═══ FEATURED WORK ═══ */}
-      <section className="container-shell py-20">
-        <SectionHeading
+      <section className="container-shell py-20 relative">
+        <div className="engineering-grid" />
+        <FloatingPanels panels={[
+          { variant: 'mobile', top: '35%', right: '-2%', width: '220px', opacity: 0.3, delay: 1 },
+          { variant: 'analytics', bottom: '15%', left: '2%', width: '300px', opacity: 0.22, delay: 2.5 }
+        ]} parallaxStrength={0.015} />
+
+        <div className="relative z-10">
+          <SectionHeading
           eyebrow="Portfolio"
           title="Work that proves |capability"
           description="Real products. Real impact. Each built with precision and purpose."
@@ -390,12 +432,80 @@ export default function Home() {
             View All Projects <ArrowRight size={14} className="ml-2" />
           </Link>
         </ScrollReveal>
+        </div>
       </section>
 
+      {/* ═══ CUSTOMER REVIEWS ═══ */}
+      {content?.reviews && (
+        <section className="py-20 relative overflow-hidden bg-[#0a0b0f]">
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(52,217,154,0.03)_0%,transparent_70%)]" />
+          
+          <div className="container-shell relative z-10">
+            <SectionHeading
+              eyebrow="Testimonials"
+              title="What our clients |say"
+              description="Don't just take our word for it. Hear from the founders and creators we've partnered with."
+            />
+
+            {content.reviews.length > 0 ? (
+              <div className="mt-12 flex overflow-x-auto pb-8 snap-x snap-mandatory gap-6 scrollbar-hide" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+                {content.reviews.map((review, i) => (
+                  <ScrollReveal key={review.id} delay={i * 0.05} className="snap-center shrink-0 w-[300px] md:w-[400px]">
+                    <InteractiveCard className="h-full flex flex-col justify-between p-6 bg-[#0e0f14]/80 backdrop-blur-sm border border-white/5">
+                      <div>
+                        <div className="flex gap-1 mb-4">
+                          {[1, 2, 3, 4, 5].map(star => (
+                            <Icons.Star 
+                              key={star} 
+                              size={14} 
+                              className={star <= review.rating ? "fill-[#34d99a] text-[#34d99a]" : "fill-transparent text-[#2a2c36]"} 
+                            />
+                          ))}
+                        </div>
+                        <p className="text-[#e0e0e8] text-sm leading-relaxed mb-6 italic">"{review.review_text}"</p>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        {review.avatar_url ? (
+                          <img src={review.avatar_url} alt={review.client_name} className="w-10 h-10 rounded-full object-cover bg-[#1e2028]" />
+                        ) : (
+                          <div className="w-10 h-10 rounded-full bg-[#1e2028] flex items-center justify-center text-[#6b6f80] text-sm font-bold uppercase">
+                            {review.client_name.substring(0, 2)}
+                          </div>
+                        )}
+                        <div>
+                          <div className="font-bold text-[#f0f0f3] text-sm">{review.client_name}</div>
+                          {(review.role || review.company) && (
+                            <div className="text-xs text-[#8b8fa3]">
+                              {review.role}{review.role && review.company && ' at '}{review.company}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </InteractiveCard>
+                  </ScrollReveal>
+                ))}
+              </div>
+            ) : (
+              <div className="mt-12 text-center py-12 px-6 hero-glass glass-noise rounded-2xl max-w-lg mx-auto border border-white/5">
+                <p className="text-sub text-sm mb-6 leading-relaxed">
+                  No reviews yet. We have just launched this feature! Be one of the first clients to share your experience with us.
+                </p>
+              </div>
+            )}
+
+            <div className="mt-8 text-center">
+              <Link to="/review" className="inline-flex items-center gap-2 text-xs font-bold text-[#34d99a] uppercase tracking-widest hover:text-white transition-colors">
+                Leave a Review <ArrowRight size={14} />
+              </Link>
+            </div>
+          </div>
+        </section>
+      )}
+
       {/* ═══ BRAND STATEMENT ═══ */}
-      <section className="container-shell py-8">
+      <section className="container-shell py-10">
         <ScrollReveal>
-          <div className="rounded-2xl border border-subtle bg-panel p-10 text-center sm:p-14">
+          <div className="hero-glass glass-noise p-10 text-center sm:p-14">
             <p className="mx-auto max-w-3xl font-display text-2xl font-bold leading-snug text-text sm:text-3xl">
               We are {brand.name}.{' '}
               <span className="text-gradient">We build tech that works.</span>{' '}
@@ -406,27 +516,35 @@ export default function Home() {
       </section>
 
       {/* ═══ CTA ═══ */}
-      <section className="container-shell py-20">
+      <section className="container-shell py-24 relative">
+        {/* Soft white spotlight behind CTA */}
+        <div className="pointer-events-none absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-80 w-[500px] rounded-full bg-white/[0.05] blur-[100px] z-0" />
+        
+        {/* Engineering grid and planning boards */}
+        <div className="engineering-grid" />
+        <FloatingPanels panels={[
+          { variant: 'planning', top: '10%', left: '-5%', width: '320px', opacity: 0.18, delay: 0 },
+          { variant: 'analytics', bottom: '5%', right: '-5%', width: '300px', opacity: 0.15, delay: 1.8 }
+        ]} parallaxStrength={0.012} />
+
         <ScrollReveal>
-          <div className="relative overflow-hidden rounded-2xl bg-panel p-10 text-center sm:p-16"
-            style={{ border: '1px solid #1e2028' }}
-          >
-            {/* Subtle green glow at bottom */}
+          <div className="hero-glass glass-noise relative p-10 text-center sm:p-16">
+            {/* Bottom mint glow */}
             <div
               className="pointer-events-none absolute inset-x-0 -bottom-20 h-40"
-              style={{ background: 'radial-gradient(ellipse at 50% 100%, rgba(52,217,154,0.08), transparent 65%)' }}
+              style={{ background: 'radial-gradient(ellipse at 50% 100%, rgba(189,223,188,0.06), transparent 65%)' }}
             />
 
-            <div className="relative">
+            <div className="relative z-10">
               <p className="eyebrow">Let's Build</p>
-              <h3 className="mt-4 font-display text-3xl font-bold text-text sm:text-4xl">
+              <h3 className="mt-4 font-display text-3xl font-bold text-text sm:text-[2.5rem] sm:leading-[1.15]">
                 Ready to build something{' '}
                 <span className="text-gradient">powerful?</span>
               </h3>
-              <p className="mx-auto mt-4 max-w-lg text-sub">
+              <p className="mx-auto mt-5 max-w-lg text-base leading-relaxed text-sub/90">
                 Share your idea and we'll respond within 24 hours with a clear roadmap, timeline, and budget.
               </p>
-              <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
+              <div className="mt-10 flex flex-wrap items-center justify-center gap-4">
                 <Link to="/contact" className="cta-btn px-8 py-3.5">
                   Start a Conversation <ArrowRight size={15} className="ml-2" />
                 </Link>

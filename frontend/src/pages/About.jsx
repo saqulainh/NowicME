@@ -38,6 +38,25 @@ export default function About() {
   const brandName = brand.name || 'Nowic Studio';
   const tagline = brand.tagline || 'Vision to Version';
 
+  const apiStats = Array.isArray(content?.stats) ? content.stats : [];
+  const liveStats = content?.liveStats || {};
+
+  const resolveDisplayValue = (item) => {
+    if (item.link_type && item.link_type !== 'manual') {
+      return String(liveStats[item.link_type] || 0);
+    }
+    return item.value;
+  };
+
+  const statCards = apiStats.length > 0
+    ? apiStats.map(s => ({ val: resolveDisplayValue(s), label: s.label }))
+    : [
+        { val: '50+', label: 'Projects' },
+        { val: '98%', label: 'Satisfaction' },
+        { val: '21d', label: 'Avg Launch' },
+        { val: '3+', label: 'Years' },
+      ];
+
   return (
     <>
       {/* Hero */}
@@ -75,12 +94,7 @@ export default function About() {
                 <p className="text-xs font-medium uppercase tracking-[0.2em] text-muted">{tagline}</p>
 
                 <div className="mt-5 grid grid-cols-2 gap-2">
-                  {[
-                    { val: '50+', label: 'Projects' },
-                    { val: '98%', label: 'Satisfaction' },
-                    { val: '21d', label: 'Avg Launch' },
-                    { val: '3+', label: 'Years' },
-                  ].map((s) => (
+                  {statCards.map((s) => (
                     <div key={s.label} className="rounded-xl bg-surface p-3">
                       <p className="font-display text-lg font-bold text-text">{s.val}</p>
                       <p className="text-[10px] uppercase tracking-widest text-muted">{s.label}</p>

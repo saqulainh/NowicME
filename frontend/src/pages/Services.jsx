@@ -42,13 +42,18 @@ const LOCAL_SERVICE_IMAGES = {
   ai: '/services/ai.png',
 };
 
+import { resolveImageUrl } from '../lib/api';
+
 function getServiceImageUrl(service) {
   const raw = service?.image_url || service?.image || '';
   const trimmed = String(raw).trim();
 
   if (trimmed) {
-    if (/^https?:\/\//i.test(trimmed) || trimmed.startsWith('/')) {
+    if (/^https?:\/\//i.test(trimmed)) {
       return trimmed;
+    }
+    if (trimmed.startsWith('/media/')) {
+      return resolveImageUrl(trimmed);
     }
     return `/${trimmed.replace(/^\/+/, '')}`;
   }

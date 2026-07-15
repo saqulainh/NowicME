@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import LoadingSpinner from '../LoadingSpinner';
 
 /**
  * Preloader — A high-end minimal loading screen.
@@ -18,7 +19,7 @@ export default function Preloader() {
     // Artificial delay for that "Senior UI" premium splash feel
     const timer = setTimeout(() => {
       setLoading(false);
-    }, 1200);
+    }, 2000); // 2.0s to let the full G N I D A O L animation wave complete before exit
 
     if (typeof window !== 'undefined') {
       const updateViewport = () => {
@@ -67,18 +68,7 @@ export default function Preloader() {
                 transition={{ duration: 0.5 }}
                 className="flex flex-col items-center gap-4 text-center"
               >
-                <div className="flex items-baseline gap-2">
-                  <span className="font-display text-4xl font-black text-white tracking-tight">NOWIC</span>
-                  <span className="font-display text-4xl font-light text-mint/70 tracking-tight">STUDIO</span>
-                </div>
-                <div className="h-[2px] w-32 overflow-hidden rounded-full bg-white/5">
-                  <motion.div
-                    initial={{ x: "-100%" }}
-                    animate={{ x: "0%" }}
-                    transition={{ duration: 1.2, ease: "easeInOut" }}
-                    className="h-full w-full bg-mint"
-                  />
-                </div>
+                <LoadingSpinner size="lg" />
               </motion.div>
             </div>
           </motion.div>

@@ -507,3 +507,43 @@ def list_invoices(
         )
 
     return {'success': True, 'data': data}
+
+
+# ─── Reviews Moderation ─────────────────────────────────────────────────────
+
+@router.get('/reviews/')
+def list_all_reviews(request: HttpRequest):
+    _admin(request)
+    from apps.public.models import CustomerReview
+    from apps.public.schemas import ReviewOut
+
+    qs = CustomerReview.objects.all().order_by('-created_at')
+    data = [ReviewOut.from_orm(r).dict() for r in qs]
+    return {'success': True, 'data': data}
+
+
+@router.patch('/reviews/{review_id}/')
+def update_review(request: HttpRequest, review_id: int, is_approved: bool):
+    _admin(request)
+    from apps.public.models import CustomerReview
+    
+    try:
+        review = CustomerReview.objects.get(id=review_id)
+        review.is_approved = is_approved
+        review.save(update_fields=['is_approved'])
+        return {'success': True, 'message': 'Review updated'}
+    except CustomerReview.DoesNotExist:
+        raise NotFound('Review not found')
+
+
+@router.delete('/reviews/{review_id}/')
+def delete_review(request: HttpRequest, review_id: int):
+    _admin(request)
+    from apps.public.models import CustomerReview
+    
+    try:
+        review = CustomerReview.objects.get(id=review_id)
+        review.delete()
+        return {'success': True, 'message': 'Review deleted'}
+    except CustomerReview.DoesNotExist:
+        raise NotFound('Review not found')

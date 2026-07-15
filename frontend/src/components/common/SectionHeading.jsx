@@ -14,7 +14,7 @@ export default function SectionHeading({ eyebrow, title, description, align = 'c
       )}
 
       <MaskText delay={0.2}>
-        <h2 className="font-display text-3xl font-bold leading-tight text-text sm:text-4xl">
+        <h2 className="font-display text-[2rem] font-bold leading-[1.15] text-text sm:text-[2.5rem]">
           {typeof title === 'string'
             ? title.split('|').map((part, i) =>
                 i % 2 === 1

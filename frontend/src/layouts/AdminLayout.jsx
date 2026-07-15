@@ -4,7 +4,7 @@ import { useAuth } from '@clerk/clerk-react';
 import {
     LayoutDashboard, Settings, Briefcase, FolderOpen,
     BarChart3, HelpCircle, Info, LogOut, ChevronLeft,
-    Users, MessageSquare, ListTodo, FileText
+    Users, MessageSquare, ListTodo, FileText, Star
 } from 'lucide-react';
 
 const CLERK_KEY = (import.meta.env?.VITE_CLERK_PUBLISHABLE_KEY || '').trim();
@@ -18,6 +18,7 @@ const sidebarLinks = [
     { to: '/admin/invoices', icon: FileText, label: 'Invoices' },
     { to: '/admin/users', icon: Users, label: 'Users' },
     { type: 'label', label: 'Site Content' },
+    { to: '/admin/reviews', icon: Star, label: 'Reviews' },
     { to: '/admin/brand', icon: Settings, label: 'Brand' },
     { to: '/admin/services', icon: Briefcase, label: 'Services' },
     { to: '/admin/portfolio', icon: FolderOpen, label: 'Portfolio' },
@@ -129,16 +130,21 @@ function AdminLayoutUI({ onLogout }) {
             </aside>
 
             {/* Main area */}
-            <main className="flex-1 overflow-y-auto">
+            <main className="flex-1 overflow-y-auto relative">
+                {/* Subtle premium background elements */}
+                <div className="engineering-grid" style={{ opacity: 0.03 }} />
+                <div className="pointer-events-none absolute -top-40 right-0 h-96 w-96 rounded-full bg-mint/[0.04] blur-[100px] z-0" />
+                <div className="pointer-events-none absolute -bottom-20 left-10 h-72 w-72 rounded-full bg-white/[0.015] blur-[80px] z-0" />
+
                 {/* Top bar */}
-                <header className="sticky top-0 z-20 flex h-14 items-center justify-between border-b border-[#1e2028] bg-[#0a0b0f]/80 backdrop-blur-xl px-6">
+                <header className="sticky top-0 z-20 flex h-14 items-center justify-between border-b border-[#1e2028] bg-[#0a0b0f]/60 backdrop-blur-xl px-6 relative z-10">
                     <p className="text-xs text-[#6b6f80]">
                         Logged in as <span className="font-semibold text-[#34d99a]">{admin?.full_name || admin?.email || 'Admin'}</span>
                     </p>
                 </header>
 
                 {/* Page content */}
-                <div className="p-6">
+                <div className="p-6 relative z-10">
                     <Outlet />
                 </div>
             </main>

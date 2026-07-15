@@ -44,11 +44,18 @@ export function ContentProvider({ children }) {
 
     const fetchContent = async () => {
         try {
-            const response = await api.getSiteContent();
-            const rows = response?.data || [];
+            const [contentRes, statsRes, reviewsRes] = await Promise.allSettled([
+                api.getSiteContent(),
+                api.getStats(),
+                api.public_getReviews(),
+            ]);
+
+            const rows = contentRes.status === 'fulfilled' ? (contentRes.value?.data || []) : [];
+            const liveStats = statsRes.status === 'fulfilled' ? (statsRes.value?.data || {}) : {};
+            const liveReviews = reviewsRes.status === 'fulfilled' ? (reviewsRes.value?.data || []) : [];
 
             setContent((prev) => {
-                const merged = { ...prev };
+                const merged = { ...prev, liveStats, reviews: liveReviews };
                 rows.forEach((row) => {
                     if (row.section && row.data !== undefined) {
                         let val = row.data;

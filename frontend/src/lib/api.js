@@ -1,4 +1,4 @@
-const BASE_URL = (import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000').replace(/\/$/, '');
+export const BASE_URL = (import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000').replace(/\/$/, '');
 
 function buildUrl(endpoint) {
   if (/^https?:\/\//i.test(endpoint)) {
@@ -6,6 +6,12 @@ function buildUrl(endpoint) {
   }
 
   return `${BASE_URL}${endpoint.startsWith('/') ? endpoint : `/${endpoint}`}`;
+}
+
+export function resolveImageUrl(imageUrl) {
+  if (!imageUrl) return '';
+  if (/^https?:\/\//i.test(imageUrl)) return imageUrl;
+  return `${BASE_URL}${imageUrl.startsWith('/') ? imageUrl : `/${imageUrl}`}`;
 }
 
 async function parseResponse(response) {
@@ -114,6 +120,14 @@ export const api = {
     const query = new URLSearchParams(params).toString();
     return authApiCall(`/api/v1/crm/leads/${query ? `?${query}` : ''}`, token);
   },
+  crm_updateLead: (token, id, data) => authApiCall(`/api/v1/crm/leads/${id}/`, token, {
+    method: 'PATCH',
+    body: JSON.stringify(data),
+  }),
+  crm_createLead: (token, data) => authApiCall('/api/v1/crm/leads/', token, {
+    method: 'POST',
+    body: JSON.stringify(data),
+  }),
   crm_getProjects: (token) => authApiCall('/api/v1/crm/projects/', token),
   crm_createProject: (token, data) => authApiCall('/api/v1/crm/projects/', token, {
     method: 'POST',
@@ -123,11 +137,19 @@ export const api = {
     method: 'PATCH',
     body: JSON.stringify(data),
   }),
+  crm_updateSubmission: (token, id, data) => authApiCall(`/api/v1/crm/submissions/${id}/`, token, {
+    method: 'PATCH',
+    body: JSON.stringify(data),
+  }),
   // Invoices
   admin_getInvoices: (token, params = {}) => {
     const query = new URLSearchParams(params).toString();
     return authApiCall(`/api/v1/admin/invoices/${query ? `?${query}` : ''}`, token);
   },
+  admin_updateInvoice: (token, id, data) => authApiCall(`/api/v1/admin/invoices/${id}/`, token, {
+    method: 'PATCH',
+    body: JSON.stringify(data),
+  }),
   // Media Upload
   admin_uploadMedia: async (token, file, folder = 'services') => {
     const formData = new FormData();
@@ -144,6 +166,21 @@ export const api = {
     }
     return data;
   },
-};
+  
+  // Reviews (Public)
+  public_getReviews: () => apiCall('/api/v1/public/reviews/'),
+  public_submitReview: (data) => apiCall('/api/v1/public/reviews/', {
+    method: 'POST',
+    body: JSON.stringify(data),
+  }),
 
-export { BASE_URL };
+  // Reviews (Admin)
+  admin_getReviews: (token) => authApiCall('/api/v1/admin/reviews/', token),
+  admin_updateReview: (token, id, isApproved) => authApiCall(`/api/v1/admin/reviews/${id}/?is_approved=${isApproved}`, token, {
+    method: 'PATCH',
+  }),
+  admin_deleteReview: (token, id) => authApiCall(`/api/v1/admin/reviews/${id}/`, token, {
+    method: 'DELETE',
+  }),
+};
+
