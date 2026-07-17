@@ -4,7 +4,7 @@ import { useAuth } from '@clerk/clerk-react';
 import {
     LayoutDashboard, Settings, Briefcase, FolderOpen,
     BarChart3, HelpCircle, Info, LogOut, ChevronLeft,
-    Users, MessageSquare, ListTodo, FileText, Star
+    Users, MessageSquare, ListTodo, FileText, Star, BookOpen
 } from 'lucide-react';
 
 const CLERK_KEY = (import.meta.env?.VITE_CLERK_PUBLISHABLE_KEY || '').trim();
@@ -22,6 +22,7 @@ const sidebarLinks = [
     { to: '/admin/brand', icon: Settings, label: 'Brand' },
     { to: '/admin/services', icon: Briefcase, label: 'Services' },
     { to: '/admin/portfolio', icon: FolderOpen, label: 'Portfolio' },
+    { to: '/admin/blog', icon: BookOpen, label: 'Blog' },
     { to: '/admin/stats', icon: BarChart3, label: 'Stats' },
     { to: '/admin/about', icon: Info, label: 'About' },
     { to: '/admin/faqs', icon: HelpCircle, label: 'FAQs' },

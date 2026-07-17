@@ -9,10 +9,31 @@ export default function LeadsManagement() {
     const [loading, setLoading] = useState(true);
     const [search, setSearch] = useState('');
     const [statusFilter, setStatusFilter] = useState('');
+    const [exporting, setExporting] = useState(false);
 
     useEffect(() => {
         fetchLeads();
     }, [statusFilter]);
+
+    const handleExportCSV = async () => {
+        setExporting(true);
+        try {
+            const token = await getApiToken();
+            const blob = await api.crm_exportLeads(token);
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `leads_export_${new Date().toISOString().slice(0, 10)}.csv`;
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+        } catch (error) {
+            console.error('Failed to export leads:', error);
+            alert('Export failed');
+        } finally {
+            setExporting(false);
+        }
+    };
 
     const fetchLeads = async () => {
         setLoading(true);
@@ -54,6 +75,13 @@ export default function LeadsManagement() {
                     <h1 className="text-2xl font-bold text-[#f0f0f3]">Leads Management</h1>
                     <p className="mt-1 text-sm text-[#6b6f80]">Track and manage inbound enquiries</p>
                 </div>
+                <button
+                    onClick={handleExportCSV}
+                    disabled={exporting}
+                    className="inline-flex items-center justify-center rounded-xl bg-[#34d99a] px-4 py-2 text-xs font-bold uppercase tracking-wider text-black transition-all hover:bg-mint disabled:opacity-50"
+                >
+                    {exporting ? 'Exporting...' : 'Export CSV'}
+                </button>
             </div>
 
             {/* Filters */}

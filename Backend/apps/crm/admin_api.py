@@ -21,8 +21,8 @@ from apps.client.models import Invoice, ProjectClientAssignment, ProjectFile, Pr
 from apps.client.schemas import InvoiceCreateIn, InvoiceUpdateIn, ProjectFileIn, ProjectUpdateIn
 from apps.crm.models import Lead, Project
 from apps.notifications.utils import create_notification
-from apps.public.models import ContactSubmission, PortfolioProject, ServiceOffering, SiteContent
-from apps.public.schemas import SiteContentOut
+from apps.public.models import ContactSubmission, PortfolioProject, ServiceOffering, SiteContent, BlogPost
+from apps.public.schemas import SiteContentOut, BlogPostOut, BlogPostIn, BlogPostUpdateIn
 from apps.users.models import UserProfile
 from apps.audit.utils import log_action
 from shared.audit import AuditAction
@@ -547,3 +547,159 @@ def delete_review(request: HttpRequest, review_id: int):
         return {'success': True, 'message': 'Review deleted'}
     except CustomerReview.DoesNotExist:
         raise NotFound('Review not found')
+
+
+# ─── Leads Export ───────────────────────────────────────────────────────────
+import csv
+from django.http import HttpResponse
+
+@router.get('/leads/export/')
+def export_leads_csv(request: HttpRequest):
+    _admin(request)
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename="leads_export.csv"'
+    
+    writer = csv.writer(response)
+    writer.writerow(['ID', 'Company Name', 'Founder Name', 'Email', 'Phone', 'Source', 'Status', 'Notes', 'Created At'])
+    
+    leads = Lead.objects.filter(is_active=True).order_by('-created_at')
+    for lead in leads:
+        writer.writerow([
+            lead.id,
+            lead.company_name,
+            lead.founder_name,
+            lead.email,
+            lead.phone,
+            lead.source,
+            lead.status,
+            lead.notes,
+            lead.created_at.strftime('%Y-%m-%d %H:%M:%S') if lead.created_at else ''
+        ])
+        
+    return response
+
+
+# ─── Blog Management ─────────────────────────────────────────────────────────
+
+@router.get('/blog/')
+def admin_list_blog_posts(
+    request: HttpRequest,
+    page: int = Query(default=1),
+    page_size: int = Query(default=10),
+):
+    _admin(request)
+    qs = BlogPost.objects.all().order_by('-created_at')
+    return paginate(qs, page=page, page_size=page_size, serializer=lambda p: BlogPostOut.from_orm(p).dict())
+
+
+@router.post('/blog/')
+def admin_create_blog_post(request: HttpRequest, payload: BlogPostIn):
+    admin = _admin(request)
+    
+    if BlogPost.objects.filter(slug=payload.slug).exists():
+        return 400, {'success': False, 'error': f"Slug '{payload.slug}' already exists."}
+        
+    post = BlogPost.objects.create(
+        title=payload.title,
+        slug=payload.slug,
+        excerpt=payload.excerpt or "",
+        content=payload.content,
+        is_published=payload.is_published,
+        read_time_minutes=payload.read_time_minutes or 5
+    )
+    
+    log_action(
+        actor_clerk_id=admin.clerk_user_id,
+        actor_email=admin.email,
+        action=AuditAction.PROJECT_UPDATED,
+        resource_type='blog_post',
+        resource_id=post.id,
+        old_value=None,
+        new_value=BlogPostOut.from_orm(post).model_dump(mode='json'),
+        ip=request.META.get('REMOTE_ADDR'),
+        user_agent=request.META.get('HTTP_USER_AGENT', ''),
+    )
+    
+    return {'success': True, 'data': BlogPostOut.from_orm(post).dict()}
+
+
+class BlogPostUpdatePayload(Schema):
+    title: Optional[str] = None
+    slug: Optional[str] = None
+    excerpt: Optional[str] = None
+    content: Optional[str] = None
+    cover_image_url: Optional[str] = None
+    is_published: Optional[bool] = None
+    read_time_minutes: Optional[int] = None
+
+
+@router.patch('/blog/{post_id}/')
+def admin_update_blog_post(request: HttpRequest, post_id: int, payload: BlogPostUpdatePayload):
+    admin = _admin(request)
+    try:
+        post = BlogPost.objects.get(id=post_id)
+    except BlogPost.DoesNotExist:
+        raise NotFound(f"Blog post #{post_id} not found")
+        
+    old_value = BlogPostOut.from_orm(post).model_dump(mode='json')
+    
+    update_data = payload.dict(exclude_none=True)
+    
+    if 'slug' in update_data and update_data['slug'] != post.slug:
+        if BlogPost.objects.filter(slug=update_data['slug']).exclude(id=post_id).exists():
+            return 400, {'success': False, 'error': f"Slug '{update_data['slug']}' already exists."}
+            
+    if 'cover_image_url' in update_data:
+        url = update_data.pop('cover_image_url')
+        if url.startswith('/media/'):
+            post.cover_image = url.replace('/media/', '')
+        elif '/media/' in url:
+            post.cover_image = url.split('/media/')[-1]
+        else:
+            post.cover_image = url
+            
+    for field, value in update_data.items():
+        setattr(post, field, value)
+        
+    post.save()
+    
+    log_action(
+        actor_clerk_id=admin.clerk_user_id,
+        actor_email=admin.email,
+        action=AuditAction.PROJECT_UPDATED,
+        resource_type='blog_post',
+        resource_id=post.id,
+        old_value=old_value,
+        new_value=BlogPostOut.from_orm(post).model_dump(mode='json'),
+        ip=request.META.get('REMOTE_ADDR'),
+        user_agent=request.META.get('HTTP_USER_AGENT', ''),
+    )
+    
+    return {'success': True, 'data': BlogPostOut.from_orm(post).dict()}
+
+
+@router.delete('/blog/{post_id}/')
+def admin_delete_blog_post(request: HttpRequest, post_id: int):
+    admin = _admin(request)
+    try:
+        post = BlogPost.objects.get(id=post_id)
+    except BlogPost.DoesNotExist:
+        raise NotFound(f"Blog post #{post_id} not found")
+        
+    old_value = BlogPostOut.from_orm(post).model_dump(mode='json')
+    post.delete()
+    
+    log_action(
+        actor_clerk_id=admin.clerk_user_id,
+        actor_email=admin.email,
+        action=AuditAction.PROJECT_UPDATED,
+        resource_type='blog_post',
+        resource_id=post_id,
+        old_value=old_value,
+        new_value=None,
+        ip=request.META.get('REMOTE_ADDR'),
+        user_agent=request.META.get('HTTP_USER_AGENT', ''),
+    )
+    
+    return {'success': True, 'message': 'Blog post deleted'}
+

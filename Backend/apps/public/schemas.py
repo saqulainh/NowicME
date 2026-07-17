@@ -125,3 +125,35 @@ class ReviewOut(Schema):
     is_approved: bool
     avatar_url: Optional[str] = None
     created_at: datetime
+
+
+class BlogPostOut(Schema):
+    id: int
+    title: str
+    slug: str
+    excerpt: str
+    content: str
+    cover_image_url: str = ''
+    is_published: bool
+    read_time_minutes: int
+    views_count: int
+    created_at: datetime
+    updated_at: datetime
+
+
+class BlogPostIn(Schema):
+    title: str
+    slug: str
+    excerpt: Optional[str] = ""
+    content: str
+    is_published: Optional[bool] = False
+    read_time_minutes: Optional[int] = 5
+
+
+class BlogPostUpdateIn(Schema):
+    title: Optional[str] = None
+    slug: Optional[str] = None
+    excerpt: Optional[str] = None
+    content: Optional[str] = None
+    is_published: Optional[bool] = None
+    read_time_minutes: Optional[int] = None

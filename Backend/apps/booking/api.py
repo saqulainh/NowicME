@@ -167,6 +167,21 @@ def book_appointment(request: HttpRequest, payload: AppointmentIn) -> dict:
         {'appointment_id': appointment.id},
     )
 
+    # Webhook Notifications
+    try:
+        from shared.webhooks import notify_new_booking
+        client_name = (profile.full_name if profile and profile.full_name else '') or payload.email
+        notify_new_booking(
+            name=client_name,
+            email=payload.email,
+            service_name=service.name,
+            date=str(payload.date),
+            time_slot=payload.time_slot.strftime("%H:%M") if hasattr(payload.time_slot, 'strftime') else str(payload.time_slot),
+            phone=payload.phone or ''
+        )
+    except Exception as e:
+        logger.error("Failed to trigger booking webhooks: %s", e)
+
     log_action(
         actor_clerk_id=clerk_user_id,
         actor_email=profile.email if profile else '',

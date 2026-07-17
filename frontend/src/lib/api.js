@@ -183,5 +183,36 @@ export const api = {
   admin_deleteReview: (token, id) => authApiCall(`/api/v1/admin/reviews/${id}/`, token, {
     method: 'DELETE',
   }),
+
+  // Leads Export
+  crm_exportLeads: async (token) => {
+    const response = await fetch(buildUrl('/api/v1/admin/leads/export/'), {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    if (!response.ok) throw new Error('Export failed');
+    return response.blob();
+  },
+
+  // Blog (Public)
+  public_getBlogs: () => apiCall('/api/v1/public/blog/'),
+  public_getBlogDetail: (slug) => apiCall(`/api/v1/public/blog/${slug}/`),
+
+  // Blog (Admin)
+  admin_getBlogs: (token, params = {}) => {
+    const query = new URLSearchParams(params).toString();
+    return authApiCall(`/api/v1/admin/blog/${query ? `?${query}` : ''}`, token);
+  },
+  admin_createBlog: (token, data) => authApiCall('/api/v1/admin/blog/', token, {
+    method: 'POST',
+    body: JSON.stringify(data),
+  }),
+  admin_updateBlog: (token, id, data) => authApiCall(`/api/v1/admin/blog/${id}/`, token, {
+    method: 'PATCH',
+    body: JSON.stringify(data),
+  }),
+  admin_deleteBlog: (token, id) => authApiCall(`/api/v1/admin/blog/${id}/`, token, {
+    method: 'DELETE',
+  }),
 };
+
 

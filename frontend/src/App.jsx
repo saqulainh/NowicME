@@ -16,6 +16,8 @@ const Contact = lazy(() => import('./pages/Contact'));
 const Booking = lazy(() => import('./pages/Booking'));
 const ClientDashboard = lazy(() => import('./pages/Dashboard'));
 const SubmitReview = lazy(() => import('./pages/SubmitReview'));
+const Blog = lazy(() => import('./pages/Blog'));
+const BlogPostDetail = lazy(() => import('./pages/BlogPostDetail'));
 
 const AdminLogin = lazy(() => import('./pages/admin/AdminLogin'));
 const Dashboard = lazy(() => import('./pages/admin/Dashboard'));
@@ -29,8 +31,9 @@ const PortfolioEditor = lazy(() => import('./pages/admin/PortfolioEditor'));
 const StatsEditor = lazy(() => import('./pages/admin/StatsEditor'));
 const AboutEditor = lazy(() => import('./pages/admin/AboutEditor'));
 const FAQEditor = lazy(() => import('./pages/admin/FAQEditor'));
-
 const ReviewsManagement = lazy(() => import('./pages/admin/ReviewsManagement'));
+const BlogManagement = lazy(() => import('./pages/admin/BlogManagement'));
+const BlogEditor = lazy(() => import('./pages/admin/BlogEditor'));
 
 export default function App() {
   const location = useLocation();
@@ -52,6 +55,8 @@ export default function App() {
             <Route path="/booking" element={<Booking />} />
             <Route path="/dashboard" element={<ClientDashboard />} />
             <Route path="/review" element={<SubmitReview />} />
+            <Route path="/blog" element={<Blog />} />
+            <Route path="/blog/:slug" element={<BlogPostDetail />} />
             <Route path="*" element={<NotFound />} />
           </Route>
 
@@ -67,6 +72,9 @@ export default function App() {
             <Route path="brand" element={<BrandEditor />} />
             <Route path="services" element={<ServicesEditor />} />
             <Route path="portfolio" element={<PortfolioEditor />} />
+            <Route path="blog" element={<BlogManagement />} />
+            <Route path="blog/new" element={<BlogEditor />} />
+            <Route path="blog/edit/:id" element={<BlogEditor />} />
             <Route path="stats" element={<StatsEditor />} />
             <Route path="about" element={<AboutEditor />} />
             <Route path="faqs" element={<FAQEditor />} />

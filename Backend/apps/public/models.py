@@ -180,4 +180,32 @@ class CustomerReview(models.Model):
     def __str__(self):
         return f"Review by {self.client_name} ({self.rating} Stars)"
 
-# Migration needed: makemigrations public
+
+class BlogPost(models.Model):
+    title = models.CharField(max_length=255)
+    slug = models.SlugField(unique=True, max_length=255)
+    excerpt = models.TextField(blank=True)
+    content = models.TextField()  # Markdown content
+    cover_image = models.ImageField(upload_to='blog/', blank=True, null=True)
+    is_published = models.BooleanField(default=False)
+    read_time_minutes = models.IntegerField(default=5)
+    views_count = models.IntegerField(default=0)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['-created_at']
+        verbose_name = 'Blog Post'
+        verbose_name_plural = 'Blog Posts'
+        indexes = [
+            models.Index(fields=['is_published', 'created_at']),
+            models.Index(fields=['slug']),
+        ]
+
+    def __str__(self):
+        return self.title
+
+    @property
+    def cover_image_url(self):
+        return self.cover_image.url if self.cover_image else ''
+

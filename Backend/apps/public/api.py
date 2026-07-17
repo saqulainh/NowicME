@@ -14,7 +14,7 @@ from django.core.exceptions import ValidationError as DjangoValidationError
 from django.http import HttpRequest
 from ninja import Router, Query
 
-from apps.public.models import ServiceOffering, PortfolioProject, ContactSubmission, SiteContent
+from apps.public.models import ServiceOffering, PortfolioProject, ContactSubmission, SiteContent, BlogPost
 from apps.public.schemas import (
     ServiceOut,
     PortfolioProjectOut,
@@ -22,6 +22,7 @@ from apps.public.schemas import (
     ContactOut,
     SiteContentOut,
     ReviewIn,
+    BlogPostOut,
 )
 from shared.exceptions import NotFound, RateLimited
 from shared.ratelimit import contact_limiter, get_client_ip
@@ -225,6 +226,20 @@ def submit_contact(request: HttpRequest, payload: ContactIn):
         {'submission_id': submission.id, 'email': email},
     )
 
+    # Webhook Notifications
+    try:
+        from shared.webhooks import notify_inbound_lead
+        notify_inbound_lead(
+            name=name,
+            email=email,
+            project_type=project_type,
+            message=message,
+            phone=phone,
+            budget=budget
+        )
+    except Exception as e:
+        logger.error("Failed to trigger contact webhooks: %s", e)
+
     return {
         "success": True,
         "data": {
@@ -354,4 +369,31 @@ def convert_paths_endpoint(request):
             content.save()
             updated += 1
     return {"status": "success", "updated_sections": updated}
+
+
+# ─── Blog ────────────────────────────────────────────────────────────────────
+
+@router.get("/blog/", auth=None)
+@cache_response('blog-list', timeout=180, namespace='blog')
+def list_blog_posts(request: HttpRequest):
+    """Return all published blog posts."""
+    posts = BlogPost.objects.filter(is_published=True).order_by('-created_at')
+    data = [BlogPostOut.from_orm(p).dict() for p in posts]
+    return {"success": True, "data": data}
+
+
+@router.get("/blog/{slug}/", auth=None)
+def get_blog_post(request: HttpRequest, slug: str):
+    """Return a single published blog post by slug and increment views count."""
+    try:
+        post = BlogPost.objects.get(slug=slug, is_published=True)
+    except BlogPost.DoesNotExist:
+        raise NotFound(f"Blog post '{slug}' not found")
+    
+    # Increment views count
+    post.views_count += 1
+    post.save(update_fields=['views_count'])
+    
+    return {"success": True, "data": BlogPostOut.from_orm(post).dict()}
+
 
