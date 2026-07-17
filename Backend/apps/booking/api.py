@@ -23,7 +23,7 @@ from apps.booking.schemas import (
 )
 from shared.auth import clerk_auth, get_current_user
 from shared.exceptions import NotFound, ConflictError
-from shared.email import send_booking_confirmation
+from shared.email import send_booking_confirmation, send_booking_admin_notification
 from shared.sanitize import sanitize_string
 from shared.audit import AuditAction
 from apps.audit.utils import log_action
@@ -150,6 +150,7 @@ def book_appointment(request: HttpRequest, payload: AppointmentIn) -> dict:
     try:
         from apps.users.models import UserProfile
         profile = UserProfile.objects.filter(clerk_user_id=clerk_user_id).first()
+        client_name = (profile.full_name if profile and profile.full_name else '') or payload.email
         if profile and profile.email:
             send_booking_confirmation(
                 email=profile.email,
@@ -157,8 +158,17 @@ def book_appointment(request: HttpRequest, payload: AppointmentIn) -> dict:
                 date=str(payload.date),
                 time_slot=payload.time_slot.strftime("%H:%M"),
             )
+        # Notify Admin via Email
+        send_booking_admin_notification(
+            client_name=client_name,
+            client_email=payload.email,
+            service_name=service.name,
+            date=str(payload.date),
+            time_slot=payload.time_slot.strftime("%H:%M"),
+            phone=payload.phone or ''
+        )
     except DatabaseError as exc:
-        logger.warning("Could not send booking confirmation email: %s", exc)
+        logger.warning("Could not send booking email notifications: %s", exc)
 
     notify_all_admins(
         'new_booking',

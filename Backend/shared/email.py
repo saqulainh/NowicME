@@ -203,6 +203,38 @@ def send_booking_confirmation(
     )
 
 
+def send_booking_admin_notification(
+    client_name: str, client_email: str, service_name: str, date: str, time_slot: str, phone: str = ''
+) -> None:
+    """Notify the admin team of a new scheduled call booking."""
+    subject = f"New Booking: {client_name} — {service_name}"
+    body = _html_wrap(f"""
+<div class="header">
+  <h1>New Booking Confirmed 📅</h1>
+  <p>A client has scheduled a call session</p>
+</div>
+<div class="body">
+  <span class="badge">Appointment</span>
+  <h2>Booking Details</h2>
+  <table class="info-table">
+    <tr><td>Client</td><td>{client_name}</td></tr>
+    <tr><td>Email</td><td><a href="mailto:{client_email}" style="color:#6366f1;">{client_email}</a></td></tr>
+    <tr><td>Phone</td><td>{phone or 'N/A'}</td></tr>
+    <tr><td>Service</td><td>{service_name}</td></tr>
+    <tr><td>Scheduled</td><td>{date} @ {time_slot}</td></tr>
+  </table>
+  <p>This booking has been updated in the CRM dashboard.</p>
+</div>
+""")
+    _send_safe(
+        subject=subject,
+        body=f"New booking from {client_name} ({client_email}) for {service_name} on {date} at {time_slot}.",
+        to_email=settings.ADMIN_EMAIL,
+        html_body=body,
+    )
+
+
+
 def send_booking_reminder(
     email: str, service_name: str, date: str, time_slot: str
 ) -> None:
