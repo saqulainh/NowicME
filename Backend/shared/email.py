@@ -79,31 +79,46 @@ def _send_safe(subject, body, to_email, html_body=None):
 # ─── Contact emails ───────────────────────────────────────────────────────────
 
 def send_contact_confirmation(name: str, email: str) -> None:
-    """Send an acknowledgement email to the user who submitted the contact form."""
-    subject = "Thanks for reaching out — Nowic Studio"
+    """Send a premium acknowledgement and onboarding email to the client."""
+    subject = "Let's build something epic! 🚀 — Nowic Studio"
     body = _html_wrap(f"""
-<div class="header">
-  <h1>Nowic Studio</h1>
-  <p>Software Agency · Product Studio</p>
+<div class="header" style="background: linear-gradient(135deg, #050806 0%, #0c1510 100%); border-bottom: 1px solid #1e293b; text-align: center; padding: 40px 20px;">
+  <h1 style="color: #34d99a; font-size: 26px; font-weight: 800; letter-spacing: -0.5px; margin: 0;">NOWIC STUDIO</h1>
+  <p style="color: #bddfbc; font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: 2px; margin: 8px 0 0;">MVP Engineering & SaaS Development</p>
 </div>
-<div class="body">
-  <span class="badge">Message Received</span>
-  <h2>Hi {name}, we got your message! 👋</h2>
-  <p>Thanks for reaching out to <strong>Nowic Studio</strong>. 
-     We've received your enquiry and our team will get back to you 
-     <strong>within 24 hours</strong>.</p>
-  <div class="highlight">
-    <p>⏰ Typical response time: <strong>under 24 hours</strong><br>
-       📧 Replies come from: <strong>hello@nowicstudio.in</strong></p>
+<div class="body" style="padding: 40px; background: #0f1117;">
+  <span class="badge" style="background: rgba(52, 217, 154, 0.1); color: #34d99a; border: 1px solid rgba(52, 217, 154, 0.2); border-radius: 6px; font-size: 10px; font-weight: 700; padding: 4px 12px; text-transform: uppercase; letter-spacing: 1px;">Enquiry Received</span>
+  <h2 style="font-size: 20px; font-weight: 700; color: #f1f5f9; margin: 16px 0 12px;">Hi {name}, we've received your request! 👋</h2>
+  <p style="font-size: 15px; line-height: 1.7; color: #94a3b8; margin-bottom: 24px;">
+    Thank you for reaching out to <strong>Nowic Studio</strong>. We have received your inquiry and our engineering team is already reviewing your project details. You can expect a response from one of our partners <strong>within 24 hours</strong>.
+  </p>
+
+  <div style="background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 12px; padding: 24px; margin: 32px 0;">
+    <h3 style="font-size: 14px; font-weight: 700; color: #34d99a; text-transform: uppercase; letter-spacing: 1px; margin: 0 0 16px;">🚀 Want to skip the wait?</h3>
+    <p style="font-size: 13px; line-height: 1.6; color: #cbd5e1; margin: 0 0 20px;">
+      If you want to discuss your project immediately and secure a slot on our development calendar, you can book an intro call directly with our lead architects.
+    </p>
+    <div style="text-align: center;">
+      <a href="https://nowicstudio.in/booking" style="background-color: #34d99a; color: #000; padding: 12px 24px; font-weight: 800; font-size: 12px; text-transform: uppercase; letter-spacing: 1px; border-radius: 8px; text-decoration: none; display: inline-block; transition: all 0.2s;">⚡ Book Intro Call (15-Min)</a>
+    </div>
   </div>
-  <p>While you wait, feel free to check out our 
-     <a href="https://nowicstudio.in/portfolio" style="color:#6366f1;">portfolio</a> 
-     or <a href="https://nowicstudio.in/services" style="color:#6366f1;">services</a>.</p>
+
+  <h3 style="font-size: 14px; font-weight: 700; color: #f1f5f9; border-bottom: 1px solid rgba(255, 255, 255, 0.05); padding-bottom: 8px; margin: 32px 0 16px;">What we specialize in:</h3>
+  <ul style="padding-left: 20px; color: #94a3b8; font-size: 14px; line-height: 1.8; margin-bottom: 24px;">
+    <li><strong>MVP Engineering:</strong> Go from idea to launch in 4-6 weeks with an incredibly polished product.</li>
+    <li><strong>SaaS Systems:</strong> High-performance, secure backend engines built using Python, Node, & React.</li>
+    <li><strong>AI Integrations:</strong> Custom LLM setups, agentic workflows, and semantic vector searches.</li>
+  </ul>
+  
+  <p style="font-size: 13px; color: #64748b; margin-top: 32px;">
+    Looking forward to building something amazing together,<br>
+    <strong>The Nowic Studio Team</strong>
+  </p>
 </div>
 """)
     _send_safe(
         subject=subject,
-        body=f"Hi {name}, we received your message and will reply within 24 hours.",
+        body=f"Hi {name}, we received your message and will reply within 24 hours. You can also skip the wait and book a call at https://nowicstudio.in/booking",
         to_email=email,
         html_body=body,
     )
