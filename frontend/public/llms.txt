@@ -1,0 +1,13 @@
+# Nowic Studio
+> Premium software agency delivering MVPs, AI apps, and digital products that scale — fast.
+
+## Services
+- MVP Development
+- Business Websites
+- AI Web Apps
+- Dashboards
+- SaaS Platforms
+
+## Contact
+Email: hello@nowicstudio.com
+Website: https://nowicstdio.tech

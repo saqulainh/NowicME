@@ -11,6 +11,15 @@ export default defineConfig({
     }
   },
   build: {
-    chunkSizeWarningLimit: 1000
+    chunkSizeWarningLimit: 1000,
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          vendor: ['react', 'react-dom', 'react-router-dom', 'react-helmet-async'],
+          ui: ['framer-motion', 'lucide-react'],
+          analytics: ['react-ga4']
+        }
+      }
+    }
   }
 });

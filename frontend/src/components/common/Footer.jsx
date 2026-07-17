@@ -65,7 +65,7 @@ function SocialLink({ href, label, className, children }) {
   }
 
   return (
-    <button type="button" aria-label={label} aria-disabled="true" disabled className={`${baseClassName} opacity-45 pointer-events-none`.trim()}>
+    <button type="button" aria-label={label} disabled className={`${baseClassName} opacity-45 pointer-events-none`.trim()}>
       {children}
     </button>
   );

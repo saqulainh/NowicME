@@ -35,7 +35,8 @@ export default function BrandTitle({ className = '' }) {
       style={{ fontFamily: "'Outfit', sans-serif" }}
     >
       {/* NOWIC: Bold, tight letter spacing */}
-      <div className="flex font-black tracking-tighter text-[2.75rem] sm:text-[4rem] md:text-[6.5rem] leading-[0.85] text-white" aria-label="NOWIC">
+      <span className="sr-only">NOWIC</span>
+      <div className="flex font-black tracking-tighter text-[2.75rem] sm:text-[4rem] md:text-[6.5rem] leading-[0.85] text-white" aria-hidden="true">
         {nowic.map((char, i) => (
           <span key={`n-${i}`} className="inline-block overflow-hidden pb-1" aria-hidden="true">
             <motion.span 
@@ -51,7 +52,8 @@ export default function BrandTitle({ className = '' }) {
       </div>
 
       {/* STUDIO: Light/Thin, slightly looser spacing, premium gradient */}
-      <div className="flex font-light tracking-wide text-[2.75rem] sm:text-[4rem] md:text-[6.5rem] leading-[0.85] text-transparent bg-clip-text bg-gradient-to-br from-[#bddfbc] via-[#a7cfaa] to-[#8cb88f]" aria-label="STUDIO">
+      <span className="sr-only">STUDIO</span>
+      <div className="flex font-light tracking-wide text-[2.75rem] sm:text-[4rem] md:text-[6.5rem] leading-[0.85] text-transparent bg-clip-text bg-gradient-to-br from-[#bddfbc] via-[#a7cfaa] to-[#8cb88f]" aria-hidden="true">
         {studio.map((char, i) => (
           <span key={`s-${i}`} className="inline-block overflow-hidden pb-1" aria-hidden="true">
             <motion.span 

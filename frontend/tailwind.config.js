@@ -20,7 +20,7 @@ export default {
         /* === Typography & Neutrals === */
         text: '#f0f0f3',
         sub: '#b0b3c0',
-        muted: '#5c665e',   
+        muted: '#859187',   
         accent2: '#bddfbc', 
       },
       fontFamily: {
