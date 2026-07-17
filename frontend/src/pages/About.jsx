@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { ArrowRight, CheckCircle2 } from 'lucide-react';
+import SEO from '../components/SEO';
 import SectionHeading from '../components/common/SectionHeading';
 import ScrollReveal from '../components/reveal/ScrollReveal';
 import BrandLogo from '../components/common/BrandLogo';
@@ -57,8 +58,30 @@ export default function About() {
         { val: '3+', label: 'Years' },
       ];
 
+  const aboutSchema = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [{
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Home",
+      "item": "https://nowicstdio.tech/"
+    },{
+      "@type": "ListItem",
+      "position": 2,
+      "name": "About",
+      "item": "https://nowicstdio.tech/about"
+    }]
+  };
+
   return (
     <>
+      <SEO 
+        title="About Us - Our Story & Values | Nowic Studio"
+        description="Learn about Nowic Studio's journey, our execution-first philosophy, and the principles that guide our product engineering."
+        canonicalUrl="https://nowicstdio.tech/about"
+        schema={aboutSchema}
+      />
       {/* Hero */}
       <section className="relative py-20">
         <div

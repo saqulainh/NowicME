@@ -1,6 +1,7 @@
 import { lazy, Suspense } from 'react';
 import { Routes, Route, useLocation } from 'react-router-dom';
 import SmoothScroll from './components/common/SmoothScroll';
+import Analytics from './components/Analytics';
 import MainLayout from './layouts/MainLayout';
 import NotFound, { AdminNotFound } from './pages/NotFound';
 
@@ -37,6 +38,7 @@ export default function App() {
 
   return (
     <>
+      <Analytics />
       {!isAdmin && <SmoothScroll />}
       <Suspense fallback={<div className="min-h-screen bg-[#050806]" />}>
         <Routes>

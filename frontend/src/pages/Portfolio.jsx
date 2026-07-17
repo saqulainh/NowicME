@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowUpRight, Github } from 'lucide-react';
+import SEO from '../components/SEO';
 import SectionHeading from '../components/common/SectionHeading';
 import ScrollReveal from '../components/reveal/ScrollReveal';
 import { BASE_URL } from '../lib/api';
@@ -34,8 +35,38 @@ export default function Portfolio() {
   const categories = ['all', ...new Set(projects.map((p) => p.category).filter(Boolean))];
   const filtered = activeCategory === 'all' ? projects : projects.filter((p) => p.category === activeCategory);
 
+  const portfolioSchema = {
+    "@context": "https://schema.org",
+    "@type": "CollectionPage",
+    "name": "Portfolio - Nowic Studio",
+    "description": "Selected products from our studio. Real products. Real impact.",
+    "mainEntity": {
+      "@type": "ItemList",
+      "itemListElement": projects.map((p, i) => ({
+        "@type": "ListItem",
+        "position": i + 1,
+        "item": {
+          "@type": "CreativeWork",
+          "name": p.title,
+          "description": p.description,
+          "image": resolveImageUrl(p.image_url) || "https://nowicstdio.tech/image.png",
+          "author": {
+            "@type": "Organization",
+            "name": "Nowic Studio"
+          }
+        }
+      }))
+    }
+  };
+
   return (
     <>
+      <SEO 
+        title="Portfolio - Selected Products | Nowic Studio"
+        description="View our portfolio of MVPs, AI web apps, and custom digital products built with precision and purpose."
+        canonicalUrl="https://nowicstdio.tech/portfolio"
+        schema={portfolioSchema}
+      />
       {/* Hero */}
       <section className="relative py-20">
         <div

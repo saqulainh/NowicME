@@ -2,6 +2,7 @@
 import { motion } from 'framer-motion';
 import * as Icons from 'lucide-react';
 import { ArrowRight, CheckCircle2 } from 'lucide-react';
+import SEO from '../components/SEO';
 import SectionHeading from '../components/common/SectionHeading';
 import ScrollReveal from '../components/reveal/ScrollReveal';
 import InteractiveCard from '../components/ui/InteractiveCard';
@@ -148,8 +149,25 @@ export default function Services() {
   const apiServices = Array.isArray(services) ? [...services].sort((a, b) => (a.order ?? 0) - (b.order ?? 0)) : [];
   const orderedServices = apiServices.length ? apiServices : fallbackServices.map(mapFallbackService);
 
+  const servicesSchema = {
+    "@context": "https://schema.org",
+    "@type": "Service",
+    "provider": {
+      "@type": "Organization",
+      "name": "Nowic Studio"
+    },
+    "name": "Mobile App & Web Development Services",
+    "description": "We offer MVP development, AI web apps, custom SaaS platforms, and enterprise dashboards."
+  };
+
   return (
     <>
+      <SEO 
+        title="Services - Mobile App & Web Development | Nowic Studio"
+        description="Explore our execution-first services: MVP development, AI web apps, API development, and business websites."
+        canonicalUrl="https://nowicstdio.tech/services"
+        schema={servicesSchema}
+      />
       {/* Hero */}
       <section className="relative py-20">
         <div

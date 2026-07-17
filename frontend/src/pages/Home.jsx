@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import * as Icons from 'lucide-react';
 import { ArrowUpRight, Github, ArrowRight, CheckCircle2 } from 'lucide-react';
+import SEO from '../components/SEO';
 import SectionHeading from '../components/common/SectionHeading';
 import ScrollReveal from '../components/reveal/ScrollReveal';
 import FloatingChips from '../components/hero/FloatingChips';
@@ -131,8 +132,43 @@ export default function Home() {
   const visibleServices = apiServices.length ? apiServices : fallbackServices.map(mapFallbackService);
   const featuredProjects = Array.isArray(portfolioItems) ? [...portfolioItems].sort((a, b) => (a.order ?? 0) - (b.order ?? 0)).slice(0, 4) : [];
 
+  const homeSchema = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "Organization",
+        "@id": "https://nowicstdio.tech/#organization",
+        "name": "Nowic Studio",
+        "url": "https://nowicstdio.tech/",
+        "logo": "https://nowicstdio.tech/image.png"
+      },
+      {
+        "@type": "WebSite",
+        "@id": "https://nowicstdio.tech/#website",
+        "url": "https://nowicstdio.tech/",
+        "name": "Nowic Studio",
+        "publisher": {
+          "@id": "https://nowicstdio.tech/#organization"
+        }
+      },
+      {
+        "@type": "LocalBusiness",
+        "name": "Nowic Studio",
+        "image": "https://nowicstdio.tech/image.png",
+        "@id": "https://nowicstdio.tech/",
+        "url": "https://nowicstdio.tech/"
+      }
+    ]
+  };
+
   return (
     <>
+      <SEO 
+        title="Nowic Studio | Mobile App & Web Development Company"
+        description="Nowic Studio builds mobile apps, websites, UI/UX designs and AI solutions for startups and businesses."
+        canonicalUrl="https://nowicstdio.tech/"
+        schema={homeSchema}
+      />
       {/* ═══ HERO ═══ */}
       <section className="relative overflow-hidden" style={{ minHeight: '700px' }}>
         {/* Spotlight beams + grid lines (local to Hero) */}

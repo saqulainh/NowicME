@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Mail, Phone, MapPin, CheckCircle2, Clock, Zap, MessageCircle, Calendar, ArrowRight, Rocket } from 'lucide-react';
+import SEO from '../components/SEO';
 import SectionHeading from '../components/common/SectionHeading';
 import ScrollReveal from '../components/reveal/ScrollReveal';
 import { useContent } from '../context/ContentContext';
@@ -34,6 +35,8 @@ const DEFAULT_BUDGET_OPTIONS = [
   { label: '₹2L–5L', value: '2lac_5lac' },
   { label: 'Above ₹5L', value: 'above_5lac' }
 ];
+
+import { trackEvent } from '../components/Analytics';
 
 export default function Contact() {
   const { content, loading } = useContent();
@@ -121,6 +124,9 @@ export default function Contact() {
       });
       setStatus('success');
       setForm({ name: '', email: '', project_type: '', message: '', phone: '', budget: '', service_slug: '' });
+      
+      // GA4 Track Submission
+      trackEvent('Form', 'Contact_Submission_Success', form.project_type);
     } catch (err) {
       setStatus('error');
       if (err.name === 'ApiError' && err.data?.errors) {
@@ -145,8 +151,27 @@ export default function Contact() {
       name: service.title,
     }));
 
+  const contactSchema = {
+    "@context": "https://schema.org",
+    "@type": "ContactPage",
+    "mainEntity": {
+      "@type": "ContactPoint",
+      "contactType": "customer support",
+      "email": liveBrand.email || "hello@nowicstudio.com",
+      "telephone": liveBrand.phone || "+91 98765 43210",
+      "areaServed": "IN",
+      "availableLanguage": ["English", "Hindi"]
+    }
+  };
+
   return (
     <>
+      <SEO 
+        title="Contact Us - Let's Build Together | Nowic Studio"
+        description="Get in touch to discuss your next project. We respond within 24 hours with a clear roadmap and no-fluff plan."
+        canonicalUrl="https://nowicstdio.tech/contact"
+        schema={contactSchema}
+      />
       {/* Hero */}
       <section className="relative py-20">
         <div

@@ -6,6 +6,7 @@ import {
   Clock, ChevronRight, Sparkles, ShieldCheck 
 } from 'lucide-react';
 import { SignInButton } from '@clerk/clerk-react';
+import SEO from '../components/SEO';
 import SectionHeading from '../components/common/SectionHeading';
 import ScrollReveal from '../components/reveal/ScrollReveal';
 import LoadingSpinner from '../components/LoadingSpinner';
@@ -23,6 +24,8 @@ function formatCurrency(value) {
 function formatSlot(slot) {
   return slot ? String(slot).slice(0, 5) : '';
 }
+
+import { trackEvent } from '../components/Analytics';
 
 export default function Booking() {
   const today = new Date().toISOString().split('T')[0];
@@ -79,6 +82,9 @@ export default function Booking() {
 
       setBooking(result.data);
       setStep(3);
+      
+      // GA4 Track Booking
+      trackEvent('Booking', 'Appointment_Success', selectedService.name);
     } catch (err) {
       setError(err.message || 'Failed to book appointment');
     } finally {
@@ -97,8 +103,30 @@ export default function Booking() {
     setError('');
   }
 
+  const bookingSchema = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [{
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Home",
+      "item": "https://nowicstdio.tech/"
+    },{
+      "@type": "ListItem",
+      "position": 2,
+      "name": "Booking",
+      "item": "https://nowicstdio.tech/booking"
+    }]
+  };
+
   return (
     <div className="relative min-h-screen bg-bg selection:bg-mint/30">
+      <SEO 
+        title="Book a Call - Strategy & Consultation | Nowic Studio"
+        description="Schedule a 1-on-1 strategy call with our founders. Choose a convenient slot to discuss your next big digital product."
+        canonicalUrl="https://nowicstdio.tech/booking"
+        schema={bookingSchema}
+      />
       {/* ── Background Elements ─────────────────────────────────────────── */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
         <div 

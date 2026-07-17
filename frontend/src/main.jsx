@@ -2,6 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
 import { ClerkProvider } from '@clerk/clerk-react';
+import { HelmetProvider } from 'react-helmet-async';
 import App from './App';
 import { ContentProvider } from './context/ContentContext';
 import { AdminAuthProvider } from './context/AdminAuthContext';
@@ -14,11 +15,13 @@ const isClerkConfigured =
 
 function AppProviders({ children }) {
   const appTree = (
-    <BrowserRouter>
-      <AdminAuthProvider>
-        <ContentProvider>{children}</ContentProvider>
-      </AdminAuthProvider>
-    </BrowserRouter>
+    <HelmetProvider>
+      <BrowserRouter>
+        <AdminAuthProvider>
+          <ContentProvider>{children}</ContentProvider>
+        </AdminAuthProvider>
+      </BrowserRouter>
+    </HelmetProvider>
   );
 
   if (!isClerkConfigured) {
