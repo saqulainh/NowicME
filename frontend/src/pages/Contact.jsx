@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Mail, Phone, MapPin, CheckCircle2, Clock, Zap, MessageCircle, Calendar, ArrowRight, Rocket } from 'lucide-react';
@@ -10,6 +10,7 @@ import { api } from '../lib/api';
 import LoadingSpinner from '../components/LoadingSpinner';
 import ErrorMessage from '../components/ErrorMessage';
 import { brand, services as fallbackServices } from '../data/content';
+import { toast } from 'sonner';
 
 const promise = [
   { icon: Clock, text: 'Response within 24 hours' },
@@ -36,7 +37,7 @@ const DEFAULT_BUDGET_OPTIONS = [
   { label: 'Above ₹5L', value: 'above_5lac' }
 ];
 
-import { trackEvent } from '../components/Analytics';
+import { trackContactSubmit, trackFormStart } from '../components/Analytics';
 
 export default function Contact() {
   const { content, loading } = useContent();
@@ -97,11 +98,18 @@ export default function Contact() {
     return Object.keys(newErrors).length === 0;
   };
 
+  const hasStartedForm = useRef(false);
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setForm((f) => ({ ...f, [name]: value }));
     // Clear error when user types
     if (errors[name]) setErrors(prev => ({ ...prev, [name]: '' }));
+    // Track form start intent (only once per session)
+    if (!hasStartedForm.current) {
+      hasStartedForm.current = true;
+      trackFormStart();
+    }
   };
 
   async function handleSubmit(e) {
@@ -123,10 +131,11 @@ export default function Contact() {
         website: form.website,
       });
       setStatus('success');
+      toast.success('Inquiry received! 🎉', { description: 'We will respond within 24 hours.' });
       setForm({ name: '', email: '', project_type: '', message: '', phone: '', budget: '', service_slug: '' });
-      
-      // GA4 Track Submission
-      trackEvent('Form', 'Contact_Submission_Success', form.project_type);
+
+      // GA4 — Conversion event (shows in Goals)
+      trackContactSubmit(form.project_type);
     } catch (err) {
       setStatus('error');
       if (err.name === 'ApiError' && err.data?.errors) {
@@ -137,8 +146,11 @@ export default function Contact() {
         });
         setErrors(fieldErrors);
         setErrorMsg('Please check the highlighted fields.');
+        toast.error('Validation Error', { description: 'Please check the highlighted fields.' });
       } else {
-        setErrorMsg(err.message || 'Something went wrong');
+        const msg = err.message || 'Something went wrong';
+        setErrorMsg(msg);
+        toast.error('Submission Failed', { description: msg });
       }
     }
   }
@@ -292,15 +304,15 @@ export default function Contact() {
                         <span className="block text-[13px] font-semibold text-[#f0f0f3] mb-2 uppercase">Contact Info</span>
                         <div className="grid gap-2">
                           <div className="space-y-1">
-                            <input id="contact-name" name="name" value={form.name} onChange={handleChange} placeholder="Name" className={`field !py-2 !h-[36px] !px-3 !text-[12px] bg-[#16171e] focus:bg-[#1e2028] ${errors.name ? 'border-red-500/50' : ''}`} />
+                            <input id="contact-name" name="name" value={form.name} onChange={handleChange} placeholder="Name" aria-label="Full Name" className={`field !py-2 !h-[36px] !px-3 !text-[12px] bg-[#16171e] focus:bg-[#1e2028] ${errors.name ? 'border-red-500/50' : ''}`} />
                             {errors.name && <p className="text-[10px] text-red-400 pl-1">{errors.name}</p>}
                           </div>
                           <div className="space-y-1">
-                            <input id="contact-email" name="email" type="email" value={form.email} onChange={handleChange} placeholder="Email" className={`field !py-2 !h-[36px] !px-3 !text-[12px] bg-[#16171e] focus:bg-[#1e2028] ${errors.email ? 'border-red-500/50' : ''}`} />
+                            <input id="contact-email" name="email" type="email" value={form.email} onChange={handleChange} placeholder="Email" aria-label="Email Address" className={`field !py-2 !h-[36px] !px-3 !text-[12px] bg-[#16171e] focus:bg-[#1e2028] ${errors.email ? 'border-red-500/50' : ''}`} />
                             {errors.email && <p className="text-[10px] text-red-400 pl-1">{errors.email}</p>}
                           </div>
                           <div className="space-y-1">
-                            <input id="contact-phone" name="phone" value={form.phone} onChange={handleChange} placeholder="Phone (optional)" className={`field !py-2 !h-[36px] !px-3 !text-[12px] bg-[#16171e] focus:bg-[#1e2028] ${errors.phone ? 'border-red-500/50' : ''}`} />
+                            <input id="contact-phone" name="phone" value={form.phone} onChange={handleChange} placeholder="Phone (optional)" aria-label="Phone Number" className={`field !py-2 !h-[36px] !px-3 !text-[12px] bg-[#16171e] focus:bg-[#1e2028] ${errors.phone ? 'border-red-500/50' : ''}`} />
                             {errors.phone && <p className="text-[10px] text-red-400 pl-1">{errors.phone}</p>}
                           </div>
                           {/* Honeypot field - hidden from users */}
@@ -320,7 +332,7 @@ export default function Contact() {
                           </div>
                         ) : (
                           <>
-                            <select id="contact-type" name="project_type" value={form.project_type} onChange={handleChange} className={`field !py-0 !h-[36px] !px-3 !text-[12px] !cursor-pointer bg-[#16171e] focus:bg-[#1e2028] ${errors.project_type ? 'border-red-500/50' : ''}`}>
+                            <select id="contact-type" name="project_type" value={form.project_type} onChange={handleChange} aria-label="Project Type" className={`field !py-0 !h-[36px] !px-3 !text-[12px] !cursor-pointer bg-[#16171e] focus:bg-[#1e2028] ${errors.project_type ? 'border-red-500/50' : ''}`}>
                               <option value="">Select type...</option>
                               {orderedServices.map((service) => (
                                 <option key={service.slug} value={service.name} className="bg-[#0e0f14] text-[#f0f0f3]">{service.name}</option>
@@ -337,7 +349,7 @@ export default function Contact() {
 
                       <div>
                         <span className="block text-[13px] font-semibold text-[#f0f0f3] mb-2 uppercase">Budget</span>
-                        <select id="contact-budget" name="budget" value={form.budget} onChange={handleChange} className="field !py-0 !h-[36px] !px-3 !text-[12px] !cursor-pointer bg-[#16171e] focus:bg-[#1e2028]" disabled={choicesLoading}>
+                        <select id="contact-budget" name="budget" value={form.budget} onChange={handleChange} aria-label="Budget" className="field !py-0 !h-[36px] !px-3 !text-[12px] !cursor-pointer bg-[#16171e] focus:bg-[#1e2028]" disabled={choicesLoading}>
                           <option value="">Select budget (optional)</option>
                           {choices.budget_options.map((b) => (
                             <option key={b.value} value={b.value} className="bg-[#0e0f14] text-[#f0f0f3]">{b.label}</option>
@@ -354,7 +366,7 @@ export default function Contact() {
                             {form.message.length}/500
                           </span>
                         </div>
-                        <textarea id="contact-message" name="message" maxLength={500} rows={3} value={form.message} onChange={handleChange} placeholder="Describe your idea..." className={`field resize-none !py-2 !px-3 !text-[12px] bg-[#16171e] focus:bg-[#1e2028] ${errors.message ? 'border-red-500/50' : ''}`} />
+                        <textarea id="contact-message" name="message" maxLength={500} rows={3} value={form.message} onChange={handleChange} placeholder="Describe your idea..." aria-label="Project Details" className={`field resize-none !py-2 !px-3 !text-[12px] bg-[#16171e] focus:bg-[#1e2028] ${errors.message ? 'border-red-500/50' : ''}`} />
                         {errors.message && <p className="text-[10px] text-red-400 mt-1 pl-1">{errors.message}</p>}
                       </div>
 

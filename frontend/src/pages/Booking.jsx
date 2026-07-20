@@ -25,7 +25,8 @@ function formatSlot(slot) {
   return slot ? String(slot).slice(0, 5) : '';
 }
 
-import { trackEvent } from '../components/Analytics';
+import { trackBookingSubmit, trackPricingClick } from '../components/Analytics';
+import { toast } from 'sonner';
 
 export default function Booking() {
   const today = new Date().toISOString().split('T')[0];
@@ -82,11 +83,14 @@ export default function Booking() {
 
       setBooking(result.data);
       setStep(3);
-      
-      // GA4 Track Booking
-      trackEvent('Booking', 'Appointment_Success', selectedService.name);
+      toast.success('Booking Confirmed! 🎉', { description: 'Check your email for details.' });
+
+      // GA4 — Conversion event (shows in Goals)
+      trackBookingSubmit(selectedService.name);
     } catch (err) {
-      setError(err.message || 'Failed to book appointment');
+      const msg = err.message || 'Failed to book appointment';
+      setError(msg);
+      toast.error('Booking Failed', { description: msg });
     } finally {
       setSubmitting(false);
     }
@@ -220,6 +224,8 @@ export default function Booking() {
                         onClick={() => {
                           setSelectedService(service);
                           setStep(2);
+                          // GA4 — Track service interest intent
+                          trackPricingClick(service.name);
                         }}
                         className="relative flex h-full w-full flex-col overflow-hidden rounded-3xl border border-white/10 bg-[#0a0a0a]/80 backdrop-blur-xl p-8 text-left transition-all hover:border-mint/30"
                       >
@@ -361,6 +367,7 @@ export default function Booking() {
                               value={contactEmail}
                               onChange={(e) => setContactEmail(e.target.value)}
                               placeholder="you@agency.com"
+                              aria-label="Email Address"
                               className="w-full h-14 rounded-2xl border border-white/10 bg-white/5 px-12 text-sm text-text outline-none focus:border-mint/50 focus:bg-mint/5 transition-all"
                             />
                             <Mail size={16} className="absolute left-5 top-1/2 -translate-y-1/2 text-sub group-focus-within:text-mint" />
@@ -374,6 +381,7 @@ export default function Booking() {
                               value={contactPhone}
                               onChange={(e) => setContactPhone(e.target.value)}
                               placeholder="+91 00000 00000"
+                              aria-label="Mobile Number"
                               className="w-full h-14 rounded-2xl border border-white/10 bg-white/5 px-12 text-sm text-text outline-none focus:border-mint/50 focus:bg-mint/5 transition-all"
                             />
                             <Phone size={16} className="absolute left-5 top-1/2 -translate-y-1/2 text-sub group-focus-within:text-mint" />

@@ -2,6 +2,7 @@ import { lazy, Suspense } from 'react';
 import { Routes, Route, useLocation } from 'react-router-dom';
 import SmoothScroll from './components/common/SmoothScroll';
 import Analytics from './components/Analytics';
+import LiveChat from './components/LiveChat';
 import MainLayout from './layouts/MainLayout';
 import NotFound, { AdminNotFound } from './pages/NotFound';
 
@@ -12,6 +13,7 @@ const Home = lazy(() => import('./pages/Home'));
 const Services = lazy(() => import('./pages/Services'));
 const Portfolio = lazy(() => import('./pages/Portfolio'));
 const CaseStudies = lazy(() => import('./pages/CaseStudies'));
+const Pricing = lazy(() => import('./pages/Pricing'));
 const About = lazy(() => import('./pages/About'));
 const Contact = lazy(() => import('./pages/Contact'));
 const Booking = lazy(() => import('./pages/Booking'));
@@ -36,6 +38,8 @@ const ReviewsManagement = lazy(() => import('./pages/admin/ReviewsManagement'));
 const BlogManagement = lazy(() => import('./pages/admin/BlogManagement'));
 const BlogEditor = lazy(() => import('./pages/admin/BlogEditor'));
 
+import { Toaster } from 'sonner';
+
 export default function App() {
   const location = useLocation();
   const isAdmin = location.pathname.startsWith('/admin');
@@ -43,6 +47,8 @@ export default function App() {
   return (
     <>
       <Analytics />
+      <LiveChat />
+      <Toaster theme="dark" position="bottom-right" richColors />
       {!isAdmin && <SmoothScroll />}
       <Suspense fallback={<div className="min-h-screen bg-[#050806]" />}>
         <Routes>
@@ -52,6 +58,7 @@ export default function App() {
             <Route path="/services" element={<Services />} />
             <Route path="/portfolio" element={<Portfolio />} />
             <Route path="/case-studies" element={<CaseStudies />} />
+            <Route path="/pricing" element={<Pricing />} />
             <Route path="/about" element={<About />} />
             <Route path="/contact" element={<Contact />} />
             <Route path="/booking" element={<Booking />} />

@@ -141,6 +141,7 @@ export default function Portfolio() {
                       <img
                         src={resolveImageUrl(item.image_url)}
                         alt={item.title}
+                        loading="lazy"
                         className="h-full w-full object-cover"
                       />
                     ) : (

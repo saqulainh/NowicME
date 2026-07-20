@@ -5,6 +5,7 @@ import { useEffect, useRef } from 'react';
  * Each panel is a CSS-only glass card with mock UI chrome (title bar, dots, code lines).
  * They are rendered at very low opacity (8-12%) and use slow CSS float animation + mouse parallax.
  *
+ * Performance: RAF loop is paused via IntersectionObserver when off-screen.
  * Variants: 'code', 'analytics', 'github', 'ai', 'mobile', 'planning'
  */
 
@@ -182,6 +183,8 @@ function SinglePanel({ variant, style, className = '' }) {
 /**
  * FloatingPanels renders a set of glassmorphic software windows behind a section.
  * Uses mouse parallax for subtle depth.
+ * RAF loop is automatically paused when the container is scrolled out of view
+ * (via IntersectionObserver) to eliminate off-screen CPU waste.
  *
  * @param {Object[]} panels - Array of { variant, position, size, delay }
  * @param {number} parallaxStrength - Mouse parallax factor (default 0.015)
@@ -193,13 +196,15 @@ export default function FloatingPanels({ panels = [], parallaxStrength = 0.015 }
     const container = containerRef.current;
     if (!container || typeof window === 'undefined') return;
 
-    let rafId;
+    let rafId = null;
+    let isVisible = false;
     let mouseX = 0;
     let mouseY = 0;
     let currentX = 0;
     let currentY = 0;
 
     const onMouseMove = (e) => {
+      if (!isVisible) return;
       const rect = container.getBoundingClientRect();
       mouseX = ((e.clientX - rect.left) / rect.width - 0.5) * 2;
       mouseY = ((e.clientY - rect.top) / rect.height - 0.5) * 2;
@@ -218,12 +223,29 @@ export default function FloatingPanels({ panels = [], parallaxStrength = 0.015 }
       rafId = requestAnimationFrame(animate);
     };
 
+    /* ── IntersectionObserver: pause RAF when off-screen ── */
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        isVisible = entry.isIntersecting;
+        if (isVisible) {
+          if (!rafId) rafId = requestAnimationFrame(animate);
+        } else {
+          if (rafId) {
+            cancelAnimationFrame(rafId);
+            rafId = null;
+          }
+        }
+      },
+      { rootMargin: '100px' } // start slightly before entering viewport
+    );
+
+    observer.observe(container);
     window.addEventListener('mousemove', onMouseMove, { passive: true });
-    rafId = requestAnimationFrame(animate);
 
     return () => {
+      observer.disconnect();
       window.removeEventListener('mousemove', onMouseMove);
-      cancelAnimationFrame(rafId);
+      if (rafId) cancelAnimationFrame(rafId);
     };
   }, [parallaxStrength]);
 

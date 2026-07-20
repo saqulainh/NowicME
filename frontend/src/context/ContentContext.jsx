@@ -38,12 +38,12 @@ function normalizeServices(items) {
     }));
 }
 
-export function ContentProvider({ children }) {
-    const [content, setContent] = useState({});
-    const [loading, setLoading] = useState(true);
+import { useQuery } from '@tanstack/react-query';
 
-    const fetchContent = async () => {
-        try {
+export function ContentProvider({ children }) {
+    const { data: content, isLoading: loading, refetch } = useQuery({
+        queryKey: ['siteContent'],
+        queryFn: async () => {
             const [contentRes, statsRes, reviewsRes] = await Promise.allSettled([
                 api.getSiteContent(),
                 api.getStats(),
@@ -54,33 +54,27 @@ export function ContentProvider({ children }) {
             const liveStats = statsRes.status === 'fulfilled' ? (statsRes.value?.data || {}) : {};
             const liveReviews = reviewsRes.status === 'fulfilled' ? (reviewsRes.value?.data || []) : [];
 
-            setContent((prev) => {
-                const merged = { ...prev, liveStats, reviews: liveReviews };
-                rows.forEach((row) => {
-                    if (row.section && row.data !== undefined) {
-                        let val = row.data;
-                        if (row.section === 'services') {
-                            val = normalizeServices(val);
-                            val = attachIcons(val, 'icon');
-                        } else if (['stats', 'highlights', 'whyUs'].includes(row.section)) {
-                            val = attachIcons(val);
-                        }
-                        merged[row.section] = val;
+            const merged = { liveStats, reviews: liveReviews };
+            rows.forEach((row) => {
+                if (row.section && row.data !== undefined) {
+                    let val = row.data;
+                    if (row.section === 'services') {
+                        val = normalizeServices(val);
+                        val = attachIcons(val, 'icon');
+                    } else if (['stats', 'highlights', 'whyUs'].includes(row.section)) {
+                        val = attachIcons(val);
                     }
-                });
-                return merged;
+                    merged[row.section] = val;
+                }
             });
-        } catch (err) {
-            console.warn('Content fetch failed, using defaults:', err.message);
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    useEffect(() => { fetchContent(); }, []);
+            return merged;
+        },
+        staleTime: 5 * 60 * 1000, // 5 minutes
+        refetchOnWindowFocus: false,
+    });
 
     return (
-        <ContentContext.Provider value={{ content, loading, refetch: fetchContent }}>
+        <ContentContext.Provider value={{ content: content || {}, loading, refetch }}>
             {children}
         </ContentContext.Provider>
     );

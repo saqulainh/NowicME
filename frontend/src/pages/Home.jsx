@@ -1,8 +1,20 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import * as Icons from 'lucide-react';
-import { ArrowUpRight, Github, ArrowRight, CheckCircle2 } from 'lucide-react';
+import {
+  ArrowUpRight,
+  Github,
+  ArrowRight,
+  CheckCircle2,
+  Star,
+  Trophy,
+  Code2,
+  Users,
+  Rocket,
+  Bot,
+  Sparkles,
+  Layers,
+} from 'lucide-react';
 import SEO from '../components/SEO';
 import SectionHeading from '../components/common/SectionHeading';
 import ScrollReveal from '../components/reveal/ScrollReveal';
@@ -19,6 +31,21 @@ import ErrorMessage from '../components/ErrorMessage';
 import { useContent } from '../context/ContentContext';
 import { BASE_URL } from '../lib/api';
 import { brand, services as fallbackServices } from '../data/content';
+
+/* ── Mobile detection (avoids heavy decorative render on phones) ── */
+function useIsMobile() {
+  const [isMobile, setIsMobile] = useState(
+    () => typeof window !== 'undefined' && window.matchMedia('(max-width: 767px)').matches
+  );
+  useEffect(() => {
+    const mq = window.matchMedia('(max-width: 767px)');
+    setIsMobile(mq.matches);
+    const handler = (e) => setIsMobile(e.matches);
+    mq.addEventListener('change', handler);
+    return () => mq.removeEventListener('change', handler);
+  }, []);
+  return isMobile;
+}
 
 /* ── Counter hook ── */
 function useCountUp(target, duration = 1.4) {
@@ -43,9 +70,7 @@ function useCountUp(target, duration = 1.4) {
   return ref;
 }
 
-function resolveIcon(name) {
-  return Icons[name] || Icons.Code2;
-}
+import { resolveIcon } from '../lib/icons';
 
 function formatCurrency(value) {
   if (value === null || value === undefined || value === '') return '';
@@ -99,6 +124,7 @@ function StatCard({ item, index, loading }) {
 
 export default function Home() {
   const { content, loading } = useContent();
+  const isMobile = useIsMobile();
   const services = content?.services || [];
   const portfolioItems = content?.portfolioItems || content?.portfolio || [];
   const statsLoading = loading;
@@ -109,24 +135,24 @@ export default function Home() {
 
   const apiHighlights = Array.isArray(content?.highlights) ? content.highlights : [];
   const liveStats = content?.liveStats || {};
-  
+
   const statCards = apiHighlights.length > 0
     ? apiHighlights
     : [
-        { icon: Icons.Star, label: 'Projects Delivered', value: `${liveStats?.projects_delivered ?? 0}` },
-        { icon: Icons.Trophy, label: 'Happy Clients', value: `${liveStats?.happy_clients ?? 0}` },
-        { icon: Icons.Code2, label: 'Services', value: `${liveStats?.services_offered ?? 0}` },
-        { icon: Icons.Users, label: 'Team Members', value: `${liveStats?.team_members ?? 0}` },
+        { icon: Star,   label: 'Projects Delivered', value: `${liveStats?.projects_delivered ?? 0}` },
+        { icon: Trophy, label: 'Happy Clients',       value: `${liveStats?.happy_clients ?? 0}` },
+        { icon: Code2,  label: 'Services',            value: `${liveStats?.services_offered ?? 0}` },
+        { icon: Users,  label: 'Team Members',        value: `${liveStats?.team_members ?? 0}` },
       ];
 
-  const whyUs = [
-    { title: 'Execution-First Process', desc: 'We ship in tight sprints with clear milestones — no delays, no excuses.', icon: Icons.Rocket },
-    { title: 'Senior-Level Code Quality', desc: 'Every project uses clean architecture, proper patterns, and scalable structure.', icon: Icons.Code2 },
-    { title: 'AI-Augmented Speed', desc: 'We leverage AI workflows to deliver 3× faster without compromising quality.', icon: Icons.Bot },
-    { title: 'Premium UI from Day 1', desc: 'Your product will look and feel premium — because first impressions win customers.', icon: Icons.Sparkles },
-    { title: 'Transparent Collaboration', desc: 'Weekly demos, direct founder access, clear progress — you\'re never in the dark.', icon: Icons.Users },
-    { title: 'Architecture That Scales', desc: 'We build for today and tomorrow — clean code that grows with your business.', icon: Icons.Layers },
-  ];
+  const whyUs = useMemo(() => [
+    { title: 'Execution-First Process',    desc: 'We ship in tight sprints with clear milestones — no delays, no excuses.',                           icon: Rocket   },
+    { title: 'Senior-Level Code Quality',  desc: 'Every project uses clean architecture, proper patterns, and scalable structure.',                   icon: Code2    },
+    { title: 'AI-Augmented Speed',         desc: 'We leverage AI workflows to deliver 3× faster without compromising quality.',                       icon: Bot      },
+    { title: 'Premium UI from Day 1',      desc: 'Your product will look and feel premium — because first impressions win customers.',                 icon: Sparkles },
+    { title: 'Transparent Collaboration',  desc: "Weekly demos, direct founder access, clear progress — you're never in the dark.",                  icon: Users    },
+    { title: 'Architecture That Scales',   desc: 'We build for today and tomorrow — clean code that grows with your business.',                       icon: Layers   },
+  ], []);
 
   const apiServices = Array.isArray(services) ? [...services].sort((a, b) => (a.order ?? 0) - (b.order ?? 0)) : [];
   const visibleServices = apiServices.length ? apiServices : fallbackServices.map(mapFallbackService);
@@ -231,14 +257,16 @@ export default function Home() {
         {/* Spotlight beams + grid lines (local to Hero) */}
         <HeroDecor />
 
-        {/* Premium Floating Software Backgrounds */}
-        <FloatingPanels panels={[
-          { variant: 'analytics', top: '15%', right: '-2%', width: '280px', opacity: 0.18, delay: 0 },
-          { variant: 'code', bottom: '20%', left: '-5%', width: '260px', opacity: 0.15, delay: 2 }
-        ]} parallaxStrength={0.015} />
+        {/* Premium Floating Software Backgrounds — desktop only for performance */}
+        {!isMobile && (
+          <FloatingPanels panels={[
+            { variant: 'analytics', top: '15%', right: '-2%', width: '280px', opacity: 0.18, delay: 0 },
+            { variant: 'code', bottom: '20%', left: '-5%', width: '260px', opacity: 0.15, delay: 2 }
+          ]} parallaxStrength={0.015} />
+        )}
 
-        {/* Floating tech chips */}
-        <FloatingChips />
+        {/* Floating tech chips — desktop only for performance */}
+        {!isMobile && <FloatingChips />}
 
         <BoutiqueReveal delay={0.6} className="container-shell relative z-10 flex flex-col items-center justify-center text-center pt-28 pb-28 lg:pt-36 lg:pb-36">
           <div className="flex flex-col items-center">
@@ -327,12 +355,14 @@ export default function Home() {
         <div className="pointer-events-none absolute top-1/2 right-[8%] h-64 w-64 rounded-full bg-white/[0.05] blur-[80px] z-0" />
         <div className="pointer-events-none absolute -bottom-10 left-1/3 h-72 w-72 rounded-full bg-emerald/[0.1] blur-[100px] z-0" />
         
-        {/* Engineering grid and floating panels */}
+        {/* Engineering grid and floating panels — desktop only */}
         <div className="engineering-grid" />
-        <FloatingPanels panels={[
-          { variant: 'code', top: '15%', right: '-4%', width: '320px', opacity: 0.22, delay: 0 },
-          { variant: 'github', bottom: '10%', left: '0%', width: '340px', opacity: 0.2, delay: 1.5 }
-        ]} parallaxStrength={0.01} />
+        {!isMobile && (
+          <FloatingPanels panels={[
+            { variant: 'code', top: '15%', right: '-4%', width: '320px', opacity: 0.22, delay: 0 },
+            { variant: 'github', bottom: '10%', left: '0%', width: '340px', opacity: 0.2, delay: 1.5 }
+          ]} parallaxStrength={0.01} />
+        )}
 
         <div className="container-shell relative z-10">
           <SectionHeading
@@ -395,11 +425,13 @@ export default function Home() {
         <div className="pointer-events-none absolute top-0 right-[10%] h-96 w-96 rounded-full bg-mint/[0.08] blur-[120px] z-0" />
         <div className="pointer-events-none absolute bottom-0 left-[5%] h-64 w-64 rounded-full bg-white/[0.06] blur-[80px] z-0" />
         
-        {/* Engineering grid and AI workflow panels */}
+        {/* Engineering grid and AI workflow panels — desktop only */}
         <div className="engineering-grid" />
-        <FloatingPanels panels={[
-          { variant: 'ai', top: '25%', right: '15%', width: '320px', opacity: 0.25, delay: 0.5 }
-        ]} parallaxStrength={0.02} />
+        {!isMobile && (
+          <FloatingPanels panels={[
+            { variant: 'ai', top: '25%', right: '15%', width: '320px', opacity: 0.25, delay: 0.5 }
+          ]} parallaxStrength={0.02} />
+        )}
 
         <div className="container-shell relative z-10">
           <div className="grid gap-16 lg:grid-cols-[380px_1fr]">
@@ -442,10 +474,12 @@ export default function Home() {
       {/* ═══ FEATURED WORK ═══ */}
       <section className="relative overflow-hidden py-20">
         <div className="engineering-grid" />
-        <FloatingPanels panels={[
-          { variant: 'mobile', top: '35%', right: '-2%', width: '220px', opacity: 0.3, delay: 1 },
-          { variant: 'analytics', bottom: '15%', left: '2%', width: '300px', opacity: 0.22, delay: 2.5 }
-        ]} parallaxStrength={0.015} />
+        {!isMobile && (
+          <FloatingPanels panels={[
+            { variant: 'mobile', top: '35%', right: '-2%', width: '220px', opacity: 0.3, delay: 1 },
+            { variant: 'analytics', bottom: '15%', left: '2%', width: '300px', opacity: 0.22, delay: 2.5 }
+          ]} parallaxStrength={0.015} />
+        )}
 
         <div className="container-shell relative z-10">
           <SectionHeading
@@ -471,6 +505,8 @@ export default function Home() {
                     <img
                       src={resolveImageUrl(item.image_url)}
                       alt={item.title}
+                      loading="lazy"
+                      decoding="async"
                       className="h-full w-full object-cover"
                     />
                   ) : (
@@ -548,7 +584,7 @@ export default function Home() {
                     <div>
                       <div className="flex gap-1 mb-4">
                         {[1, 2, 3, 4, 5].map(star => (
-                          <Icons.Star
+                          <Star
                             key={star}
                             size={14}
                             className={star <= review.rating ? "fill-[#34d99a] text-[#34d99a]" : "fill-transparent text-[#2a2c36]"}
@@ -559,7 +595,7 @@ export default function Home() {
                     </div>
                     <div className="flex items-center gap-3">
                       {review.avatar_url ? (
-                        <img src={review.avatar_url} alt={review.client_name} className="w-10 h-10 rounded-full object-cover bg-[#1e2028]" />
+                        <img src={review.avatar_url} alt={review.client_name} loading="lazy" decoding="async" className="w-10 h-10 rounded-full object-cover bg-[#1e2028]" />
                       ) : (
                         <div className="w-10 h-10 rounded-full bg-[#1e2028] flex items-center justify-center text-[#6b6f80] text-sm font-bold uppercase">
                           {review.client_name.substring(0, 2)}
@@ -591,7 +627,7 @@ export default function Home() {
                     <div className="absolute top-3 right-4 text-[#34d99a]/10 font-display text-[80px] font-black leading-none select-none">"</div>
                     <div>
                       <div className="flex gap-1 mb-4">
-                        {[1,2,3,4,5].map(s => <Icons.Star key={s} size={13} className="fill-[#34d99a] text-[#34d99a]" />)}
+                        {[1,2,3,4,5].map(s => <Star key={s} size={13} className="fill-[#34d99a] text-[#34d99a]" />)}
                       </div>
                       <p className="text-[#cbd5e1] text-sm leading-relaxed italic mb-6">"{review.quote}"</p>
                     </div>
@@ -638,12 +674,14 @@ export default function Home() {
         {/* Soft white spotlight behind CTA */}
         <div className="pointer-events-none absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-80 w-[500px] rounded-full bg-white/[0.05] blur-[100px] z-0" />
         
-        {/* Engineering grid and planning boards */}
+        {/* Engineering grid and planning boards — desktop only */}
         <div className="engineering-grid" />
-        <FloatingPanels panels={[
-          { variant: 'planning', top: '10%', left: '-5%', width: '320px', opacity: 0.18, delay: 0 },
-          { variant: 'analytics', bottom: '5%', right: '-5%', width: '300px', opacity: 0.15, delay: 1.8 }
-        ]} parallaxStrength={0.012} />
+        {!isMobile && (
+          <FloatingPanels panels={[
+            { variant: 'planning', top: '10%', left: '-5%', width: '320px', opacity: 0.18, delay: 0 },
+            { variant: 'analytics', bottom: '5%', right: '-5%', width: '300px', opacity: 0.15, delay: 1.8 }
+          ]} parallaxStrength={0.012} />
+        )}
 
         <ScrollReveal>
           <div className="hero-glass glass-noise relative p-10 text-center sm:p-16">

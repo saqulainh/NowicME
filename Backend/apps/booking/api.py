@@ -22,7 +22,8 @@ from apps.booking.schemas import (
     CancelIn,
 )
 from shared.auth import clerk_auth, get_current_user
-from shared.exceptions import NotFound, ConflictError
+from shared.exceptions import NotFound, ConflictError, RateLimited
+from shared.ratelimit import booking_limiter, get_client_ip
 from shared.email import send_booking_confirmation, send_booking_admin_notification
 from shared.sanitize import sanitize_string
 from shared.audit import AuditAction
@@ -104,6 +105,11 @@ def book_appointment(request: HttpRequest, payload: AppointmentIn) -> dict:
     5. Look up user email → send confirmation email
     """
     clerk_user_id = request.auth
+
+    # Rate limiting by authenticated user
+    rl = booking_limiter.check(clerk_user_id)
+    if not rl["allowed"]:
+        raise RateLimited(retry_after=rl["reset_seconds"])
     
     # 1. Validate service exists
     try:

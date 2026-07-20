@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
 import { ClerkProvider } from '@clerk/clerk-react';
 import { HelmetProvider } from 'react-helmet-async';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import App from './App';
 import { ContentProvider } from './context/ContentContext';
 import { AdminAuthProvider } from './context/AdminAuthContext';
@@ -13,14 +14,18 @@ const normalizedClerkKey = typeof PUBLISHABLE_KEY === 'string' ? PUBLISHABLE_KEY
 const isClerkConfigured =
   normalizedClerkKey.startsWith('pk_') && !/your|placeholder/i.test(normalizedClerkKey);
 
+const queryClient = new QueryClient();
+
 function AppProviders({ children }) {
   const appTree = (
     <HelmetProvider>
-      <BrowserRouter>
-        <AdminAuthProvider>
-          <ContentProvider>{children}</ContentProvider>
-        </AdminAuthProvider>
-      </BrowserRouter>
+      <QueryClientProvider client={queryClient}>
+        <BrowserRouter>
+          <AdminAuthProvider>
+            <ContentProvider>{children}</ContentProvider>
+          </AdminAuthProvider>
+        </BrowserRouter>
+      </QueryClientProvider>
     </HelmetProvider>
   );
 

@@ -1,6 +1,5 @@
  import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import * as Icons from 'lucide-react';
 import { ArrowRight, CheckCircle2 } from 'lucide-react';
 import SEO from '../components/SEO';
 import SectionHeading from '../components/common/SectionHeading';
@@ -12,10 +11,7 @@ import { useContent } from '../context/ContentContext';
 import LoadingSpinner from '../components/LoadingSpinner';
 import ErrorMessage from '../components/ErrorMessage';
 import { services as fallbackServices } from '../data/content';
-
-function resolveIcon(name) {
-  return Icons[name] || Icons.Code2;
-}
+import { resolveIcon } from '../lib/icons';
 
 function formatCurrency(value) {
   if (value === null || value === undefined || value === '') return '';

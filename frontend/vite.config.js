@@ -15,11 +15,19 @@ export default defineConfig({
     rollupOptions: {
       output: {
         manualChunks: {
+          // Core React — always needed, smallest initial payload
           vendor: ['react', 'react-dom', 'react-router-dom', 'react-helmet-async'],
+          // UI animation — framer-motion is large but used across all pages
           ui: ['framer-motion', 'lucide-react'],
-          analytics: ['react-ga4']
+          // Analytics — tiny, separate so it doesn't block rendering
+          analytics: ['react-ga4'],
+          // Auth — only needed on /dashboard and clerk-protected routes
+          auth: ['@clerk/clerk-react'],
+          // Smooth scroll — only used on public (non-admin) routes
+          lenis: ['@studio-freight/lenis'],
         }
       }
     }
   }
 });
+

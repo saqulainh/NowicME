@@ -43,7 +43,7 @@ function CaseStudyCard({ project, index }) {
         {/* Cover image */}
         <div className="relative h-52 overflow-hidden bg-[#0c0e13] border-b border-white/5 shrink-0">
           {resolveImageUrl(project.image_url) ? (
-            <img src={resolveImageUrl(project.image_url)} alt={project.title} className="h-full w-full object-cover" />
+            <img src={resolveImageUrl(project.image_url)} alt={project.title} loading="lazy" className="h-full w-full object-cover" />
           ) : (
             <div className="h-full w-full bg-gradient-to-br from-[#34d99a]/5 via-transparent to-[#6366f1]/5 flex items-center justify-center">
               <Layers size={32} className="text-white/10" />
