@@ -11,6 +11,7 @@ import AdminLayout from './layouts/AdminLayout';
 const Home = lazy(() => import('./pages/Home'));
 const Services = lazy(() => import('./pages/Services'));
 const Portfolio = lazy(() => import('./pages/Portfolio'));
+const CaseStudies = lazy(() => import('./pages/CaseStudies'));
 const About = lazy(() => import('./pages/About'));
 const Contact = lazy(() => import('./pages/Contact'));
 const Booking = lazy(() => import('./pages/Booking'));
@@ -50,6 +51,7 @@ export default function App() {
             <Route path="/" element={<Home />} />
             <Route path="/services" element={<Services />} />
             <Route path="/portfolio" element={<Portfolio />} />
+            <Route path="/case-studies" element={<CaseStudies />} />
             <Route path="/about" element={<About />} />
             <Route path="/contact" element={<Contact />} />
             <Route path="/booking" element={<Booking />} />
