@@ -9,12 +9,14 @@ from django.http import HttpResponse
 from core.api import api
 from django.conf import settings
 from django.conf.urls.static import static
+from apps.public.sitemap import SitemapView
 
 def root_health_check(request):
     return HttpResponse("OK", content_type="text/plain")
 
 urlpatterns = [
     path("", root_health_check),
+    path("sitemap.xml", SitemapView.as_view(), name="sitemap"),
     path("admin/", admin.site.urls),
     path("api/", api.urls),
 ]
