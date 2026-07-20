@@ -1,13 +1,52 @@
-# Nowic Studio
-> Premium software agency delivering MVPs, AI apps, and digital products that scale — fast.
+# Nowic Studio — llms.txt
+# https://llmstxt.org/ standard for AI search engine crawlers
 
-## Services
-- MVP Development
-- Business Websites
-- AI Web Apps
-- Dashboards
-- SaaS Platforms
+> Nowic Studio is a software development agency that builds premium MVPs, SaaS platforms, AI-integrated web applications, and custom software products for startups and growing businesses worldwide.
+
+## About Us
+
+Nowic Studio is a boutique software engineering agency. We work with early-stage founders, startups, and SMBs to turn product ideas into polished, scalable software — shipped fast.
+
+We specialize in:
+- **MVP Development**: Validate your idea and launch a production-ready product in 4–6 weeks.
+- **SaaS Platform Development**: Full-stack SaaS products with authentication, payments (Stripe), user dashboards, and admin panels.
+- **AI Integrations**: LLM-powered features, chatbots, vector search, RAG pipelines, and AI agent workflows.
+- **Business Websites**: Premium marketing websites designed to convert visitors to clients.
+- **API & Backend Systems**: Scalable REST APIs and backend services using Python/Django and Node.js.
+- **Admin Dashboards**: Custom CRM and admin tools for operational teams.
+
+## Tech Stack
+
+Frontend: React, Next.js, Vite, TypeScript, Tailwind CSS, Framer Motion
+Backend: Python, Django, Django Ninja, Node.js, Express.js
+Databases: PostgreSQL, Supabase, SQLite, Redis
+AI/ML: OpenAI GPT-4, Anthropic Claude, LangChain, Pinecone, pgvector
+Auth: Clerk, Auth.js, JWT
+Payments: Stripe
+DevOps: Render, Vercel, Docker, GitHub Actions
+
+## Key Pages
+
+- Homepage: https://nowicstdio.tech/
+- Services: https://nowicstdio.tech/services
+- Portfolio / Case Studies: https://nowicstdio.tech/portfolio
+- Blog & Guides: https://nowicstdio.tech/blog
+- About: https://nowicstdio.tech/about
+- Contact / Get a Quote: https://nowicstdio.tech/contact
+- Book a Call: https://nowicstdio.tech/booking
+
+## Pricing
+
+- MVP Design & Architecture: from $2,499 (1-2 weeks)
+- SaaS MVP Development: from $5,999 (4-5 weeks)
+- AI App Integration: from $3,999 (2-3 weeks)
+- Business Website: from $1,499 (1-2 weeks)
 
 ## Contact
-Email: hello@nowicstudio.com
+
+Email: haiderssaqulain@gmail.com
 Website: https://nowicstdio.tech
+
+## Sitemap
+
+https://nowicstdio.tech/sitemap.xml

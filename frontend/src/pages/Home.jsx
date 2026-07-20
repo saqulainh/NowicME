@@ -139,24 +139,80 @@ export default function Home() {
         "@type": "Organization",
         "@id": "https://nowicstdio.tech/#organization",
         "name": "Nowic Studio",
+        "alternateName": "Nowic",
         "url": "https://nowicstdio.tech/",
-        "logo": "https://nowicstdio.tech/image.png"
+        "logo": {
+          "@type": "ImageObject",
+          "url": "https://nowicstdio.tech/image.png",
+          "width": 512,
+          "height": 512
+        },
+        "description": "Nowic Studio is a software agency that builds MVPs, SaaS platforms, AI-integrated apps, and premium web products for startups and growing businesses.",
+        "foundingDate": "2024",
+        "email": "haiderssaqulain@gmail.com",
+        "areaServed": "Worldwide",
+        "knowsAbout": ["MVP Development", "SaaS", "AI Applications", "React", "Python", "Django", "Next.js", "Web Design", "Mobile Apps"],
+        "sameAs": []
       },
       {
         "@type": "WebSite",
         "@id": "https://nowicstdio.tech/#website",
         "url": "https://nowicstdio.tech/",
         "name": "Nowic Studio",
-        "publisher": {
-          "@id": "https://nowicstdio.tech/#organization"
+        "description": "Premium software agency for startups and businesses",
+        "publisher": { "@id": "https://nowicstdio.tech/#organization" }
+      },
+      {
+        "@type": "ProfessionalService",
+        "@id": "https://nowicstdio.tech/#service",
+        "name": "Nowic Studio",
+        "url": "https://nowicstdio.tech/",
+        "image": "https://nowicstdio.tech/image.png",
+        "description": "We design and build software products — MVPs, SaaS platforms, AI tools, and custom web applications — with a focus on speed, quality, and business outcomes.",
+        "priceRange": "$$",
+        "currenciesAccepted": "USD, INR",
+        "paymentAccepted": "Online payment",
+        "areaServed": "Worldwide",
+        "hasOfferCatalog": {
+          "@type": "OfferCatalog",
+          "name": "Software Development Services",
+          "itemListElement": [
+            { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "MVP Development", "description": "Build a launch-ready MVP in 4–6 weeks." } },
+            { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "SaaS Platform Development", "description": "Full-stack SaaS products with auth, payments, and dashboards." } },
+            { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "AI App Integration", "description": "Integrate LLMs, AI agents, and semantic search into your product." } },
+            { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Business Website", "description": "Premium marketing websites that convert visitors into clients." } }
+          ]
         }
       },
       {
-        "@type": "LocalBusiness",
-        "name": "Nowic Studio",
-        "image": "https://nowicstdio.tech/image.png",
-        "@id": "https://nowicstdio.tech/",
-        "url": "https://nowicstdio.tech/"
+        "@type": "FAQPage",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "How long does it take to build an MVP?",
+            "acceptedAnswer": { "@type": "Answer", "text": "Nowic Studio delivers most MVPs in 4 to 6 weeks depending on scope. We follow a sprint-based process with weekly demos so you can see progress throughout." }
+          },
+          {
+            "@type": "Question",
+            "name": "What technologies does Nowic Studio use?",
+            "acceptedAnswer": { "@type": "Answer", "text": "We primarily use React, Next.js, and Vite for frontend, Django and Node.js for backend APIs, PostgreSQL and Supabase for databases, and integrate AI features using OpenAI, Claude, and vector search tools." }
+          },
+          {
+            "@type": "Question",
+            "name": "How much does it cost to build a SaaS with Nowic Studio?",
+            "acceptedAnswer": { "@type": "Answer", "text": "Our SaaS MVP Development service starts from $5,999. Pricing varies based on features, integrations, and timeline. Book a free intro call to get a project-specific quote." }
+          },
+          {
+            "@type": "Question",
+            "name": "Does Nowic Studio work with international clients?",
+            "acceptedAnswer": { "@type": "Answer", "text": "Yes. Nowic Studio works with clients worldwide. Our team is async-friendly and provides weekly update calls, shared dashboards, and direct founder access throughout the project." }
+          },
+          {
+            "@type": "Question",
+            "name": "Can Nowic Studio add AI features to an existing app?",
+            "acceptedAnswer": { "@type": "Answer", "text": "Yes. We specialize in integrating AI features into existing applications — including chatbots, LLM-powered search, content generation, and automation workflows using GPT-4, Claude, and custom fine-tuned models." }
+          }
+        ]
       }
     ]
   };
@@ -164,10 +220,11 @@ export default function Home() {
   return (
     <>
       <SEO 
-        title="Nowic Studio | Mobile App & Web Development Company"
-        description="Nowic Studio builds mobile apps, websites, UI/UX designs and AI solutions for startups and businesses."
+        title="Nowic Studio | MVP & SaaS Development Agency"
+        description="Nowic Studio builds premium MVPs, SaaS platforms, and AI-powered apps for startups — shipped in 4–6 weeks. Book a free intro call today."
         canonicalUrl="https://nowicstdio.tech/"
         schema={homeSchema}
+
       />
       {/* ═══ HERO ═══ */}
       <section className="relative overflow-hidden" style={{ minHeight: '700px' }}>
