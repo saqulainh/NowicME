@@ -16,7 +16,7 @@ const emptyProject = {
     github_url: '',
 };
 
-const CATEGORY_OPTIONS = [
+const DEFAULT_SERVICES = [
     'MVP Development',
     'Business Website',
     'AI Web App',
@@ -24,8 +24,7 @@ const CATEGORY_OPTIONS = [
     'SaaS Platform',
     'API & Backend',
     'Mobile App',
-    'E-Commerce',
-    'Other'
+    'E-Commerce'
 ];
 
 const createId = () => (typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : `project-${Date.now()}-${Math.random().toString(16).slice(2)}`);
@@ -47,6 +46,7 @@ export default function PortfolioEditor() {
     const { getApiToken } = useAuth();
     const defaults = content.portfolioItems || [];
     const [items, setItems] = useState([]);
+    const [services, setServices] = useState([]);
     const [saving, setSaving] = useState(false);
     const [saved, setSaved] = useState(false);
     const [uploading, setUploading] = useState({});
@@ -69,6 +69,18 @@ export default function PortfolioEditor() {
                 if (mounted) {
                     setItems((defaults || []).map(normalizeProject));
                 }
+            }
+        })();
+
+        (async () => {
+            try {
+                const response = await api.getServices();
+                const list = response.data || response || [];
+                if (mounted) {
+                    setServices((list || []).filter(s => s.is_active).map(s => s.name));
+                }
+            } catch (err) {
+                console.error('Failed to load active services:', err);
             }
         })();
 
@@ -235,10 +247,44 @@ export default function PortfolioEditor() {
                                 </div>
                                 <div>
                                     <label className="admin-label">Category</label>
-                                    <select value={item.category} onChange={(e) => update(idx, 'category', e.target.value)} className="admin-input">
-                                        <option value="">Select Category...</option>
-                                        {CATEGORY_OPTIONS.map((c) => <option key={c} value={c}>{c}</option>)}
-                                    </select>
+                                    {(() => {
+                                        const serviceOptions = services.length > 0 ? services : DEFAULT_SERVICES;
+                                        const isCustom = item.category && !serviceOptions.includes(item.category);
+                                        const dropdownValue = isCustom ? 'Other' : item.category;
+
+                                        return (
+                                            <div className="space-y-2">
+                                                <select 
+                                                    value={dropdownValue} 
+                                                    onChange={(e) => {
+                                                        const val = e.target.value;
+                                                        if (val === 'Other') {
+                                                            update(idx, 'category', 'Custom Category');
+                                                        } else {
+                                                            update(idx, 'category', val);
+                                                        }
+                                                    }} 
+                                                    className="admin-input"
+                                                >
+                                                    <option value="">Select Category...</option>
+                                                    {serviceOptions.map((s) => (
+                                                        <option key={s} value={s}>{s}</option>
+                                                    ))}
+                                                    <option value="Other">Other (Custom Type)...</option>
+                                                </select>
+
+                                                {isCustom && (
+                                                    <input 
+                                                        type="text" 
+                                                        value={item.category === 'Custom Category' ? '' : item.category} 
+                                                        onChange={(e) => update(idx, 'category', e.target.value)} 
+                                                        className="admin-input text-xs py-1.5 focus:border-[#34d99a]/40" 
+                                                        placeholder="Enter custom category name..." 
+                                                    />
+                                                )}
+                                            </div>
+                                        );
+                                    })()}
                                 </div>
                             </div>
 
