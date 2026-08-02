@@ -35,36 +35,48 @@ export default function Portfolio() {
   const categories = ['all', ...new Set(projects.map((p) => p.category).filter(Boolean))];
   const filtered = activeCategory === 'all' ? projects : projects.filter((p) => p.category === activeCategory);
 
-  const portfolioSchema = {
-    "@context": "https://schema.org",
-    "@type": "CollectionPage",
-    "name": "Portfolio - Nowic Studio",
-    "description": "Selected products from our studio. Real products. Real impact.",
-    "mainEntity": {
-      "@type": "ItemList",
-      "itemListElement": projects.map((p, i) => ({
-        "@type": "ListItem",
-        "position": i + 1,
-        "item": {
-          "@type": "CreativeWork",
-          "name": p.title,
-          "description": p.description,
-          "image": resolveImageUrl(p.image_url) || "https://nowicstdio.tech/image.png",
-          "author": {
-            "@type": "Organization",
-            "name": "Nowic Studio"
+  const portfolioSchema = [
+    {
+      "@context": "https://schema.org",
+      "@type": "CollectionPage",
+      "name": "Portfolio - Nowic Studio",
+      "url": "https://nowicstdio.tech/portfolio",
+      "description": "View our portfolio of MVPs, SaaS platforms, AI web apps, and custom digital products built with precision.",
+      "mainEntity": {
+        "@type": "ItemList",
+        "itemListElement": projects.map((p, i) => ({
+          "@type": "ListItem",
+          "position": i + 1,
+          "item": {
+            "@type": "CreativeWork",
+            "name": p.title,
+            "description": p.description,
+            "image": resolveImageUrl(p.image_url) || "https://nowicstdio.tech/image.png",
+            "author": {
+              "@type": "Organization",
+              "name": "Nowic Studio"
+            }
           }
-        }
-      }))
+        }))
+      }
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://nowicstdio.tech/" },
+        { "@type": "ListItem", "position": 2, "name": "Portfolio", "item": "https://nowicstdio.tech/portfolio" }
+      ]
     }
-  };
+  ];
 
   return (
     <>
       <SEO 
-        title="Portfolio - Selected Products | Nowic Studio"
-        description="View our portfolio of MVPs, AI web apps, and custom digital products built with precision and purpose."
+        title="Portfolio — MVPs, SaaS & AI Products We've Built | Nowic Studio"
+        description="Explore our portfolio of MVPs, SaaS platforms, AI web applications, and custom digital products. Real products, real impact — built with precision and purpose."
         canonicalUrl="https://nowicstdio.tech/portfolio"
+        keywords="software development portfolio, MVP case studies, SaaS product examples, AI app portfolio, web development work samples, custom software projects"
         schema={portfolioSchema}
       />
       {/* Hero */}
@@ -75,6 +87,7 @@ export default function Portfolio() {
         />
         <div className="container-shell relative">
           <SectionHeading
+            as="h1"
             eyebrow="Portfolio"
             title="Selected products from |our studio"
             description="Real products. Real impact. Each built with precision and purpose."

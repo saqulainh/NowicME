@@ -163,25 +163,50 @@ export default function Contact() {
       name: service.title,
     }));
 
-  const contactSchema = {
-    "@context": "https://schema.org",
-    "@type": "ContactPage",
-    "mainEntity": {
-      "@type": "ContactPoint",
-      "contactType": "customer support",
-      "email": liveBrand.email || "hello@nowicstudio.com",
-      "telephone": liveBrand.phone || "+91 98765 43210",
-      "areaServed": "IN",
-      "availableLanguage": ["English", "Hindi"]
+  const contactSchema = [
+    {
+      "@context": "https://schema.org",
+      "@type": "ContactPage",
+      "name": "Contact Nowic Studio",
+      "url": "https://nowicstdio.tech/contact",
+      "description": "Get in touch with Nowic Studio to discuss your software project. We respond within 24 hours.",
+      "mainEntity": {
+        "@type": "Organization",
+        "name": "Nowic Studio",
+        "url": "https://nowicstdio.tech",
+        "contactPoint": {
+          "@type": "ContactPoint",
+          "contactType": "sales",
+          "email": liveBrand.email || "haiderssaqulain@gmail.com",
+          "telephone": liveBrand.phone || "+91 98765 43210",
+          "areaServed": ["IN", "US", "AE", "GB"],
+          "availableLanguage": ["English", "Hindi"],
+          "hoursAvailable": {
+            "@type": "OpeningHoursSpecification",
+            "dayOfWeek": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
+            "opens": "09:00",
+            "closes": "18:00"
+          }
+        }
+      }
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://nowicstdio.tech/" },
+        { "@type": "ListItem", "position": 2, "name": "Contact", "item": "https://nowicstdio.tech/contact" }
+      ]
     }
-  };
+  ];
 
   return (
     <>
       <SEO 
-        title="Contact Us - Let's Build Together | Nowic Studio"
-        description="Get in touch to discuss your next project. We respond within 24 hours with a clear roadmap and no-fluff plan."
+        title="Contact Us — Start Your Software Project | Nowic Studio"
+        description="Get in touch with Nowic Studio to discuss your next project. We respond within 24 hours with a clear roadmap, timeline, and budget. Free discovery call included."
         canonicalUrl="https://nowicstdio.tech/contact"
+        keywords="contact Nowic Studio, hire software developer, get a quote software development, start a project, software development inquiry, book a call developer"
         schema={contactSchema}
       />
       {/* Hero */}
@@ -192,9 +217,10 @@ export default function Contact() {
         />
         <div className="container-shell relative">
           <SectionHeading
-            eyebrow="Contact"
-            title="Let's build something |great together"
-            description="Share your idea and we'll get back with a clear plan — no fluff, no spam."
+            as="h1"
+            eyebrow="Start a Project"
+            title="Let's build something |extraordinary|"
+            description="Got an idea? We'll provide a clear roadmap, technical strategy, and budget within 24 hours."
           />
         </div>
       </section>

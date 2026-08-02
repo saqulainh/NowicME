@@ -58,28 +58,43 @@ export default function About() {
         { val: '3+', label: 'Years' },
       ];
 
-  const aboutSchema = {
-    "@context": "https://schema.org",
-    "@type": "BreadcrumbList",
-    "itemListElement": [{
-      "@type": "ListItem",
-      "position": 1,
-      "name": "Home",
-      "item": "https://nowicstdio.tech/"
-    },{
-      "@type": "ListItem",
-      "position": 2,
-      "name": "About",
-      "item": "https://nowicstdio.tech/about"
-    }]
-  };
+  const aboutSchema = [
+    {
+      "@context": "https://schema.org",
+      "@type": "AboutPage",
+      "name": "About Nowic Studio",
+      "url": "https://nowicstdio.tech/about",
+      "description": "Learn about Nowic Studio's journey, our execution-first philosophy, and the engineering principles that guide our product development.",
+      "mainEntity": {
+        "@type": "Organization",
+        "name": "Nowic Studio",
+        "alternateName": "Nowic",
+        "url": "https://nowicstdio.tech",
+        "logo": "https://nowicstdio.tech/image.png",
+        "foundingDate": "2023",
+        "description": "Premium software agency building MVPs, SaaS platforms, AI apps, and digital products for startups and businesses worldwide.",
+        "areaServed": "Worldwide",
+        "email": "haiderssaqulain@gmail.com",
+        "knowsAbout": ["MVP Development", "SaaS Development", "AI Integration", "React", "Django", "Next.js", "Python", "Web Design", "API Development"]
+      }
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://nowicstdio.tech/" },
+        { "@type": "ListItem", "position": 2, "name": "About", "item": "https://nowicstdio.tech/about" }
+      ]
+    }
+  ];
 
   return (
     <>
       <SEO 
-        title="About Us - Our Story & Values | Nowic Studio"
-        description="Learn about Nowic Studio's journey, our execution-first philosophy, and the principles that guide our product engineering."
+        title="About Us — Our Story, Values & Engineering Philosophy | Nowic Studio"
+        description="Nowic Studio is a premium software agency founded in 2023. We build MVPs, SaaS platforms, and AI apps with an execution-first philosophy. 50+ projects delivered, 98% satisfaction."
         canonicalUrl="https://nowicstdio.tech/about"
+        keywords="about Nowic Studio, software agency India, startup development company, who is Nowic Studio, software development team, execution-first software agency"
         schema={aboutSchema}
       />
       {/* Hero */}

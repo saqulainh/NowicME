@@ -586,10 +586,51 @@ def admin_list_blog_posts(
     request: HttpRequest,
     page: int = Query(default=1),
     page_size: int = Query(default=10),
+    search: Optional[str] = Query(default=None),
+    status: Optional[str] = Query(default=None),
 ):
     _admin(request)
     qs = BlogPost.objects.all().order_by('-created_at')
+
+    if search:
+        qs = qs.filter(Q(title__icontains=search) | Q(excerpt__icontains=search))
+
+    if status == 'published':
+        qs = qs.filter(is_published=True)
+    elif status == 'draft':
+        qs = qs.filter(is_published=False)
+
     return paginate(qs, page=page, page_size=page_size, serializer=lambda p: BlogPostOut.from_orm(p).dict())
+
+
+@router.get('/blog/stats/')
+def admin_blog_stats(request: HttpRequest):
+    """Return quick stats: total, published, drafts, total views."""
+    _admin(request)
+    total = BlogPost.objects.count()
+    published = BlogPost.objects.filter(is_published=True).count()
+    drafts = total - published
+    total_views = BlogPost.objects.aggregate(v=Sum('views_count'))['v'] or 0
+    return {
+        'success': True,
+        'data': {
+            'total': total,
+            'published': published,
+            'drafts': drafts,
+            'total_views': total_views,
+        }
+    }
+
+
+@router.get('/blog/{post_id}/')
+def admin_get_blog_post(request: HttpRequest, post_id: int):
+    """Get a single blog post by ID (admin)."""
+    _admin(request)
+    try:
+        post = BlogPost.objects.get(id=post_id)
+    except BlogPost.DoesNotExist:
+        raise NotFound(f"Blog post #{post_id} not found")
+    return {'success': True, 'data': BlogPostOut.from_orm(post).dict()}
 
 
 @router.post('/blog/')

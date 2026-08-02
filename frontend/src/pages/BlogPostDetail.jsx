@@ -114,28 +114,39 @@ export default function BlogPostDetail() {
         );
     }
 
-    const postSchema = {
-        "@context": "https://schema.org",
-        "@type": "BlogPosting",
-        "headline": post.title,
-        "description": post.excerpt,
-        "image": post.cover_image_url || "https://nowicstdio.tech/image.png",
-        "datePublished": post.created_at,
-        "dateModified": post.updated_at,
-        "author": {
-            "@type": "Organization",
-            "name": "Nowic Studio Team",
-            "url": "https://nowicstdio.tech"
-        },
-        "publisher": {
-            "@type": "Organization",
-            "name": "Nowic Studio",
-            "logo": {
-                "@type": "ImageObject",
-                "url": "https://nowicstdio.tech/image.png"
+    const postSchema = [
+        {
+            "@context": "https://schema.org",
+            "@type": "BlogPosting",
+            "headline": post.title,
+            "description": post.excerpt,
+            "image": post.cover_image_url || "https://nowicstdio.tech/image.png",
+            "datePublished": post.created_at,
+            "dateModified": post.updated_at,
+            "author": {
+                "@type": "Organization",
+                "name": "Nowic Studio Team",
+                "url": "https://nowicstdio.tech"
+            },
+            "publisher": {
+                "@type": "Organization",
+                "name": "Nowic Studio",
+                "logo": {
+                    "@type": "ImageObject",
+                    "url": "https://nowicstdio.tech/image.png"
+                }
             }
+        },
+        {
+            "@context": "https://schema.org",
+            "@type": "BreadcrumbList",
+            "itemListElement": [
+                { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://nowicstdio.tech/" },
+                { "@type": "ListItem", "position": 2, "name": "Blog", "item": "https://nowicstdio.tech/blog" },
+                { "@type": "ListItem", "position": 3, "name": post.title, "item": `https://nowicstdio.tech/blog/${post.slug}` }
+            ]
         }
-    };
+    ];
 
     return (
         <div className="relative min-h-screen bg-bg selection:bg-mint/30">
@@ -143,6 +154,7 @@ export default function BlogPostDetail() {
                 title={`${post.title} | Nowic Studio Blog`}
                 description={post.excerpt}
                 canonicalUrl={`https://nowicstdio.tech/blog/${post.slug}`}
+                keywords={`${post.title.split(' ').join(', ')}, MVP development, software engineering, Nowic Studio`}
                 schema={postSchema}
             />
 

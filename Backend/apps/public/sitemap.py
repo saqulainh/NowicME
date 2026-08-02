@@ -38,6 +38,8 @@ class SitemapView(View):
             ("", "weekly", "1.0"),
             ("/services", "weekly", "0.9"),
             ("/portfolio", "monthly", "0.8"),
+            ("/case-studies", "monthly", "0.8"),
+            ("/pricing", "monthly", "0.8"),
             ("/about", "monthly", "0.7"),
             ("/contact", "monthly", "0.7"),
             ("/booking", "monthly", "0.7"),
@@ -61,7 +63,7 @@ class SitemapView(View):
         except Exception:
             pass
 
-        # ── Dynamic: Active Services ──────────────────────────────────────────
+        # ── Dynamic: Active Services (individual service pages if they exist) ─
         try:
             from apps.public.models import ServiceOffering
             services = ServiceOffering.objects.filter(is_active=True).values("slug")
@@ -83,3 +85,26 @@ class SitemapView(View):
         )
 
         return HttpResponse(xml, content_type="application/xml")
+
+
+class RobotsTxtView(View):
+    """Render and serve robots.txt."""
+
+    def get(self, request):
+        lines = [
+            "User-agent: *",
+            "Allow: /",
+            "Disallow: /admin/",
+            "Disallow: /api/",
+            "Disallow: /dashboard/",
+            "Disallow: /admin",
+            "",
+            f"Sitemap: {SITE_URL}/sitemap.xml",
+            "",
+            "User-agent: Googlebot",
+            "Allow: /",
+            "",
+            "User-agent: Bingbot",
+            "Allow: /",
+        ]
+        return HttpResponse("\n".join(lines), content_type="text/plain")

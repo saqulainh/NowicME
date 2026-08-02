@@ -28,28 +28,39 @@ export default function Blog() {
         fetchPosts();
     }, []);
 
-    const blogSchema = {
-        "@context": "https://schema.org",
-        "@type": "Blog",
-        "name": "Nowic Studio Blog",
-        "description": "Insights on MVP development, SaaS architecture, web development, and AI tech from Nowic Studio.",
-        "url": "https://nowicstdio.tech/blog",
-        "publisher": {
-            "@type": "Organization",
-            "name": "Nowic Studio",
-            "logo": {
-                "@type": "ImageObject",
-                "url": "https://nowicstdio.tech/image.png"
+    const blogSchema = [
+        {
+            "@context": "https://schema.org",
+            "@type": "Blog",
+            "name": "Nowic Studio Blog",
+            "description": "Expert insights on MVP development, SaaS architecture, web development, AI integration, and startup tech guides from Nowic Studio.",
+            "url": "https://nowicstdio.tech/blog",
+            "publisher": {
+                "@type": "Organization",
+                "name": "Nowic Studio",
+                "logo": {
+                    "@type": "ImageObject",
+                    "url": "https://nowicstdio.tech/image.png"
+                }
             }
+        },
+        {
+            "@context": "https://schema.org",
+            "@type": "BreadcrumbList",
+            "itemListElement": [
+                { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://nowicstdio.tech/" },
+                { "@type": "ListItem", "position": 2, "name": "Blog", "item": "https://nowicstdio.tech/blog" }
+            ]
         }
-    };
+    ];
 
     return (
         <div className="relative min-h-screen bg-bg selection:bg-mint/30">
             <SEO 
-                title="Blog & Insights - MVP & Tech Guides | Nowic Studio"
-                description="Expert insights on building SaaS, MVP engineering, product design, and AI application development."
+                title="Blog & Tech Insights — MVP, SaaS & AI Guides | Nowic Studio"
+                description="Expert insights on building SaaS, MVP engineering, product design, AI application development, and startup tech strategy from the Nowic Studio team."
                 canonicalUrl="https://nowicstdio.tech/blog"
+                keywords="MVP development blog, SaaS architecture guide, AI integration tutorial, web development insights, startup tech blog, software engineering guides"
                 schema={blogSchema}
             />
 
@@ -70,6 +81,7 @@ export default function Blog() {
             <section className="relative pt-32 pb-12 overflow-hidden z-10">
                 <div className="container-shell relative">
                     <SectionHeading
+                        as="h1"
                         eyebrow="Tech Insights"
                         title="Our |Thoughts| & |Guides|"
                         description="Practical guides, architecture deep-dives, and startup wisdom from engineers who build software daily."

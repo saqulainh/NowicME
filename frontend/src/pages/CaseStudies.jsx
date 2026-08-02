@@ -148,21 +148,31 @@ export default function CaseStudies() {
     ? [...allProjects].sort((a, b) => (b.is_featured ? 1 : 0) - (a.is_featured ? 1 : 0))
     : FALLBACK_CASES;
 
-  const schema = {
-    "@context": "https://schema.org",
-    "@type": "CollectionPage",
-    "name": "Case Studies — Nowic Studio",
-    "description": "Real projects, real results. Detailed breakdowns of products we've built for clients.",
-    "url": "https://nowicstdio.tech/case-studies",
-    "mainEntity": {
-      "@type": "ItemList",
-      "itemListElement": projects.map((p, i) => ({
-        "@type": "ListItem",
-        "position": i + 1,
-        "item": { "@type": "CreativeWork", "name": p.title, "description": p.description }
-      }))
+  const schema = [
+    {
+      "@context": "https://schema.org",
+      "@type": "CollectionPage",
+      "name": "Case Studies — Nowic Studio",
+      "description": "Real projects, real results. Detailed breakdowns of products we've built for clients.",
+      "url": "https://nowicstdio.tech/case-studies",
+      "mainEntity": {
+        "@type": "ItemList",
+        "itemListElement": projects.map((p, i) => ({
+          "@type": "ListItem",
+          "position": i + 1,
+          "item": { "@type": "CreativeWork", "name": p.title, "description": p.description }
+        }))
+      }
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://nowicstdio.tech/" },
+        { "@type": "ListItem", "position": 2, "name": "Case Studies", "item": "https://nowicstdio.tech/case-studies" }
+      ]
     }
-  };
+  ];
 
   return (
     <>
@@ -170,6 +180,7 @@ export default function CaseStudies() {
         title="Case Studies | Nowic Studio"
         description="Real projects. Real results. Explore detailed case studies of MVPs, SaaS platforms, and AI products we've built for clients worldwide."
         canonicalUrl="https://nowicstdio.tech/case-studies"
+        keywords="software case studies, MVP development case study, SaaS success stories, AI product case studies, software agency portfolio"
         schema={schema}
       />
 

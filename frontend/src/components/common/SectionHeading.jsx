@@ -1,7 +1,7 @@
 import ScrollReveal from '../reveal/ScrollReveal';
 import MaskText from '../reveal/MaskText';
 
-export default function SectionHeading({ eyebrow, title, description, align = 'center' }) {
+export default function SectionHeading({ eyebrow, title, description, align = 'center', as: Tag = 'h2' }) {
   return (
     <ScrollReveal
       className={`max-w-2xl ${align === 'center' ? 'mx-auto text-center' : 'text-left'}`}
@@ -14,7 +14,7 @@ export default function SectionHeading({ eyebrow, title, description, align = 'c
       )}
 
       <MaskText delay={0.2}>
-        <h2 className="font-display text-[2rem] font-bold leading-[1.15] text-text sm:text-[2.5rem]">
+        <Tag className={`font-display font-bold leading-[1.15] text-text ${Tag === 'h1' ? 'text-4xl sm:text-5xl md:text-6xl tracking-tight' : 'text-[2rem] sm:text-[2.5rem]'}`}>
           {typeof title === 'string'
             ? title.split('|').map((part, i) =>
                 i % 2 === 1
@@ -23,7 +23,7 @@ export default function SectionHeading({ eyebrow, title, description, align = 'c
               )
             : title
           }
-        </h2>
+        </Tag>
       </MaskText>
 
       {description && (

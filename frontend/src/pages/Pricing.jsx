@@ -85,19 +85,63 @@ const FAQS = [
 ];
 
 export default function Pricing() {
-  const schema = {
-    "@context": "https://schema.org",
-    "@type": "WebPage",
-    "name": "Pricing — Nowic Studio",
-    "description": "Transparent pricing for MVP development, SaaS platforms, and AI integrations."
-  };
+  const schema = [
+    {
+      "@context": "https://schema.org",
+      "@type": "ProfessionalService",
+      "name": "Nowic Studio",
+      "url": "https://nowicstdio.tech/pricing",
+      "description": "Transparent, milestone-based pricing for premium software development services.",
+      "priceRange": "$$",
+      "currenciesAccepted": "USD, INR",
+      "areaServed": "Worldwide",
+      "hasOfferCatalog": {
+        "@type": "OfferCatalog",
+        "name": "Software Development Pricing",
+        "itemListElement": PRICING_TIERS.map(tier => ({
+          "@type": "Offer",
+          "name": tier.name,
+          "description": tier.description,
+          "priceSpecification": {
+            "@type": "UnitPriceSpecification",
+            "price": tier.price.replace(/[^0-9]/g, ''),
+            "priceCurrency": "USD",
+            "unitText": "per project"
+          },
+          "itemOffered": {
+            "@type": "Service",
+            "name": tier.name,
+            "description": tier.description
+          }
+        }))
+      }
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://nowicstdio.tech/" },
+        { "@type": "ListItem", "position": 2, "name": "Pricing", "item": "https://nowicstdio.tech/pricing" }
+      ]
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": FAQS.map(faq => ({
+        "@type": "Question",
+        "name": faq.question,
+        "acceptedAnswer": { "@type": "Answer", "text": faq.answer }
+      }))
+    }
+  ];
 
   return (
     <>
       <SEO 
-        title="Pricing | Nowic Studio"
-        description="Clear, transparent pricing for premium software development. Explore our packages for Websites, SaaS MVPs, and AI Integrations."
+        title="Pricing — Transparent Software Development Costs | Nowic Studio"
+        description="Clear, milestone-based pricing for premium software development. Starter websites from $1,499, SaaS MVPs from $5,999, AI integration from $3,999. No hidden fees, 100% code ownership."
         canonicalUrl="https://nowicstdio.tech/pricing"
+        keywords="software development pricing, MVP development cost, SaaS development cost, AI integration pricing, website development cost, how much does it cost to build an MVP, software agency pricing"
         schema={schema}
       />
 

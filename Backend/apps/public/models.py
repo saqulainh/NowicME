@@ -207,5 +207,8 @@ class BlogPost(models.Model):
 
     @property
     def cover_image_url(self):
-        return self.cover_image.url if self.cover_image else ''
+        try:
+            return self.cover_image.url if self.cover_image else ''
+        except Exception:
+            return ''
 

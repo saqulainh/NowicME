@@ -27,7 +27,7 @@ export default function BrandTitle({ className = '' }) {
   const studio = "STUDIO".split('');
 
   return (
-    <motion.div 
+    <motion.h1 
       className={`flex flex-wrap justify-center items-baseline gap-2 md:gap-4 ${className}`}
       variants={containerVars}
       initial="hidden"
@@ -81,6 +81,6 @@ export default function BrandTitle({ className = '' }) {
           transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
         />
       </motion.div>
-    </motion.div>
+    </motion.h1>
   );
 }

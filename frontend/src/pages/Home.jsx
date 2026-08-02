@@ -246,9 +246,10 @@ export default function Home() {
   return (
     <>
       <SEO 
-        title="Nowic Studio | MVP & SaaS Development Agency"
-        description="Nowic Studio builds premium MVPs, SaaS platforms, and AI-powered apps for startups — shipped in 4–6 weeks. Book a free intro call today."
+        title="Nowic Studio | MVP & SaaS Development Agency — AI-Powered Software"
+        description="Nowic Studio builds premium MVPs, SaaS platforms, and AI-powered apps for startups — shipped in 4–6 weeks. India-based agency serving clients worldwide. Book a free intro call today."
         canonicalUrl="https://nowicstdio.tech/"
+        keywords="MVP development agency, SaaS development company, AI web app development, custom software development India, startup software agency, build MVP fast, hire software agency, React Django development, AI integration services, software development company"
         schema={homeSchema}
 
       />

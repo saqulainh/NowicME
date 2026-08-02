@@ -202,6 +202,8 @@ export const api = {
     const query = new URLSearchParams(params).toString();
     return authApiCall(`/api/v1/admin/blog/${query ? `?${query}` : ''}`, token);
   },
+  admin_getBlogById: (token, id) => authApiCall(`/api/v1/admin/blog/${id}/`, token),
+  admin_getBlogStats: (token) => authApiCall('/api/v1/admin/blog/stats/', token),
   admin_createBlog: (token, data) => authApiCall('/api/v1/admin/blog/', token, {
     method: 'POST',
     body: JSON.stringify(data),

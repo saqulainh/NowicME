@@ -145,23 +145,58 @@ export default function Services() {
   const apiServices = Array.isArray(services) ? [...services].sort((a, b) => (a.order ?? 0) - (b.order ?? 0)) : [];
   const orderedServices = apiServices.length ? apiServices : fallbackServices.map(mapFallbackService);
 
-  const servicesSchema = {
-    "@context": "https://schema.org",
-    "@type": "Service",
-    "provider": {
-      "@type": "Organization",
-      "name": "Nowic Studio"
+  const servicesSchema = [
+    {
+      "@context": "https://schema.org",
+      "@type": "Service",
+      "provider": {
+        "@type": "Organization",
+        "name": "Nowic Studio",
+        "url": "https://nowicstdio.tech"
+      },
+      "name": "Software Development Services",
+      "description": "End-to-end software development services including MVP development, SaaS platforms, AI app integration, business websites, API development, and admin dashboards.",
+      "url": "https://nowicstdio.tech/services",
+      "areaServed": "Worldwide",
+      "hasOfferCatalog": {
+        "@type": "OfferCatalog",
+        "name": "Development Services",
+        "itemListElement": [
+          { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "MVP Development", "description": "Build a launch-ready MVP in 4–6 weeks with React, Django, and modern cloud infrastructure." } },
+          { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "SaaS Platform Development", "description": "Full-stack SaaS with auth, payments, admin dashboard, and scalable API layer." } },
+          { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "AI App Integration", "description": "Add GPT-4, Claude, chatbots, RAG pipelines, and semantic search to your product." } },
+          { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Business Website", "description": "Premium responsive marketing websites optimized for conversions and SEO." } },
+          { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "API & Backend Development", "description": "Scalable REST/GraphQL APIs with Django, Node.js, PostgreSQL, and Redis." } },
+          { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Admin Dashboard & CRM", "description": "Custom internal tools, analytics dashboards, and CRM systems." } }
+        ]
+      }
     },
-    "name": "Mobile App & Web Development Services",
-    "description": "We offer MVP development, AI web apps, custom SaaS platforms, and enterprise dashboards."
-  };
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://nowicstdio.tech/" },
+        { "@type": "ListItem", "position": 2, "name": "Services", "item": "https://nowicstdio.tech/services" }
+      ]
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": faqs.map(faq => ({
+        "@type": "Question",
+        "name": faq.q,
+        "acceptedAnswer": { "@type": "Answer", "text": faq.a }
+      }))
+    }
+  ];
 
   return (
     <>
       <SEO 
-        title="Services - Mobile App & Web Development | Nowic Studio"
-        description="Explore our execution-first services: MVP development, AI web apps, API development, and business websites."
+        title="Software Development Services — MVP, SaaS, AI Apps | Nowic Studio"
+        description="Nowic Studio offers end-to-end software development services: MVP development, SaaS platforms, AI app integration, business websites, API development, and admin dashboards. Shipped fast with premium quality."
         canonicalUrl="https://nowicstdio.tech/services"
+        keywords="software development services, MVP development service, SaaS development, AI app integration, custom web development, business website development, API development, admin dashboard development"
         schema={servicesSchema}
       />
       {/* Hero */}
@@ -172,9 +207,10 @@ export default function Services() {
         />
         <div className="container-shell relative">
           <SectionHeading
-            eyebrow="Services"
-            title="End-to-end product |execution"
-            description="From idea to launch — we handle strategy, design, development, and delivery so you can focus on growth."
+            as="h1"
+            eyebrow="Our Services"
+            title="End-to-end |Software Engineering|"
+            description="From concept to deployment, we build high-performance MVPs, scalable SaaS platforms, and AI-integrated products."
           />
         </div>
       </section>

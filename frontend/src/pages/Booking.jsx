@@ -107,28 +107,47 @@ export default function Booking() {
     setError('');
   }
 
-  const bookingSchema = {
-    "@context": "https://schema.org",
-    "@type": "BreadcrumbList",
-    "itemListElement": [{
-      "@type": "ListItem",
-      "position": 1,
-      "name": "Home",
-      "item": "https://nowicstdio.tech/"
-    },{
-      "@type": "ListItem",
-      "position": 2,
-      "name": "Booking",
-      "item": "https://nowicstdio.tech/booking"
-    }]
-  };
+  const bookingSchema = [
+    {
+      "@context": "https://schema.org",
+      "@type": "WebPage",
+      "name": "Book a Strategy Call — Nowic Studio",
+      "url": "https://nowicstdio.tech/booking",
+      "description": "Schedule a 1-on-1 strategy call with Nowic Studio founders. Discuss your project, get a roadmap, and start building.",
+      "mainEntity": {
+        "@type": "Service",
+        "name": "Strategy Consultation Call",
+        "provider": {
+          "@type": "Organization",
+          "name": "Nowic Studio",
+          "url": "https://nowicstdio.tech"
+        },
+        "description": "Free 15-30 minute strategy call to discuss your software project requirements, timeline, and budget.",
+        "offers": {
+          "@type": "Offer",
+          "price": "0",
+          "priceCurrency": "USD",
+          "availability": "https://schema.org/InStock"
+        }
+      }
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://nowicstdio.tech/" },
+        { "@type": "ListItem", "position": 2, "name": "Booking", "item": "https://nowicstdio.tech/booking" }
+      ]
+    }
+  ];
 
   return (
     <div className="relative min-h-screen bg-bg selection:bg-mint/30">
       <SEO 
-        title="Book a Call - Strategy & Consultation | Nowic Studio"
-        description="Schedule a 1-on-1 strategy call with our founders. Choose a convenient slot to discuss your next big digital product."
+        title="Book a Strategy Call — Free Consultation | Nowic Studio"
+        description="Schedule a free 1-on-1 strategy call with Nowic Studio founders. Discuss your software project, get a clear roadmap, timeline, and budget — no commitment required."
         canonicalUrl="https://nowicstdio.tech/booking"
+        keywords="book a call software developer, free consultation software development, schedule strategy call, software project consultation, book developer call"
         schema={bookingSchema}
       />
       {/* ── Background Elements ─────────────────────────────────────────── */}
@@ -148,6 +167,7 @@ export default function Booking() {
       <section className="relative pt-32 pb-12 overflow-hidden">
         <div className="container-shell relative">
           <SectionHeading
+            as="h1"
             eyebrow="Experience Excellence"
             title="Secure Your |Next Breakthrough"
             description="Our refined consulting process ensures every project starts with absolute clarity. Choose your path and let's begin the transformation."

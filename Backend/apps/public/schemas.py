@@ -131,12 +131,12 @@ class BlogPostOut(Schema):
     id: int
     title: str
     slug: str
-    excerpt: str
-    content: str
-    cover_image_url: str = ''
-    is_published: bool
-    read_time_minutes: int
-    views_count: int
+    excerpt: str = ''
+    content: str = ''
+    cover_image_url: Optional[str] = ''
+    is_published: bool = False
+    read_time_minutes: int = 5
+    views_count: int = 0
     created_at: datetime
     updated_at: datetime
 

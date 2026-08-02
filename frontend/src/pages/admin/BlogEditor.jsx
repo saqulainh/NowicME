@@ -74,6 +74,7 @@ export default function BlogEditor() {
     const [readTime, setReadTime] = useState(5);
     const [coverImageUrl, setCoverImageUrl] = useState('');
     const [isPublished, setIsPublished] = useState(false);
+    const [autoReadTime, setAutoReadTime] = useState(true);
 
     const [loading, setLoading] = useState(false);
     const [saving, setSaving] = useState(false);
@@ -82,32 +83,58 @@ export default function BlogEditor() {
     const [error, setError] = useState('');
     const [success, setSuccess] = useState(false);
 
+    // Live word/char count
+    const wordCount = content.trim() ? content.trim().split(/\s+/).length : 0;
+    const charCount = content.length;
+    const estimatedReadTime = Math.max(1, Math.ceil(wordCount / 200));
+
     useEffect(() => {
         if (id) {
             fetchPostDetails();
         }
     }, [id]);
 
+    // Auto-update read time from word count
+    useEffect(() => {
+        if (autoReadTime) {
+            setReadTime(Math.max(1, Math.ceil(wordCount / 200)));
+        }
+    }, [wordCount, autoReadTime]);
+
+    // Ctrl+S shortcut — uses a ref so the handler always has latest state
+    const handleSaveRef = useRef(null);
+    useEffect(() => {
+        const handler = (e) => {
+            if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+                e.preventDefault();
+                if (handleSaveRef.current) handleSaveRef.current(e);
+            }
+        };
+        window.addEventListener('keydown', handler);
+        return () => window.removeEventListener('keydown', handler);
+    }, []);
+
     const fetchPostDetails = async () => {
         setLoading(true);
         setError('');
         try {
             const token = await getApiToken();
-            const response = await api.admin_getBlogs(token);
+            const response = await api.admin_getBlogById(token, id);
             if (response.success) {
-                const list = response.data.results || response.data || [];
-                const found = list.find(p => String(p.id) === String(id));
-                if (found) {
-                    setTitle(found.title);
-                    setSlug(found.slug);
-                    setExcerpt(found.excerpt || '');
-                    setContent(found.content);
-                    setReadTime(found.read_time_minutes);
-                    setCoverImageUrl(found.cover_image_url || '');
-                    setIsPublished(found.is_published);
-                } else {
-                    setError('Blog post not found.');
-                }
+                const found = response.data;
+                setTitle(found.title);
+                setSlug(found.slug);
+                setExcerpt(found.excerpt || '');
+                setContent(found.content);
+                setReadTime(found.read_time_minutes);
+                setCoverImageUrl(found.cover_image_url || '');
+                setIsPublished(found.is_published);
+                // If the saved read time matches auto, keep autoReadTime on
+                const words = (found.content || '').trim().split(/\s+/).length;
+                const calc = Math.max(1, Math.ceil(words / 200));
+                setAutoReadTime(found.read_time_minutes === calc);
+            } else {
+                setError('Blog post not found.');
             }
         } catch (err) {
             console.error('Failed to load post details:', err);
@@ -149,7 +176,7 @@ export default function BlogEditor() {
     };
 
     const handleSave = async (e) => {
-        e.preventDefault();
+        e?.preventDefault();
         if (!title.trim() || !slug.trim() || !content.trim()) {
             setError('Title, slug, and content are required.');
             return;
@@ -192,6 +219,9 @@ export default function BlogEditor() {
         }
     };
 
+    // Keep ref in sync with latest handleSave (fixes stale closure in Ctrl+S handler)
+    handleSaveRef.current = handleSave;
+
     if (loading) {
         return (
             <div className="flex h-screen items-center justify-center bg-[#0a0b0f]">
@@ -216,7 +246,17 @@ export default function BlogEditor() {
                         </h1>
                     </div>
                 </div>
-                <div className="flex gap-2">
+                <div className="flex items-center gap-2">
+                    {id && isPublished && (
+                        <a
+                            href={`/blog/${slug}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="outline-btn text-xs px-3 py-2 flex items-center gap-1.5"
+                        >
+                            <Eye size={13} /> View Live
+                        </a>
+                    )}
                     <button
                         type="button"
                         onClick={() => setPreviewMode(!previewMode)}
@@ -227,6 +267,7 @@ export default function BlogEditor() {
                     <button
                         onClick={handleSave}
                         disabled={saving}
+                        title="Ctrl+S"
                         className="admin-save-btn text-xs px-4 py-2 flex items-center gap-1.5"
                     >
                         {success ? <><CheckCircle2 size={14} /> Saved!</> : <><Save size={14} /> {saving ? 'Saving...' : 'Save Article'}</>}
@@ -287,6 +328,14 @@ export default function BlogEditor() {
                                     placeholder="# Write your article here using standard markdown syntax..."
                                     required
                                 />
+                                {/* Live stats bar */}
+                                <div className="mt-1.5 flex items-center gap-3 text-[10px] text-[#4a4e5e] font-mono">
+                                    <span>{wordCount} words</span>
+                                    <span>•</span>
+                                    <span>{charCount} chars</span>
+                                    <span>•</span>
+                                    <span>~{estimatedReadTime} min read</span>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -310,14 +359,29 @@ export default function BlogEditor() {
                             </div>
 
                             <div>
-                                <label className="admin-label">Read Time (minutes)</label>
+                                <div className="flex items-center justify-between mb-1.5">
+                                    <label className="admin-label !mb-0">Read Time (min)</label>
+                                    <label className="flex items-center gap-1.5 cursor-pointer select-none">
+                                        <input
+                                            type="checkbox"
+                                            checked={autoReadTime}
+                                            onChange={(e) => setAutoReadTime(e.target.checked)}
+                                            className="h-3 w-3 rounded accent-[#34d99a]"
+                                        />
+                                        <span className="text-[10px] text-[#6b6f80] font-bold">Auto</span>
+                                    </label>
+                                </div>
                                 <input
                                     type="number"
                                     value={readTime}
-                                    onChange={(e) => setReadTime(e.target.value)}
-                                    className="admin-input"
+                                    onChange={(e) => { setAutoReadTime(false); setReadTime(e.target.value); }}
+                                    className={`admin-input ${autoReadTime ? 'opacity-50' : ''}`}
                                     min={1}
+                                    readOnly={autoReadTime}
                                 />
+                                {autoReadTime && (
+                                    <p className="mt-1 text-[10px] text-[#4a4e5e]">Calculated from word count</p>
+                                )}
                             </div>
 
                             {/* Cover Image Upload */}
