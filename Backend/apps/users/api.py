@@ -111,14 +111,17 @@ def clerk_webhook(request: HttpRequest):
                 "error": "Invalid payload",
                 "code": "INVALID_PAYLOAD",
             }
-        full_name = _get_full_name(data)
+        admin_emails = getattr(settings, 'ADMIN_EMAILS', {'haiderssaqulain@gmail.com', 'amarkrydav@gmail.com', 'nowicstdo@gmail.com'})
+        is_admin_email = email.lower() in admin_emails
+        role = "admin" if is_admin_email else "client"
+
         try:
             UserProfile.objects.get_or_create(
                 clerk_user_id=clerk_user_id,
                 defaults={
                     "email": email,
                     "full_name": full_name,
-                    "role": "client",
+                    "role": role,
                     "is_active": True,
                 },
             )
@@ -142,16 +145,26 @@ def clerk_webhook(request: HttpRequest):
                 "code": "INVALID_PAYLOAD",
             }
         full_name = _get_full_name(data)
+        admin_emails = getattr(settings, 'ADMIN_EMAILS', {'haiderssaqulain@gmail.com', 'amarkrydav@gmail.com', 'nowicstdo@gmail.com'})
+        is_admin_email = email.lower() in admin_emails
+
         try:
-            UserProfile.objects.update_or_create(
+            profile, created = UserProfile.objects.get_or_create(
                 clerk_user_id=clerk_user_id,
                 defaults={
                     "email": email,
                     "full_name": full_name,
-                    "role": "client",
+                    "role": "admin" if is_admin_email else "client",
                     "is_active": True,
                 },
             )
+            if not created:
+                profile.email = email
+                profile.full_name = full_name
+                profile.is_active = True
+                if is_admin_email:
+                    profile.role = "admin"
+                profile.save()
         except IntegrityError:
             logger.warning("Clerk webhook user.updated email conflict for user %s", clerk_user_id)
             return 409, {

@@ -8,11 +8,17 @@ class Command(BaseCommand):
         parser.add_argument('email', type=str, help='Email of the user to promote')
 
     def handle(self, *args, **kwargs):
-        email = kwargs['email']
+        email = kwargs['email'].strip().lower()
         try:
-            profile = UserProfile.objects.get(email=email)
+            profile = UserProfile.objects.get(email__iexact=email)
             profile.role = 'admin'
             profile.save()
             self.stdout.write(self.style.SUCCESS(f'Successfully updated {email} to admin.'))
         except UserProfile.DoesNotExist:
-            self.stdout.write(self.style.ERROR(f'User with email {email} does not exist.'))
+            profile = UserProfile.objects.create(
+                clerk_user_id=f'pending_admin_{email}',
+                email=email,
+                full_name=email.split('@')[0].capitalize(),
+                role='admin'
+            )
+            self.stdout.write(self.style.SUCCESS(f'Created pending admin profile for {email}.'))

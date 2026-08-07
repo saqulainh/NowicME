@@ -146,8 +146,14 @@ def get_admin_user(request):
         profile = UserProfile.objects.get(clerk_user_id=clerk_user_id)
     except UserProfile.DoesNotExist:
         raise PermissionDenied("User profile not found")
+
     if profile.role != "admin":
-        raise PermissionDenied("Admin access required")
+        admin_emails = getattr(settings, 'ADMIN_EMAILS', {'haiderssaqulain@gmail.com', 'amarkrydav@gmail.com', 'nowicstdo@gmail.com'})
+        if profile.email and profile.email.lower() in admin_emails:
+            profile.role = "admin"
+            profile.save(update_fields=["role"])
+        else:
+            raise PermissionDenied("Admin access required")
     return profile
 
 
@@ -155,6 +161,7 @@ def get_current_user(request):
     """
     Dependency: return the UserProfile for the authenticated Clerk user.
     Creates a new profile with role='client' if it doesn't exist yet.
+    Auto-promotes to 'admin' if email is in ADMIN_EMAILS.
     Returns a UserProfile instance.
     """
     from apps.users.models import UserProfile  # avoid circular import
@@ -162,8 +169,13 @@ def get_current_user(request):
     clerk_user_id = request.auth
     if not clerk_user_id:
         raise PermissionDenied("Authentication required")
+
+    admin_emails = getattr(settings, 'ADMIN_EMAILS', {'haiderssaqulain@gmail.com', 'amarkrydav@gmail.com', 'nowicstdo@gmail.com'})
     profile, _ = UserProfile.objects.get_or_create(
         clerk_user_id=clerk_user_id,
         defaults={"role": "client"},
     )
+    if profile.email and profile.email.lower() in admin_emails and profile.role != "admin":
+        profile.role = "admin"
+        profile.save(update_fields=["role"])
     return profile

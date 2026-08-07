@@ -131,6 +131,8 @@ EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER', '')
 EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD', '')
 DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL', 'noreply@nowicstudio.in')
 ADMIN_EMAIL = os.getenv('ADMIN_EMAIL', 'nowicstdo@gmail.com')
+raw_admin_emails = os.getenv('ADMIN_EMAILS', 'haiderssaqulain@gmail.com,amarkrydav@gmail.com,nowicstdo@gmail.com')
+ADMIN_EMAILS = {e.strip().lower() for e in raw_admin_emails.split(',') if e.strip()}
 
 CLERK_JWKS_URL = os.environ['CLERK_JWKS_URL']
 CLERK_WEBHOOK_SECRET = os.environ['CLERK_WEBHOOK_SECRET']

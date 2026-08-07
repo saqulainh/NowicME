@@ -68,8 +68,15 @@ if local_media_dir.exists():
 else:
     print("\n[1/2] No local media directory found, skipping image uploads.")
 
-# 2. Sync Database
-print("\n[2/2] Loading database dump into live database...")
+# 2. Sync Database & Migrations
+print("\n[2/3] Running database migrations...")
+try:
+    call_command('migrate')
+    print("Database migrations applied successfully!")
+except Exception as e:
+    print(f"Warning/Failed during migrations: {e}")
+
+print("\n[3/3] Loading database dump into live database...")
 try:
     call_command('loaddata', 'datadump.json')
     print("\nDatabase sync completed successfully!")

@@ -178,7 +178,10 @@ export default function Footer() {
 
         <div className="mt-10 flex flex-wrap items-center justify-between gap-3 border-t border-subtle pt-6 text-xs text-muted">
           <p>© {new Date().getFullYear()} {brandName}. All rights reserved.</p>
-          <p>Built with <span className="text-mint">♥</span> in India 🇮🇳</p>
+          <div className="flex items-center gap-4">
+            <Link to="/privacy-policy" className="hover:text-text transition-colors">Privacy Policy</Link>
+            <p>Built with <span className="text-mint">♥</span> in India 🇮🇳</p>
+          </div>
         </div>
       </div>
     </footer>

@@ -44,6 +44,7 @@ class SitemapView(View):
             ("/contact", "monthly", "0.7"),
             ("/booking", "monthly", "0.7"),
             ("/blog", "daily", "0.9"),
+            ("/privacy-policy", "yearly", "0.3"),
         ]
         for path, freq, prio in static_pages:
             urls.append(_url_entry(f"{SITE_URL}{path}", today, freq, prio))

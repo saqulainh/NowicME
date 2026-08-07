@@ -21,6 +21,7 @@ const ClientDashboard = lazy(() => import('./pages/Dashboard'));
 const SubmitReview = lazy(() => import('./pages/SubmitReview'));
 const Blog = lazy(() => import('./pages/Blog'));
 const BlogPostDetail = lazy(() => import('./pages/BlogPostDetail'));
+const PrivacyPolicy = lazy(() => import('./pages/PrivacyPolicy'));
 
 const AdminLogin = lazy(() => import('./pages/admin/AdminLogin'));
 const Dashboard = lazy(() => import('./pages/admin/Dashboard'));
@@ -66,6 +67,7 @@ export default function App() {
             <Route path="/review" element={<SubmitReview />} />
             <Route path="/blog" element={<Blog />} />
             <Route path="/blog/:slug" element={<BlogPostDetail />} />
+            <Route path="/privacy-policy" element={<PrivacyPolicy />} />
             <Route path="*" element={<NotFound />} />
           </Route>
 
