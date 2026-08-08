@@ -697,7 +697,9 @@ def admin_update_blog_post(request: HttpRequest, post_id: int, payload: BlogPost
         elif '/media/' in url:
             post.cover_image = url.split('/media/')[-1]
         else:
-            post.cover_image = url
+            # Do not assign external absolute URLs directly to ImageField storage.
+            # Require uploads or a /media/ path. Return a 400 error to the client.
+            return 400, {'success': False, 'error': 'cover_image_url must be a /media/ path or uploaded file.'}
             
     for field, value in update_data.items():
         setattr(post, field, value)

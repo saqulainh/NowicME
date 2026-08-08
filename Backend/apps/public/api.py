@@ -10,9 +10,11 @@ from typing import Optional
 from django.conf import settings
 from django.db.models import Count
 from django.db import DatabaseError
+from django.db.models import F
 from django.core.exceptions import ValidationError as DjangoValidationError
 from django.http import HttpRequest
 from ninja import Router, Query
+from shared.auth import clerk_auth
 
 from apps.public.models import ServiceOffering, PortfolioProject, ContactSubmission, SiteContent, BlogPost
 from apps.public.schemas import (
@@ -213,10 +215,10 @@ def submit_contact(request: HttpRequest, payload: ContactIn):
     except (DatabaseError, DjangoValidationError) as exc:
         logger.error("Failed to create CRM lead from contact form: %s", exc)
 
-    # 4 & 5. Emails (fail_silently=True inside helpers)
-    send_contact_confirmation(payload.name, payload.email)
+    # 4 & 5. Emails (fail_silently=True inside helpers) — use sanitized values
+    send_contact_confirmation(name, email)
     send_contact_notification(
-        payload.name, payload.email, payload.project_type or "General", payload.message
+        name, email, project_type or "General", message
     )
 
     notify_all_admins(
@@ -327,7 +329,7 @@ def submit_review(request: HttpRequest, payload: ReviewIn):
     }
 
 
-@router.get('/convert-paths/', auth=None)
+@router.get('/convert-paths/', auth=clerk_auth)
 def convert_paths_endpoint(request):
     from django.core.files.storage import default_storage
     from apps.public.models import SiteContent
@@ -390,9 +392,12 @@ def get_blog_post(request: HttpRequest, slug: str):
     except BlogPost.DoesNotExist:
         raise NotFound(f"Blog post '{slug}' not found")
     
-    # Increment views count
-    post.views_count += 1
-    post.save(update_fields=['views_count'])
+    # Increment views count atomically to avoid lost updates under concurrency
+    try:
+        BlogPost.objects.filter(pk=post.pk).update(views_count=F('views_count') + 1)
+        post.refresh_from_db(fields=['views_count'])
+    except Exception as e:
+        logger.exception("Failed to increment views count for %s: %s", slug, e)
     
     return {"success": True, "data": BlogPostOut.from_orm(post).dict()}
 

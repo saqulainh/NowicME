@@ -111,6 +111,7 @@ def clerk_webhook(request: HttpRequest):
                 "error": "Invalid payload",
                 "code": "INVALID_PAYLOAD",
             }
+        full_name = _get_full_name(data)
         admin_emails = getattr(settings, 'ADMIN_EMAILS', {'haiderssaqulain@gmail.com', 'amarkrydav@gmail.com', 'nowicstdo@gmail.com'})
         is_admin_email = email.lower() in admin_emails
         role = "admin" if is_admin_email else "client"
