@@ -1,10 +1,12 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowUpRight, Github } from 'lucide-react';
+import { ArrowUpRight, ArrowRight, Github, Search } from 'lucide-react';
 import SEO from '../components/SEO';
 import SectionHeading from '../components/common/SectionHeading';
 import ScrollReveal from '../components/reveal/ScrollReveal';
+import Breadcrumbs from '../components/common/Breadcrumbs';
+import { toProjectSlug } from '../data/caseStudyDetails';
 import { BASE_URL } from '../lib/api';
 import { useContent } from '../context/ContentContext';
 import LoadingSpinner from '../components/LoadingSpinner';
@@ -27,13 +29,23 @@ function formatCategory(value) {
 
 export default function Portfolio() {
   const [activeCategory, setActiveCategory] = useState('all');
+  const [searchQuery, setSearchQuery] = useState('');
   const { content, loading } = useContent();
   const allProjects = content?.portfolioItems || content?.portfolio || [];
   const error = null;
 
   const projects = Array.isArray(allProjects) ? [...allProjects].sort((a, b) => (a.order ?? 0) - (b.order ?? 0)) : [];
   const categories = ['all', ...new Set(projects.map((p) => p.category).filter(Boolean))];
-  const filtered = activeCategory === 'all' ? projects : projects.filter((p) => p.category === activeCategory);
+  
+  const filtered = projects.filter((p) => {
+    const matchesCat = activeCategory === 'all' || p.category === activeCategory;
+    const q = searchQuery.toLowerCase().trim();
+    if (!q) return matchesCat;
+    const titleMatch = (p.title || '').toLowerCase().includes(q);
+    const descMatch = (p.description || '').toLowerCase().includes(q);
+    const techMatch = Array.isArray(p.tech_stack) && p.tech_stack.some(t => t.toLowerCase().includes(q));
+    return matchesCat && (titleMatch || descMatch || techMatch);
+  });
 
   const portfolioSchema = [
     {
@@ -86,6 +98,7 @@ export default function Portfolio() {
           style={{ background: 'radial-gradient(ellipse 60% 40% at 50% 0%, rgba(52,217,154,0.06) 0%, transparent 70%)' }}
         />
         <div className="container-shell relative">
+          <Breadcrumbs items={[{ label: 'Portfolio', path: '/portfolio' }]} />
           <SectionHeading
             as="h1"
             eyebrow="Portfolio"
@@ -100,9 +113,20 @@ export default function Portfolio() {
         </div>
       </section>
 
-      {/* Filters */}
+      {/* Search & Filters */}
       <section className="container-shell pb-6">
         <ScrollReveal>
+          <div className="max-w-md mx-auto mb-6 relative">
+            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted" size={16} />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search projects by keyword, tech, or title..."
+              className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-white/[0.02] border border-white/10 text-xs text-text placeholder-muted focus:outline-none focus:border-mint/40 transition-colors"
+            />
+          </div>
+
           <div className="flex flex-wrap justify-center gap-2">
             {categories.map((category) => (
               <button
@@ -194,6 +218,12 @@ export default function Portfolio() {
                         <span key={tag} className="tag">{tag}</span>
                       ))}
                     </div>
+                    <Link
+                      to={`/portfolio/${toProjectSlug(item.title)}`}
+                      className="mt-4 inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-mint hover:text-white transition-colors"
+                    >
+                      View Case Study <ArrowRight size={12} />
+                    </Link>
                   </div>
                 </motion.article>
               </motion.div>

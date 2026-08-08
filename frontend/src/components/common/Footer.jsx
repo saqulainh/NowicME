@@ -83,7 +83,7 @@ export default function Footer() {
   return (
     <footer className="mt-20 border-t border-subtle bg-panel">
       <div className="container-shell py-12">
-        <div className="grid gap-8 md:grid-cols-[2fr_1fr_1fr_1fr]">
+        <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-[2fr_1fr_1fr_1fr_1fr]">
 
           {/* Brand */}
           <div>
@@ -133,32 +133,42 @@ export default function Footer() {
             </ul>
           </div>
 
-          {/* Nav */}
-          <div>
-            <p className="mb-3 text-xs font-semibold uppercase tracking-[0.15em] text-muted">Navigation</p>
-            <ul className="space-y-2">
-              {navLinks.map((item) => (
-                <li key={item.path}>
-                  <Link to={item.path} className="text-sm text-sub transition-colors hover:text-text">
-                    {item.label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-
           {/* Services */}
           <div>
             <p className="mb-3 text-xs font-semibold uppercase tracking-[0.15em] text-muted">Services</p>
             <ul className="space-y-2">
               {(Array.isArray(content.services) && content.services.length > 0
-                ? content.services.map(s => s.title || s.name).slice(0, 5)
-                : ['MVP Development', 'Business Websites', 'AI Web Apps', 'Dashboards', 'SaaS Platforms']
+                ? content.services.map(s => s.title || s.name).slice(0, 6)
+                : ['MVP Development', 'Business Websites', 'AI Web Apps', 'Admin Dashboards', 'SaaS Platforms', 'API & Backend']
               ).map((s) => (
                 <li key={s}>
-                  <Link to="/services" className="text-sm text-sub transition-colors hover:text-text">{s}</Link>
+                  <Link to={`/services/${s.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')}`} className="text-sm text-sub transition-colors hover:text-text">{s}</Link>
                 </li>
               ))}
+            </ul>
+          </div>
+
+          {/* Technologies */}
+          <div>
+            <p className="mb-3 text-xs font-semibold uppercase tracking-[0.15em] text-muted">Technologies</p>
+            <ul className="space-y-2">
+              {['React', 'Next.js', 'Django', 'Node.js', 'PostgreSQL', 'OpenAI'].map(t => (
+                <li key={t}>
+                  <Link to={`/technologies/${t.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/\./g, '').replace(/(^-|-$)/g, '')}`} className="text-sm text-sub transition-colors hover:text-text">{t}</Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Resources */}
+          <div>
+            <p className="mb-3 text-xs font-semibold uppercase tracking-[0.15em] text-muted">Resources</p>
+            <ul className="space-y-2">
+              <li><Link to="/portfolio" className="text-sm text-sub transition-colors hover:text-text">Portfolio</Link></li>
+              <li><Link to="/blog" className="text-sm text-sub transition-colors hover:text-text">Blog</Link></li>
+              <li><Link to="/pricing" className="text-sm text-sub transition-colors hover:text-text">Pricing</Link></li>
+              <li><Link to="/faqs" className="text-sm text-sub transition-colors hover:text-text">FAQs</Link></li>
+              <li><Link to="/about" className="text-sm text-sub transition-colors hover:text-text">About</Link></li>
             </ul>
           </div>
 

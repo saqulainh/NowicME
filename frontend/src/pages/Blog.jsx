@@ -1,13 +1,15 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Calendar, Eye, Clock, BookOpen, ArrowRight } from 'lucide-react';
+import { Calendar, Eye, Clock, BookOpen, ArrowRight, Search } from 'lucide-react';
 import { api } from '../lib/api';
 import SEO from '../components/SEO';
 import SectionHeading from '../components/common/SectionHeading';
 import ScrollReveal from '../components/reveal/ScrollReveal';
+import Breadcrumbs from '../components/common/Breadcrumbs';
 
 export default function Blog() {
     const [posts, setPosts] = useState([]);
+    const [searchQuery, setSearchQuery] = useState('');
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
 
@@ -80,6 +82,7 @@ export default function Blog() {
             {/* ── Header ── */}
             <section className="relative pt-32 pb-12 overflow-hidden z-10">
                 <div className="container-shell relative">
+                    <Breadcrumbs items={[{ label: 'Blog', path: '/blog' }]} />
                     <SectionHeading
                         as="h1"
                         eyebrow="Tech Insights"
@@ -89,8 +92,21 @@ export default function Blog() {
                 </div>
             </section>
 
-            {/* ── Blog Grid ── */}
+            {/* ── Blog Search & Grid ── */}
             <section className="container-shell pb-32 z-10 relative">
+                {!loading && !error && posts.length > 0 && (
+                    <div className="max-w-md mx-auto mb-10 relative">
+                        <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted" size={16} />
+                        <input
+                            type="text"
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                            placeholder="Search articles by title or keyword..."
+                            className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-white/[0.02] border border-white/10 text-xs text-text placeholder-muted focus:outline-none focus:border-mint/40 transition-colors"
+                        />
+                    </div>
+                )}
+
                 {loading ? (
                     <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
                         {Array.from({ length: 3 }).map((_, i) => (
@@ -112,7 +128,11 @@ export default function Blog() {
                     </div>
                 ) : (
                     <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                        {posts.map((post, idx) => (
+                        {posts.filter(p => {
+                            const q = searchQuery.toLowerCase().trim();
+                            if (!q) return true;
+                            return (p.title || '').toLowerCase().includes(q) || (p.excerpt || '').toLowerCase().includes(q);
+                        }).map((post, idx) => (
                             <ScrollReveal key={post.id} delay={idx * 0.08}>
                                 <article className="group relative flex h-full flex-col overflow-hidden rounded-3xl border border-white/10 bg-[#0a0a0a]/80 backdrop-blur-xl p-5 hover:border-mint/30 transition-all">
                                     <Link to={`/blog/${post.slug}`} className="block overflow-hidden rounded-2xl aspect-[1.8/1] bg-[#16171e] relative mb-5">

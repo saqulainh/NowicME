@@ -33,6 +33,13 @@ const SEO = ({
       <meta name="geo.region" content="IN" />
       <meta name="geo.placename" content="India" />
       <meta name="language" content="en" />
+      {canonicalUrl && (
+        <>
+          <link rel="alternate" hrefLang="en-IN" href={canonicalUrl} />
+          <link rel="alternate" hrefLang="en" href={canonicalUrl} />
+          <link rel="alternate" hrefLang="x-default" href={canonicalUrl} />
+        </>
+      )}
 
       {/* Open Graph / Facebook */}
       <meta property="og:type" content={ogType} />

@@ -4,6 +4,7 @@ import { ArrowRight, CheckCircle2 } from 'lucide-react';
 import SEO from '../components/SEO';
 import SectionHeading from '../components/common/SectionHeading';
 import ScrollReveal from '../components/reveal/ScrollReveal';
+import Breadcrumbs from '../components/common/Breadcrumbs';
 import InteractiveCard from '../components/ui/InteractiveCard';
 import Magnetic from '../components/ui/Magnetic';
 import { useState } from 'react';
@@ -206,6 +207,7 @@ export default function Services() {
           style={{ background: 'radial-gradient(ellipse 60% 40% at 50% 0%, rgba(52,217,154,0.06) 0%, transparent 70%)' }}
         />
         <div className="container-shell relative">
+          <Breadcrumbs items={[{ label: 'Services', path: '/services' }]} />
           <SectionHeading
             as="h1"
             eyebrow="Our Services"
@@ -279,10 +281,10 @@ export default function Services() {
                   </ul>
                   <Magnetic strength={0.2}>
                     <Link
-                      to="/contact"
+                      to={`/services/${toSlug(service.slug || service.name)}`}
                       className="mt-8 flex items-center gap-1 text-xs font-bold uppercase tracking-wider text-mint opacity-0 transition-all duration-300 group-hover/inter:opacity-100 group-focus-within/inter:opacity-100 focus:opacity-100 focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-mint/40 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0e0f14]"
                     >
-                      Start Project <ArrowRight size={14} />
+                      View Details <ArrowRight size={14} />
                     </Link>
                   </Magnetic>
                 </InteractiveCard>

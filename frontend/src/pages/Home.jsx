@@ -26,6 +26,7 @@ import InteractiveCard from '../components/ui/InteractiveCard';
 import Magnetic from '../components/ui/Magnetic';
 import MaskText from '../components/reveal/MaskText';
 import BoutiqueReveal from '../components/reveal/BoutiqueReveal';
+import CTASection from '../components/common/CTASection';
 import LoadingSpinner from '../components/LoadingSpinner';
 import ErrorMessage from '../components/ErrorMessage';
 import { useContent } from '../context/ContentContext';
@@ -158,6 +159,9 @@ export default function Home() {
   const visibleServices = apiServices.length ? apiServices : fallbackServices.map(mapFallbackService);
   const featuredProjects = Array.isArray(portfolioItems) ? [...portfolioItems].sort((a, b) => (a.order ?? 0) - (b.order ?? 0)).slice(0, 4) : [];
 
+  const brand = content?.brand || {};
+  const sameAsLinks = [brand.linkedin, brand.github, brand.twitter, brand.instagram].filter(Boolean);
+
   const homeSchema = {
     "@context": "https://schema.org",
     "@graph": [
@@ -165,7 +169,7 @@ export default function Home() {
         "@type": "Organization",
         "@id": "https://nowicstdio.tech/#organization",
         "name": "Nowic Studio",
-        "alternateName": "Nowic",
+        "alternateName": ["Nowic", "NowicStdio"],
         "url": "https://nowicstdio.tech/",
         "logo": {
           "@type": "ImageObject",
@@ -175,10 +179,20 @@ export default function Home() {
         },
         "description": "Nowic Studio is a software agency that builds MVPs, SaaS platforms, AI-integrated apps, and premium web products for startups and growing businesses.",
         "foundingDate": "2024",
-        "email": "haiderssaqulain@gmail.com",
+        "email": brand.email || "haiderssaqulain@gmail.com",
         "areaServed": "Worldwide",
-        "knowsAbout": ["MVP Development", "SaaS", "AI Applications", "React", "Python", "Django", "Next.js", "Web Design", "Mobile Apps"],
-        "sameAs": []
+        "knowsAbout": ["MVP Development", "SaaS Platforms", "AI Applications", "React", "Python", "Django", "Next.js", "Web Design", "API Development"],
+        "sameAs": sameAsLinks.length > 0 ? sameAsLinks : [
+          "https://github.com",
+          "https://linkedin.com",
+          "https://twitter.com"
+        ],
+        "founder": {
+          "@type": "Person",
+          "name": "Saqulain Haider",
+          "jobTitle": "Founder & Lead Engineer",
+          "url": "https://nowicstdio.tech/about"
+        }
       },
       {
         "@type": "WebSite",
@@ -394,24 +408,30 @@ export default function Home() {
                     <h3 className="mt-1.5 font-display text-lg font-bold text-text">{service.tagline}</h3>
                     <p className="mt-2 text-sm leading-relaxed text-sub">{service.description}</p>
 
-                    <div className="mt-4 flex flex-wrap gap-2 text-[11px] uppercase tracking-[0.14em] text-muted">
-                      {service.price_starting !== null && service.price_starting !== undefined && (
-                        <span className="rounded-full bg-white/5 px-2.5 py-1 text-mint">From ₹{formatCurrency(service.price_starting)}</span>
-                      )}
-                      {service.delivery_days !== null && service.delivery_days !== undefined && (
-                        <span className="rounded-full bg-white/5 px-2.5 py-1">{service.delivery_days} days</span>
-                      )}
-                    </div>
+                      <div className="mt-4 flex flex-wrap gap-2 text-[11px] uppercase tracking-[0.14em] text-muted">
+                        {service.price_starting !== null && service.price_starting !== undefined && (
+                          <span className="rounded-full bg-white/5 px-2.5 py-1 text-mint">From ₹{formatCurrency(service.price_starting)}</span>
+                        )}
+                        {service.delivery_days !== null && service.delivery_days !== undefined && (
+                          <span className="rounded-full bg-white/5 px-2.5 py-1">{service.delivery_days} days</span>
+                        )}
+                      </div>
 
-                    <ul className="mt-4 space-y-1.5">
-                      {(service.features || []).map((f) => (
-                        <li key={f} className="flex items-center gap-2 text-xs text-muted">
-                          <CheckCircle2 size={11} className="text-mint shrink-0" />
-                          {f}
-                        </li>
-                      ))}
-                    </ul>
-                  </InteractiveCard>
+                      <ul className="mt-4 space-y-1.5 flex-1">
+                        {(service.features || []).map((f) => (
+                          <li key={f} className="flex items-center gap-2 text-xs text-muted">
+                            <CheckCircle2 size={11} className="text-mint shrink-0" />
+                            {f}
+                          </li>
+                        ))}
+                      </ul>
+                      
+                      <div className="mt-6 flex items-center justify-between">
+                        <Link to={`/services/${service.slug}`} className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-mint opacity-80 group-hover:opacity-100 hover:text-white transition-all">
+                          Learn More <ArrowRight size={12} />
+                        </Link>
+                      </div>
+                    </InteractiveCard>
                 </ScrollReveal>
               );
             })}
@@ -671,46 +691,7 @@ export default function Home() {
       </section>
 
       {/* ═══ CTA ═══ */}
-      <section className="relative overflow-hidden py-24">
-        {/* Soft white spotlight behind CTA */}
-        <div className="pointer-events-none absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-80 w-[500px] rounded-full bg-white/[0.05] blur-[100px] z-0" />
-        
-        {/* Engineering grid and planning boards — desktop only */}
-        <div className="engineering-grid" />
-        {!isMobile && (
-          <FloatingPanels panels={[
-            { variant: 'planning', top: '10%', left: '-5%', width: '320px', opacity: 0.18, delay: 0 },
-            { variant: 'analytics', bottom: '5%', right: '-5%', width: '300px', opacity: 0.15, delay: 1.8 }
-          ]} parallaxStrength={0.012} />
-        )}
-
-        <ScrollReveal>
-          <div className="hero-glass glass-noise relative p-10 text-center sm:p-16">
-            {/* Bottom mint glow */}
-            <div
-              className="pointer-events-none absolute inset-x-0 -bottom-20 h-40"
-              style={{ background: 'radial-gradient(ellipse at 50% 100%, rgba(189,223,188,0.06), transparent 65%)' }}
-            />
-
-            <div className="container-shell relative z-10">
-              <p className="eyebrow">Let's Build</p>
-              <h3 className="mt-4 font-display text-3xl font-bold text-text sm:text-[2.5rem] sm:leading-[1.15]">
-                Ready to build something{' '}
-                <span className="text-gradient">powerful?</span>
-              </h3>
-              <p className="mx-auto mt-5 max-w-lg text-base leading-relaxed text-sub/90">
-                Share your idea and we'll respond within 24 hours with a clear roadmap, timeline, and budget.
-              </p>
-              <div className="mt-10 flex flex-wrap items-center justify-center gap-4">
-                <Link to="/contact" className="cta-btn px-8 py-3.5">
-                  Start a Conversation <ArrowRight size={15} className="ml-2" />
-                </Link>
-                <Link to="/portfolio" className="outline-btn">See Our Work</Link>
-              </div>
-            </div>
-          </div>
-        </ScrollReveal>
-      </section>
+      <CTASection />
     </>
   );
 }

@@ -9,6 +9,7 @@ import { SignInButton } from '@clerk/clerk-react';
 import SEO from '../components/SEO';
 import SectionHeading from '../components/common/SectionHeading';
 import ScrollReveal from '../components/reveal/ScrollReveal';
+import Breadcrumbs from '../components/common/Breadcrumbs';
 import LoadingSpinner from '../components/LoadingSpinner';
 import ErrorMessage from '../components/ErrorMessage';
 import { useApi } from '../hooks/useApi';
@@ -166,6 +167,7 @@ export default function Booking() {
       {/* ── Header Section ──────────────────────────────────────────────── */}
       <section className="relative pt-32 pb-12 overflow-hidden">
         <div className="container-shell relative">
+          <Breadcrumbs items={[{ label: 'Booking', path: '/booking' }]} />
           <SectionHeading
             as="h1"
             eyebrow="Experience Excellence"

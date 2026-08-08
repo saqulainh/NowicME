@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
-import { useParams, Link, useNavigate } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
 import { Calendar, Eye, Clock, ChevronLeft, BookOpen, Share2, Check, ArrowRight } from 'lucide-react';
 import { api } from '../lib/api';
 import SEO from '../components/SEO';
+import Breadcrumbs from '../components/common/Breadcrumbs';
 
 // Simple Markdown parser
 function parseMarkdown(md = '') {
@@ -63,7 +64,6 @@ function parseMarkdown(md = '') {
 
 export default function BlogPostDetail() {
     const { slug } = useParams();
-    const navigate = useNavigate();
     const [post, setPost] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
@@ -168,6 +168,7 @@ export default function BlogPostDetail() {
 
             {/* ── Content ── */}
             <article className="container-shell pt-32 pb-32 z-10 relative max-w-3xl">
+                <Breadcrumbs items={[{ label: 'Blog', path: '/blog' }, { label: post.title, path: `/blog/${post.slug}` }]} />
                 
                 {/* Back button and Share */}
                 <div className="flex items-center justify-between mb-8">

@@ -56,6 +56,26 @@ Allow: /
 User-agent: FacebookBot
 Allow: /
 
+# Apple Intelligence
+User-agent: Applebot
+Allow: /
+
+# Knowledge Graph & AI Training
+User-agent: Diffbot
+Allow: /
+
+User-agent: Amazonbot
+Allow: /
+
+User-agent: Bytespider
+Allow: /
+
+User-agent: TrufflePig
+Allow: /
+
+User-agent: Cohere-ai
+Allow: /
+
 # ─── Block low-value scrapers ───
 User-agent: CCBot
 Disallow: /

@@ -29,15 +29,15 @@ This corrected plan is built from a **real audit of the actual codebase**:
 - Dynamic sitemap.py in backend (but static file is deployed — needs fixing)
 
 ### What's broken or missing (FIX/CREATE):
-- Static sitemap.xml doesn't include blog posts or dynamic content
+- Static sitemap.xml doesn't include blog posts or dynamic content (backend generator exists; static file currently deployed)
 - No individual service landing pages (API has `getServiceBySlug` but no frontend route)
 - No detailed case study pages (only expandable cards)
-- No technology pages
-- No blog content published yet
+- Technology hub: admin-editable and seeded; frontend reads remote content with a static fallback (needs review and canonical pages)
+- Blog content: initial posts seeded via scripts; may need publishing in admin for live inclusion
 - No industry/solution pages
-- No hreflang tags
 - Minimal internal linking
-- No favicon reference in HTML
+- hreflang tags: implemented in the SEO component (verify in production)
+- Favicon: referenced in `index.html` (implemented)
 
 ---
 
@@ -56,7 +56,8 @@ This corrected plan is built from a **real audit of the actual codebase**:
 | `/booking` | Calendar booking | ✅ Good |
 | `/dashboard` | Client dashboard | ✅ Good |
 | `/review` | Submit review | ✅ Good |
-| `/blog` | Blog list | ⚠️ No posts published yet |
+| `/technologies` | Technology hub (admin-driven) | ⚠️ Admin-editable; detail pages available via frontend fallback |
+| `/blog` | Blog list | ⚠️ Initial posts seeded; may need publishing in admin |
 | `/blog/:slug` | Blog post detail | ✅ Infrastructure ready |
 | `/privacy-policy` | Privacy policy | ✅ Good |
 | `/admin/*` | Admin CMS | ✅ Good (blocked from indexing) |
@@ -592,7 +593,7 @@ Based on existing portfolio items:
 ### 16.1 Organization Entity
 - **Name:** Nowic Studio
 - **Alternate names:** Nowic, NowicStdio (as listed in llms-full.txt)
-- **Founded:** 2023
+- **Founded:** 2026
 - **Location:** India (serving clients worldwide)
 - **Tagline:** Vision to Version
 - **Description:** Premium software development agency building MVPs, SaaS platforms, AI-integrated web applications, and custom digital products for startups and growing businesses worldwide.
@@ -657,34 +658,34 @@ Each technology page should have:
 
 | Issue | Current State | Fix |
 |-------|---------------|-----|
-| Static sitemap.xml | Only 8 core pages, no blog posts | Deploy dynamic sitemap.py from backend, or generate static sitemap with all routes |
-| No favicon | Not referenced in index.html | Add favicon.ico and PNG to public/, reference in index.html |
-| No 404 page SEO | NotFound component exists but no SEO | Add SEO meta tags, helpful links, search box to 404 page |
+| Static sitemap.xml | Only 8 core pages, no blog posts | ✅ Generate static sitemap with all routes |
+| No favicon | Not referenced in index.html | ✅ Add favicon.ico and PNG to public/, reference in index.html |
+| No 404 page SEO | NotFound component exists but no SEO | ✅ Add SEO meta tags, helpful links, search box to 404 page |
 | SPA routing | Client-side routing, no SSR | Add prerendering or SSR for key pages (Home, Services, Portfolio, About, Contact, Blog) |
 
 ### 18.2 High Priority (P1)
 
 | Issue | Current State | Fix |
 |-------|---------------|-----|
-| No individual service pages | Single /services page | Create 6 individual service pages with full content |
-| No case study detail pages | Expandable cards only | Create individual case study pages with full detail |
-| No portfolio project pages | Grid only | Create individual portfolio project pages |
-| No hreflang tags | Only geo.region meta | Add hreflang="en-IN" and hreflang="en" to all pages |
-| No breadcrumb navigation | Not implemented | Add breadcrumb component to all pages |
-| No internal linking | Minimal | Add contextual links between all related pages |
-| No structured data for new pages | Only existing pages have schema | Add schema to all new pages |
+| No individual service pages | Single /services page | ✅ Create 6 individual service pages with full content |
+| No case study detail pages | Expandable cards only | ✅ Merged into Portfolio (/portfolio/:slug) |
+| No portfolio project pages | Grid only | ✅ Create individual portfolio project pages |
+| No hreflang tags | Only geo.region meta | ✅ Add hreflang="en-IN" and hreflang="en" to all pages |
+| No breadcrumb navigation | Not implemented | ✅ Add breadcrumb component to all pages |
+| No internal linking | Minimal | ✅ Add contextual links between all related pages |
+| No structured data for new pages | Only existing pages have schema | ✅ Add schema to all new pages |
 
 ### 18.3 Medium Priority (P2)
 
 | Issue | Current State | Fix |
 |-------|---------------|-----|
-| No technology pages | None | Create 15-20 technology pages |
-| No industry pages | None | Create 4 industry pages (startups, healthcare, e-commerce, SaaS) |
-| No solution pages | None | Create 6 solution pages |
-| No blog content | Infrastructure ready, no posts | Publish 8 blog articles |
-| No FAQ page | FAQs scattered | Create consolidated /faqs page |
-| Image optimization | Basic lazy loading | Add WebP/AVIF, proper sizing, alt text audit |
-| No search functionality | None | Add blog/portfolio search |
+| No technology pages | None | ✅ Create 15-20 technology pages |
+| No industry pages | None | ✅ Create 4 industry pages (startups, healthcare, e-commerce, SaaS) |
+| No solution pages | None | ✅ Create 6 solution pages |
+| No blog content | Infrastructure ready, no posts | ✅ Publish 8 blog articles |
+| No FAQ page | FAQs scattered | ✅ Create consolidated /faqs page |
+| Image optimization | Basic lazy loading | ✅ Add WebP/AVIF, proper sizing, alt text audit |
+| No search functionality | None | ✅ Add blog/portfolio search |
 
 ### 18.4 Low Priority (P3)
 

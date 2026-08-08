@@ -19,6 +19,9 @@ const emptyService = {
     headline: '',
     description: '',
     features: ['', '', ''],
+    benefits: [],
+    keyTech: [],
+    faqs: [],
     price_starting: '',
     delivery_days: '',
     image_url: '',
@@ -48,6 +51,9 @@ export default function ServicesEditor() {
             id: s.id || createId(),
             icon: s.icon?.displayName || s.icon?.name || s.icon || 'Rocket',
             features: Array.isArray(s.features) ? s.features : (Array.isArray(s.features_list) ? s.features_list : []),
+            benefits: Array.isArray(s.benefits) ? s.benefits : [],
+            keyTech: Array.isArray(s.keyTech) ? s.keyTech : [],
+            faqs: Array.isArray(s.faqs) ? s.faqs : [],
         }));
 
         (async () => {
@@ -77,31 +83,34 @@ export default function ServicesEditor() {
         setSaved(false);
     };
 
-    const updateFeature = (idx, fIdx, value) => {
+    const updateArrayField = (idx, field, itemIdx, value) => {
         setItems((prev) => prev.map((item, i) => {
             if (i !== idx) return item;
-            const features = [...item.features];
-            features[fIdx] = value;
-            return { ...item, features };
+            const arr = [...(item[field] || [])];
+            arr[itemIdx] = value;
+            return { ...item, [field]: arr };
         }));
         setSaved(false);
     };
 
-    const addFeature = (idx) => {
-        setItems((prev) => prev.map((item, i) => i === idx ? { ...item, features: [...item.features, ''] } : item));
+    const addArrayField = (idx, field, emptyValue = '') => {
+        setItems((prev) => prev.map((item, i) => {
+            if (i !== idx) return item;
+            return { ...item, [field]: [...(item[field] || []), emptyValue] };
+        }));
         setSaved(false);
     };
 
-    const removeFeature = (idx, fIdx) => {
+    const removeArrayField = (idx, field, itemIdx) => {
         setItems((prev) => prev.map((item, i) => {
             if (i !== idx) return item;
-            return { ...item, features: item.features.filter((_, j) => j !== fIdx) };
+            return { ...item, [field]: (item[field] || []).filter((_, j) => j !== itemIdx) };
         }));
         setSaved(false);
     };
 
     const addItem = () => {
-        const newService = { ...emptyService, id: createId(), features: ['', '', ''] };
+        const newService = { ...emptyService, id: createId(), features: ['', '', ''], benefits: [], keyTech: [], faqs: [] };
         setItems((prev) => [...prev, newService]);
         setActivePreviewIdx(items.length);
     };
@@ -283,13 +292,56 @@ export default function ServicesEditor() {
                             <div>
                                 <label className="admin-label">Features Checklist</label>
                                 <div className="space-y-2">
-                                    {item.features.map((f, fIdx) => (
-                                        <div key={fIdx} className="flex gap-2">
-                                            <input type="text" value={f} onChange={(e) => updateFeature(idx, fIdx, e.target.value)} className="admin-input flex-1" placeholder={`Feature ${fIdx + 1}`} />
-                                            <button onClick={() => removeFeature(idx, fIdx)} className="text-red-400 hover:text-red-300 px-2"><Trash2 size={12} /></button>
+                                    {(item.features || []).map((f, fIdx) => (
+                                        <div key={`feat-${fIdx}`} className="flex gap-2">
+                                            <input type="text" value={f} onChange={(e) => updateArrayField(idx, 'features', fIdx, e.target.value)} className="admin-input flex-1" placeholder={`Feature ${fIdx + 1}`} />
+                                            <button onClick={() => removeArrayField(idx, 'features', fIdx)} className="text-red-400 hover:text-red-300 px-2"><Trash2 size={12} /></button>
                                         </div>
                                     ))}
-                                    <button onClick={() => addFeature(idx)} className="text-xs text-[#34d99a] hover:underline">+ Add plan feature</button>
+                                    <button onClick={() => addArrayField(idx, 'features')} className="text-xs text-[#34d99a] hover:underline">+ Add feature</button>
+                                </div>
+                            </div>
+
+                            {/* Benefits */}
+                            <div>
+                                <label className="admin-label">Benefits</label>
+                                <div className="space-y-2">
+                                    {(item.benefits || []).map((b, bIdx) => (
+                                        <div key={`ben-${bIdx}`} className="flex gap-2">
+                                            <input type="text" value={b} onChange={(e) => updateArrayField(idx, 'benefits', bIdx, e.target.value)} className="admin-input flex-1" placeholder={`Benefit ${bIdx + 1}`} />
+                                            <button onClick={() => removeArrayField(idx, 'benefits', bIdx)} className="text-red-400 hover:text-red-300 px-2"><Trash2 size={12} /></button>
+                                        </div>
+                                    ))}
+                                    <button onClick={() => addArrayField(idx, 'benefits')} className="text-xs text-[#34d99a] hover:underline">+ Add benefit</button>
+                                </div>
+                            </div>
+
+                            {/* Key Tech Stack */}
+                            <div>
+                                <label className="admin-label">Key Tech Stack</label>
+                                <div className="flex flex-wrap gap-2 mb-2">
+                                    {(item.keyTech || []).map((tech, tIdx) => (
+                                        <div key={`tech-${tIdx}`} className="flex items-center gap-1 bg-white/5 border border-white/10 rounded-full pl-3 pr-1 py-1">
+                                            <input type="text" value={tech} onChange={(e) => updateArrayField(idx, 'keyTech', tIdx, e.target.value)} className="bg-transparent text-xs text-white outline-none w-20" placeholder="e.g. React" />
+                                            <button onClick={() => removeArrayField(idx, 'keyTech', tIdx)} className="text-red-400 hover:text-red-300 p-1 rounded-full hover:bg-black/20"><Trash2 size={10} /></button>
+                                        </div>
+                                    ))}
+                                    <button onClick={() => addArrayField(idx, 'keyTech')} className="text-xs bg-[#34d99a]/10 text-[#34d99a] border border-[#34d99a]/20 rounded-full px-3 py-1 hover:bg-[#34d99a]/20 transition-colors">+ Add Tech</button>
+                                </div>
+                            </div>
+
+                            {/* FAQs */}
+                            <div>
+                                <label className="admin-label">FAQs (Specific to this service)</label>
+                                <div className="space-y-3">
+                                    {(item.faqs || []).map((faq, faqIdx) => (
+                                        <div key={`faq-${faqIdx}`} className="relative bg-black/20 p-3 rounded-lg border border-white/5 space-y-2">
+                                            <button onClick={() => removeArrayField(idx, 'faqs', faqIdx)} className="absolute top-2 right-2 text-red-400 hover:text-red-300 p-1"><Trash2 size={12} /></button>
+                                            <input type="text" value={faq.q} onChange={(e) => updateArrayField(idx, 'faqs', faqIdx, { ...faq, q: e.target.value })} className="admin-input text-sm" placeholder="Question" />
+                                            <textarea value={faq.a} onChange={(e) => updateArrayField(idx, 'faqs', faqIdx, { ...faq, a: e.target.value })} rows={2} className="admin-input text-sm resize-none !h-auto py-2" placeholder="Answer" />
+                                        </div>
+                                    ))}
+                                    <button onClick={() => addArrayField(idx, 'faqs', { q: '', a: '' })} className="text-xs text-[#34d99a] hover:underline">+ Add FAQ</button>
                                 </div>
                             </div>
 

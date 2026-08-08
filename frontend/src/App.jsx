@@ -1,5 +1,5 @@
 import { lazy, Suspense } from 'react';
-import { Routes, Route, useLocation } from 'react-router-dom';
+import { Routes, Route, useLocation, Navigate } from 'react-router-dom';
 import SmoothScroll from './components/common/SmoothScroll';
 import Analytics from './components/Analytics';
 import LiveChat from './components/LiveChat';
@@ -11,8 +11,11 @@ import AdminLayout from './layouts/AdminLayout';
 
 const Home = lazy(() => import('./pages/Home'));
 const Services = lazy(() => import('./pages/Services'));
+const ServiceDetail = lazy(() => import('./pages/ServiceDetail'));
 const Portfolio = lazy(() => import('./pages/Portfolio'));
+const PortfolioDetail = lazy(() => import('./pages/PortfolioDetail'));
 const CaseStudies = lazy(() => import('./pages/CaseStudies'));
+const CaseStudyDetail = lazy(() => import('./pages/CaseStudyDetail'));
 const Pricing = lazy(() => import('./pages/Pricing'));
 const About = lazy(() => import('./pages/About'));
 const Contact = lazy(() => import('./pages/Contact'));
@@ -21,6 +24,11 @@ const ClientDashboard = lazy(() => import('./pages/Dashboard'));
 const SubmitReview = lazy(() => import('./pages/SubmitReview'));
 const Blog = lazy(() => import('./pages/Blog'));
 const BlogPostDetail = lazy(() => import('./pages/BlogPostDetail'));
+const Technologies = lazy(() => import('./pages/Technologies'));
+const TechnologyDetail = lazy(() => import('./pages/TechnologyDetail'));
+const IndustryDetail = lazy(() => import('./pages/IndustryDetail'));
+const SolutionDetail = lazy(() => import('./pages/SolutionDetail'));
+const FAQs = lazy(() => import('./pages/FAQs'));
 const PrivacyPolicy = lazy(() => import('./pages/PrivacyPolicy'));
 
 const AdminLogin = lazy(() => import('./pages/admin/AdminLogin'));
@@ -35,6 +43,7 @@ const PortfolioEditor = lazy(() => import('./pages/admin/PortfolioEditor'));
 const StatsEditor = lazy(() => import('./pages/admin/StatsEditor'));
 const AboutEditor = lazy(() => import('./pages/admin/AboutEditor'));
 const FAQEditor = lazy(() => import('./pages/admin/FAQEditor'));
+const TechnologiesEditor = lazy(() => import('./pages/admin/TechnologiesEditor'));
 const ReviewsManagement = lazy(() => import('./pages/admin/ReviewsManagement'));
 const BlogManagement = lazy(() => import('./pages/admin/BlogManagement'));
 const BlogEditor = lazy(() => import('./pages/admin/BlogEditor'));
@@ -57,8 +66,11 @@ export default function App() {
           <Route element={<MainLayout />}>
             <Route path="/" element={<Home />} />
             <Route path="/services" element={<Services />} />
+            <Route path="/services/:slug" element={<ServiceDetail />} />
             <Route path="/portfolio" element={<Portfolio />} />
-            <Route path="/case-studies" element={<CaseStudies />} />
+            <Route path="/portfolio/:slug" element={<PortfolioDetail />} />
+            <Route path="/case-studies" element={<Navigate to="/portfolio" replace />} />
+            <Route path="/case-studies/:slug" element={<PortfolioDetail />} />
             <Route path="/pricing" element={<Pricing />} />
             <Route path="/about" element={<About />} />
             <Route path="/contact" element={<Contact />} />
@@ -67,6 +79,11 @@ export default function App() {
             <Route path="/review" element={<SubmitReview />} />
             <Route path="/blog" element={<Blog />} />
             <Route path="/blog/:slug" element={<BlogPostDetail />} />
+            <Route path="/technologies" element={<Technologies />} />
+            <Route path="/technologies/:slug" element={<TechnologyDetail />} />
+            <Route path="/industries/:slug" element={<IndustryDetail />} />
+            <Route path="/solutions/:slug" element={<SolutionDetail />} />
+            <Route path="/faqs" element={<FAQs />} />
             <Route path="/privacy-policy" element={<PrivacyPolicy />} />
             <Route path="*" element={<NotFound />} />
           </Route>
@@ -82,6 +99,7 @@ export default function App() {
             <Route path="reviews" element={<ReviewsManagement />} />
             <Route path="brand" element={<BrandEditor />} />
             <Route path="services" element={<ServicesEditor />} />
+            <Route path="technologies" element={<TechnologiesEditor />} />
             <Route path="portfolio" element={<PortfolioEditor />} />
             <Route path="blog" element={<BlogManagement />} />
             <Route path="blog/new" element={<BlogEditor />} />

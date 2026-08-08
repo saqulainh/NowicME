@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { Settings, Briefcase, FolderOpen, BarChart3, HelpCircle, Info, ArrowRight, DollarSign, Calendar, MessageSquare, Inbox, ExternalLink, ArrowUpRight, TrendingUp, UserCheck, ShieldAlert, Plus, Check, X, RefreshCw, Trash2, FileText, Square, CheckSquare, Edit3, Save, CheckCircle, Sliders, ChevronDown } from 'lucide-react';
+import { Settings, Briefcase, FolderOpen, BarChart3, HelpCircle, Info, ArrowRight, DollarSign, Calendar, MessageSquare, Inbox, ExternalLink, ArrowUpRight, TrendingUp, UserCheck, ShieldAlert, Plus, Check, X, RefreshCw, Trash2, FileText, Square, CheckSquare, Edit3, Save, CheckCircle, Sliders, ChevronDown, Cpu } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
 import { api } from '../../lib/api';
@@ -8,6 +8,7 @@ import LoadingSpinner from '../../components/LoadingSpinner';
 const sections = [
     { to: '/admin/brand', icon: Settings, label: 'Brand Settings', desc: 'Name, tagline, contact info' },
     { to: '/admin/services', icon: Briefcase, label: 'Services', desc: 'Manage your service offerings' },
+    { to: '/admin/technologies', icon: Cpu, label: 'Technologies', desc: 'Manage technology stack' },
     { to: '/admin/portfolio', icon: FolderOpen, label: 'Portfolio', desc: 'Add, edit & remove projects' },
     { to: '/admin/stats', icon: BarChart3, label: 'Stats & Highlights', desc: 'Key numbers & metrics' },
     { to: '/admin/about', icon: Info, label: 'About Page', desc: 'WhyUs, values & milestones' },

@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "prebuild": "python ../Backend/manage.py generate_sitemap || true",
     "build": "vite build",
     "preview": "vite preview"
   },

@@ -5,6 +5,8 @@ import SEO from '../components/SEO';
 import SectionHeading from '../components/common/SectionHeading';
 import ScrollReveal from '../components/reveal/ScrollReveal';
 import InteractiveCard from '../components/ui/InteractiveCard';
+import Breadcrumbs from '../components/common/Breadcrumbs';
+import { toProjectSlug } from '../data/caseStudyDetails';
 import { BASE_URL } from '../lib/api';
 import { useContent } from '../context/ContentContext';
 import LoadingSpinner from '../components/LoadingSpinner';
@@ -122,9 +124,15 @@ function CaseStudyCard({ project, index }) {
 
           {/* Links */}
           <div className="mt-auto pt-4 flex gap-3 border-t border-white/5 mt-5">
+            <Link
+              to={`/case-studies/${toProjectSlug(project.title)}`}
+              className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-[#34d99a] hover:text-white transition-colors"
+            >
+              Full Case Study <ArrowRight size={12} />
+            </Link>
             {project.live_url && (
               <a href={project.live_url} target="_blank" rel="noopener noreferrer"
-                className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#34d99a] hover:text-white transition-colors">
+                className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#8b8fa3] hover:text-white transition-colors ml-auto">
                 <ExternalLink size={12} /> Live Demo
               </a>
             )}
@@ -190,6 +198,7 @@ export default function CaseStudies() {
         <div className="engineering-grid" />
 
         <div className="container-shell relative z-10 text-center">
+          <Breadcrumbs items={[{ label: 'Case Studies', path: '/case-studies' }]} />
           <p className="eyebrow">Our Work</p>
           <h1 className="mt-4 font-display text-4xl font-extrabold text-[#f0f0f3] leading-tight sm:text-5xl">
             Products that prove <span className="text-gradient">our craft</span>

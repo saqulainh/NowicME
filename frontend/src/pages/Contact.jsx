@@ -5,6 +5,7 @@ import { Mail, Phone, MapPin, CheckCircle2, Clock, Zap, MessageCircle, Calendar,
 import SEO from '../components/SEO';
 import SectionHeading from '../components/common/SectionHeading';
 import ScrollReveal from '../components/reveal/ScrollReveal';
+import Breadcrumbs from '../components/common/Breadcrumbs';
 import { useContent } from '../context/ContentContext';
 import { api } from '../lib/api';
 import LoadingSpinner from '../components/LoadingSpinner';
@@ -216,6 +217,7 @@ export default function Contact() {
           style={{ background: 'radial-gradient(ellipse 60% 40% at 50% 0%, rgba(52,217,154,0.06) 0%, transparent 70%)' }}
         />
         <div className="container-shell relative">
+          <Breadcrumbs items={[{ label: 'Contact', path: '/contact' }]} />
           <SectionHeading
             as="h1"
             eyebrow="Start a Project"

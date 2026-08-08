@@ -4,6 +4,7 @@ import { ArrowRight, Check, Sparkles, Zap, Shield, HelpCircle } from 'lucide-rea
 import SEO from '../components/SEO';
 import SectionHeading from '../components/common/SectionHeading';
 import ScrollReveal from '../components/reveal/ScrollReveal';
+import Breadcrumbs from '../components/common/Breadcrumbs';
 
 const PRICING_TIERS = [
   {
@@ -152,6 +153,7 @@ export default function Pricing() {
         <div className="engineering-grid" />
 
         <div className="container-shell relative z-10">
+          <Breadcrumbs items={[{ label: 'Pricing', path: '/pricing' }]} />
           <div className="text-center max-w-3xl mx-auto">
             <p className="eyebrow">Pricing</p>
             <h1 className="mt-4 font-display text-4xl font-extrabold text-[#f0f0f3] leading-tight sm:text-5xl">

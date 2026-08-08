@@ -6,6 +6,7 @@ import SectionHeading from '../components/common/SectionHeading';
 import ScrollReveal from '../components/reveal/ScrollReveal';
 import BrandLogo from '../components/common/BrandLogo';
 import { useContent } from '../context/ContentContext';
+import Breadcrumbs from '../components/common/Breadcrumbs';
 
 const defaultMilestones = [
   { year: '2023', title: 'Studio Founded', desc: 'Nowic Studio was born from a belief: great products deserve great execution.' },
@@ -104,6 +105,7 @@ export default function About() {
           style={{ background: 'radial-gradient(ellipse 60% 40% at 50% 0%, rgba(52,217,154,0.06) 0%, transparent 70%)' }}
         />
         <div className="container-shell relative">
+          <Breadcrumbs items={[{ label: 'About', path: '/about' }]} />
           <div className="grid items-center gap-14 lg:grid-cols-[1.15fr_0.85fr]">
             <ScrollReveal>
               <p className="eyebrow">About Us</p>

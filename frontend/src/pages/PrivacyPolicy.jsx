@@ -27,7 +27,7 @@ const privacySchema = [
     name: 'Privacy Policy — Nowic Studio',
     url: 'https://nowicstdio.tech/privacy-policy',
     description:
-      'Privacy Policy for Nowic Studio — how we collect, use, and protect your personal data in compliance with GDPR and India's Digital Personal Data Protection Act 2023.',
+      "Privacy Policy for Nowic Studio — how we collect, use, and protect your personal data in compliance with GDPR and India's Digital Personal Data Protection Act 2023.",
     datePublished: '2026-06-01',
     dateModified: '2026-08-01',
     publisher: {
