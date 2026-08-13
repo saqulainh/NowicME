@@ -16,6 +16,10 @@ from django.core.files.storage import default_storage
 from ninja import File, Query, Router, Schema
 from ninja.files import UploadedFile
 
+import logging
+
+logger = logging.getLogger('nowic.api')
+
 from apps.booking.models import Appointment
 from apps.client.models import Invoice, ProjectClientAssignment, ProjectFile, ProjectUpdate
 from apps.client.schemas import InvoiceCreateIn, InvoiceUpdateIn, ProjectFileIn, ProjectUpdateIn
@@ -637,31 +641,56 @@ def admin_get_blog_post(request: HttpRequest, post_id: int):
 def admin_create_blog_post(request: HttpRequest, payload: BlogPostIn):
     admin = _admin(request)
     
-    if BlogPost.objects.filter(slug=payload.slug).exists():
-        return 400, {'success': False, 'error': f"Slug '{payload.slug}' already exists."}
+    try:
+        if BlogPost.objects.filter(slug=payload.slug).exists():
+            return {'success': False, 'error': f"Slug '{payload.slug}' already exists."}
+            
+        cover_img = ""
+        if payload.cover_image_url:
+            url = payload.cover_image_url.strip()
+            if url.startswith('data:'):
+                return {'success': False, 'error': 'Base64 image data cannot be saved directly as cover image URL. Please upload the image file using the upload button.'}
+            cover_img = url
+
+        post = BlogPost.objects.create(
+            title=payload.title,
+            slug=payload.slug,
+            excerpt=payload.excerpt or "",
+            content=payload.content,
+            cover_image=cover_img,
+            is_published=payload.is_published,
+            read_time_minutes=payload.read_time_minutes or 5
+        )
         
-    post = BlogPost.objects.create(
-        title=payload.title,
-        slug=payload.slug,
-        excerpt=payload.excerpt or "",
-        content=payload.content,
-        is_published=payload.is_published,
-        read_time_minutes=payload.read_time_minutes or 5
-    )
-    
-    log_action(
-        actor_clerk_id=admin.clerk_user_id,
-        actor_email=admin.email,
-        action=AuditAction.PROJECT_UPDATED,
-        resource_type='blog_post',
-        resource_id=post.id,
-        old_value=None,
-        new_value=BlogPostOut.from_orm(post).model_dump(mode='json'),
-        ip=request.META.get('REMOTE_ADDR'),
-        user_agent=request.META.get('HTTP_USER_AGENT', ''),
-    )
-    
-    return {'success': True, 'data': BlogPostOut.from_orm(post).dict()}
+        try:
+            new_val = BlogPostOut.from_orm(post).dict()
+            for k, v in new_val.items():
+                if hasattr(v, 'isoformat'):
+                    new_val[k] = v.isoformat()
+        except Exception:
+            new_val = None
+
+        try:
+            log_action(
+                actor_clerk_id=admin.clerk_user_id,
+                actor_email=admin.email,
+                action=AuditAction.PROJECT_UPDATED,
+                resource_type='blog_post',
+                resource_id=post.id,
+                old_value=None,
+                new_value=new_val,
+                ip=request.META.get('REMOTE_ADDR'),
+                user_agent=request.META.get('HTTP_USER_AGENT', ''),
+            )
+        except Exception as log_err:
+            import logging
+            logging.getLogger(__name__).error("Failed to write audit log: %s", log_err)
+        
+        return {'success': True, 'data': BlogPostOut.from_orm(post).dict()}
+    except Exception as exc:
+        import logging
+        logging.getLogger(__name__).exception("Error creating blog post: %s", exc)
+        return {'success': False, 'error': str(exc)}
 
 
 class BlogPostUpdatePayload(Schema):
@@ -682,43 +711,68 @@ def admin_update_blog_post(request: HttpRequest, post_id: int, payload: BlogPost
     except BlogPost.DoesNotExist:
         raise NotFound(f"Blog post #{post_id} not found")
         
-    old_value = BlogPostOut.from_orm(post).model_dump(mode='json')
-    
-    update_data = payload.dict(exclude_none=True)
-    
-    if 'slug' in update_data and update_data['slug'] != post.slug:
-        if BlogPost.objects.filter(slug=update_data['slug']).exclude(id=post_id).exists():
-            return 400, {'success': False, 'error': f"Slug '{update_data['slug']}' already exists."}
-            
-    if 'cover_image_url' in update_data:
-        url = update_data.pop('cover_image_url')
-        if url.startswith('/media/'):
-            post.cover_image = url.replace('/media/', '')
-        elif '/media/' in url:
-            post.cover_image = url.split('/media/')[-1]
-        else:
-            # Do not assign external absolute URLs directly to ImageField storage.
-            # Require uploads or a /media/ path. Return a 400 error to the client.
-            return 400, {'success': False, 'error': 'cover_image_url must be a /media/ path or uploaded file.'}
-            
-    for field, value in update_data.items():
-        setattr(post, field, value)
+    try:
+        try:
+            old_val = BlogPostOut.from_orm(post).dict()
+            for k, v in old_val.items():
+                if hasattr(v, 'isoformat'):
+                    old_val[k] = v.isoformat()
+        except Exception:
+            old_val = None
         
-    post.save()
-    
-    log_action(
-        actor_clerk_id=admin.clerk_user_id,
-        actor_email=admin.email,
-        action=AuditAction.PROJECT_UPDATED,
-        resource_type='blog_post',
-        resource_id=post.id,
-        old_value=old_value,
-        new_value=BlogPostOut.from_orm(post).model_dump(mode='json'),
-        ip=request.META.get('REMOTE_ADDR'),
-        user_agent=request.META.get('HTTP_USER_AGENT', ''),
-    )
-    
-    return {'success': True, 'data': BlogPostOut.from_orm(post).dict()}
+        update_data = payload.dict(exclude_none=True)
+        
+        if 'slug' in update_data and update_data['slug'] != post.slug:
+            if BlogPost.objects.filter(slug=update_data['slug']).exclude(id=post_id).exists():
+                return {'success': False, 'error': f"Slug '{update_data['slug']}' already exists."}
+                
+        if 'cover_image_url' in update_data:
+            url = update_data.pop('cover_image_url')
+            if not url:
+                post.cover_image = ''
+            else:
+                url = url.strip()
+                if url.startswith('data:'):
+                    return {'success': False, 'error': 'Base64 image data cannot be saved directly as cover image URL. Please upload the image file using the upload button.'}
+                post.cover_image = url
+                
+        for field, value in update_data.items():
+            setattr(post, field, value)
+            
+        post.save()
+        
+        try:
+            new_val = BlogPostOut.from_orm(post).dict()
+            for k, v in new_val.items():
+                if hasattr(v, 'isoformat'):
+                    new_val[k] = v.isoformat()
+        except Exception:
+            new_val = None
+
+        try:
+            log_action(
+                actor_clerk_id=admin.clerk_user_id,
+                actor_email=admin.email,
+                action=AuditAction.PROJECT_UPDATED,
+                resource_type='blog_post',
+                resource_id=post.id,
+                old_value=old_val,
+                new_value=new_val,
+                ip=request.META.get('REMOTE_ADDR'),
+                user_agent=request.META.get('HTTP_USER_AGENT', ''),
+            )
+        except Exception as log_err:
+            import logging
+            logging.getLogger(__name__).error("Failed to write audit log: %s", log_err)
+        
+        return {'success': True, 'data': BlogPostOut.from_orm(post).dict()}
+    except Exception as exc:
+        try:
+            # Log payload and computed update data to help reproduce the error
+            logger.exception("Error updating blog post #%s. payload=%s update_data=%s", post_id, getattr(payload, 'dict', lambda: str(payload))(), update_data)
+        except Exception:
+            logger.exception("Error updating blog post #%s: failed to serialize payload/update_data", post_id)
+        return {'success': False, 'error': str(exc)}
 
 
 @router.delete('/blog/{post_id}/')
@@ -729,7 +783,7 @@ def admin_delete_blog_post(request: HttpRequest, post_id: int):
     except BlogPost.DoesNotExist:
         raise NotFound(f"Blog post #{post_id} not found")
         
-    old_value = BlogPostOut.from_orm(post).model_dump(mode='json')
+    old_value = BlogPostOut.from_orm(post).dict()
     post.delete()
     
     log_action(

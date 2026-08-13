@@ -186,7 +186,7 @@ class BlogPost(models.Model):
     slug = models.SlugField(unique=True, max_length=255)
     excerpt = models.TextField(blank=True)
     content = models.TextField()  # Markdown content
-    cover_image = models.ImageField(upload_to='blog/', blank=True, null=True)
+    cover_image = models.CharField(max_length=1000, blank=True, default='')
     is_published = models.BooleanField(default=False)
     read_time_minutes = models.IntegerField(default=5)
     views_count = models.IntegerField(default=0)
@@ -207,8 +207,12 @@ class BlogPost(models.Model):
 
     @property
     def cover_image_url(self):
-        try:
-            return self.cover_image.url if self.cover_image else ''
-        except Exception:
+        if not self.cover_image:
             return ''
+        url_str = str(self.cover_image).strip()
+        if url_str.startswith('http://') or url_str.startswith('https://'):
+            return url_str
+        if url_str.startswith('/media/'):
+            return url_str
+        return f'/media/{url_str.lstrip("/")}'
 

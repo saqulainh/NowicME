@@ -146,6 +146,7 @@ class BlogPostIn(Schema):
     slug: str
     excerpt: Optional[str] = ""
     content: str
+    cover_image_url: Optional[str] = None
     is_published: Optional[bool] = False
     read_time_minutes: Optional[int] = 5
 
