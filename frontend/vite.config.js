@@ -1,8 +1,32 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
+import prerender from '@prerenderer/rollup-plugin';
+import JSDOMRenderer from '@prerenderer/renderer-jsdom';
+import path from 'path';
 
 export default defineConfig({
-  plugins: [react()],
+  plugins: [
+    react(),
+    prerender({
+      staticDir: path.join(__dirname, 'dist'),
+      renderer: new JSDOMRenderer({
+        renderAfterTime: 2000,
+        maxConcurrentRoutes: 4
+      }),
+      routes: [
+        '/', 
+        '/about', 
+        '/contact', 
+        '/services', 
+        '/portfolio', 
+        '/pricing', 
+        '/technologies', 
+        '/faqs', 
+        '/privacy-policy',
+        '/blog'
+      ],
+    })
+  ],
   server: {
     allowedHosts: true,
     proxy: {

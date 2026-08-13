@@ -7,6 +7,7 @@ import ScrollReveal from '../components/reveal/ScrollReveal';
 import Breadcrumbs from '../components/common/Breadcrumbs';
 import { useContent } from '../context/ContentContext';
 import { api } from '../lib/api';
+import { technologyDetails } from '../data/technologyDetails';
 
 const techCategories = ['All', 'Frontend', 'Backend', 'Database', 'AI/ML', 'DevOps', 'Auth & Payments'];
 
@@ -28,7 +29,11 @@ export default function Technologies() {
     return () => { mounted = false };
   }, []);
 
-  const sourceTech = remoteTech || content?.technologies || {};
+  const sourceTech = (remoteTech && Object.keys(remoteTech).length > 0)
+    ? remoteTech
+    : (content?.technologies && Object.keys(content.technologies).length > 0)
+      ? content.technologies
+      : technologyDetails;
   const allTech = Object.entries(sourceTech).map(([slug, tech]) => ({ slug, ...tech }));
   const filtered = activeCategory === 'All' ? allTech : allTech.filter(t => t.category === activeCategory);
 
@@ -37,15 +42,15 @@ export default function Technologies() {
       "@context": "https://schema.org",
       "@type": "CollectionPage",
       "name": "Technology Stack — Nowic Studio",
-      "url": "https://nowicstdio.tech/technologies",
+      "url": "https://www.nowicstdio.tech/technologies",
       "description": "Explore the technologies Nowic Studio uses to build premium software products."
     },
     {
       "@context": "https://schema.org",
       "@type": "BreadcrumbList",
       "itemListElement": [
-        { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://nowicstdio.tech/" },
-        { "@type": "ListItem", "position": 2, "name": "Technologies", "item": "https://nowicstdio.tech/technologies" }
+        { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://www.nowicstdio.tech/" },
+        { "@type": "ListItem", "position": 2, "name": "Technologies", "item": "https://www.nowicstdio.tech/technologies" }
       ]
     }
   ];
@@ -55,7 +60,7 @@ export default function Technologies() {
       <SEO
         title="Technology Stack — Tools We Use to Build Software | Nowic Studio"
         description="Explore the technologies Nowic Studio uses: React, Next.js, Django, Node.js, PostgreSQL, OpenAI, and more. Learn why we chose each tool and how we use them."
-        canonicalUrl="https://nowicstdio.tech/technologies"
+        canonicalUrl="https://www.nowicstdio.tech/technologies"
         keywords="software technology stack, react development, django development, nodejs development, openai integration, web development tools"
         schema={schema}
       />

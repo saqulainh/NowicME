@@ -167,19 +167,19 @@ export default function Home() {
     "@graph": [
       {
         "@type": "Organization",
-        "@id": "https://nowicstdio.tech/#organization",
+        "@id": "https://www.nowicstdio.tech/#organization",
         "name": "Nowic Studio",
         "alternateName": ["Nowic", "NowicStdio"],
-        "url": "https://nowicstdio.tech/",
+        "url": "https://www.nowicstdio.tech/",
         "logo": {
           "@type": "ImageObject",
-          "url": "https://nowicstdio.tech/image.png",
+          "url": "https://www.nowicstdio.tech/image.png",
           "width": 512,
           "height": 512
         },
         "description": "Nowic Studio is a software agency that builds MVPs, SaaS platforms, AI-integrated apps, and premium web products for startups and growing businesses.",
         "foundingDate": "2024",
-        "email": brand.email || "haiderssaqulain@gmail.com",
+        "email": brand.email || "nowicstdo@gmail.com",
         "areaServed": "Worldwide",
         "knowsAbout": ["MVP Development", "SaaS Platforms", "AI Applications", "React", "Python", "Django", "Next.js", "Web Design", "API Development"],
         "sameAs": sameAsLinks.length > 0 ? sameAsLinks : [
@@ -191,23 +191,23 @@ export default function Home() {
           "@type": "Person",
           "name": "Saqulain Haider",
           "jobTitle": "Founder & Lead Engineer",
-          "url": "https://nowicstdio.tech/about"
+          "url": "https://www.nowicstdio.tech/about"
         }
       },
       {
         "@type": "WebSite",
-        "@id": "https://nowicstdio.tech/#website",
-        "url": "https://nowicstdio.tech/",
+        "@id": "https://www.nowicstdio.tech/#website",
+        "url": "https://www.nowicstdio.tech/",
         "name": "Nowic Studio",
         "description": "Premium software agency for startups and businesses",
-        "publisher": { "@id": "https://nowicstdio.tech/#organization" }
+        "publisher": { "@id": "https://www.nowicstdio.tech/#organization" }
       },
       {
         "@type": "ProfessionalService",
-        "@id": "https://nowicstdio.tech/#service",
+        "@id": "https://www.nowicstdio.tech/#service",
         "name": "Nowic Studio",
-        "url": "https://nowicstdio.tech/",
-        "image": "https://nowicstdio.tech/image.png",
+        "url": "https://www.nowicstdio.tech/",
+        "image": "https://www.nowicstdio.tech/image.png",
         "description": "We design and build software products — MVPs, SaaS platforms, AI tools, and custom web applications — with a focus on speed, quality, and business outcomes.",
         "priceRange": "$$",
         "currenciesAccepted": "USD, INR",
@@ -262,7 +262,7 @@ export default function Home() {
       <SEO 
         title="Nowic Studio | MVP & SaaS Development Agency — AI-Powered Software"
         description="Nowic Studio builds premium MVPs, SaaS platforms, and AI-powered apps for startups — shipped in 4–6 weeks. India-based agency serving clients worldwide. Book a free intro call today."
-        canonicalUrl="https://nowicstdio.tech/"
+        canonicalUrl="https://www.nowicstdio.tech/"
         keywords="MVP development agency, SaaS development company, AI web app development, custom software development India, startup software agency, build MVP fast, hire software agency, React Django development, AI integration services, software development company"
         schema={homeSchema}
 

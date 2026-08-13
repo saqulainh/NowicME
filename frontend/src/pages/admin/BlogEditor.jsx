@@ -205,11 +205,13 @@ export default function BlogEditor() {
                 result = await api.admin_createBlog(token, payload);
             }
 
-            if (result.success) {
+            if (result && result.success) {
                 setSuccess(true);
                 setTimeout(() => {
                     navigate('/admin/blog');
                 }, 1000);
+            } else {
+                setError(result?.error || 'Failed to save blog post.');
             }
         } catch (err) {
             console.error('Save failed:', err);

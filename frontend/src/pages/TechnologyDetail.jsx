@@ -8,6 +8,7 @@ import ScrollReveal from '../components/reveal/ScrollReveal';
 import Breadcrumbs from '../components/common/Breadcrumbs';
 import NotFound from './NotFound';
 import { CheckCircle2, ArrowRight, Layers } from 'lucide-react';
+import { technologyDetails } from '../data/technologyDetails';
 
 function toSlug(value) {
   return String(value || '')
@@ -32,7 +33,11 @@ export default function TechnologyDetail() {
     return () => { mounted = false };
   }, []);
 
-  const techMap = remoteTechMap || content?.technologies || {};
+  const techMap = (remoteTechMap && Object.keys(remoteTechMap).length > 0)
+    ? remoteTechMap
+    : (content?.technologies && Object.keys(content.technologies).length > 0)
+      ? content.technologies
+      : technologyDetails;
   const tech = techMap[slug];
   const services = content?.services || [];
 
@@ -44,15 +49,15 @@ export default function TechnologyDetail() {
       "@type": "TechArticle",
       "headline": `${tech.name} Development — Nowic Studio`,
       "description": tech.description,
-      "author": { "@type": "Organization", "name": "Nowic Studio", "url": "https://nowicstdio.tech" }
+      "author": { "@type": "Organization", "name": "Nowic Studio", "url": "https://www.nowicstdio.tech" }
     },
     {
       "@context": "https://schema.org",
       "@type": "BreadcrumbList",
       "itemListElement": [
-        { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://nowicstdio.tech/" },
-        { "@type": "ListItem", "position": 2, "name": "Technologies", "item": "https://nowicstdio.tech/technologies" },
-        { "@type": "ListItem", "position": 3, "name": tech.name, "item": `https://nowicstdio.tech/technologies/${slug}` }
+        { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://www.nowicstdio.tech/" },
+        { "@type": "ListItem", "position": 2, "name": "Technologies", "item": "https://www.nowicstdio.tech/technologies" },
+        { "@type": "ListItem", "position": 3, "name": tech.name, "item": `https://www.nowicstdio.tech/technologies/${slug}` }
       ]
     }
   ];
@@ -62,7 +67,7 @@ export default function TechnologyDetail() {
       <SEO
         title={`${tech.name} Development Services | Nowic Studio`}
         description={tech.description}
-        canonicalUrl={`https://nowicstdio.tech/technologies/${slug}`}
+        canonicalUrl={`https://www.nowicstdio.tech/technologies/${slug}`}
         keywords={`${tech.name.toLowerCase()} development, ${tech.name.toLowerCase()} developer, ${tech.category.toLowerCase()} development, Nowic Studio`}
         schema={schema}
       />

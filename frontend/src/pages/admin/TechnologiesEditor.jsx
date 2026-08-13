@@ -3,6 +3,7 @@ import { Save, CheckCircle2, Plus, Trash2, ArrowUp, ArrowDown, Cpu, Layers } fro
 import { useAuth } from '../../hooks/useAuth';
 import { saveSection, fetchSection } from '../../lib/cms';
 import { useContent } from '../../context/ContentContext';
+import { technologyDetails } from '../../data/technologyDetails';
 
 const techCategories = ['Frontend', 'Backend', 'Database', 'AI/ML', 'DevOps', 'Auth & Payments'];
 
@@ -34,18 +35,25 @@ export default function TechnologiesEditor() {
     (async () => {
       try {
         const data = await fetchSection('technologies');
-        if (mounted && data) {
-          // If stored as dict or array
-          let list = [];
-          if (Array.isArray(data)) {
-            list = data;
-          } else if (typeof data === 'object') {
-            list = Object.entries(data).map(([slug, t]) => ({ slug, ...t }));
-          }
-          setItems(list.map(t => ({ ...emptyTech, ...t, slug: t.slug || createSlug(t.name) })));
+        if (!mounted) return;
+        let source = data;
+        if (!source || (typeof source === 'object' && Object.keys(source).length === 0)) {
+          source = technologyDetails;
         }
+
+        let list = [];
+        if (Array.isArray(source)) {
+          list = source;
+        } else if (typeof source === 'object') {
+          list = Object.entries(source).map(([slug, t]) => ({ slug, ...t }));
+        }
+        setItems(list.map(t => ({ ...emptyTech, ...t, slug: t.slug || createSlug(t.name) })));
       } catch (err) {
         console.error('Failed to load technologies section:', err);
+        if (mounted) {
+          const list = Object.entries(technologyDetails).map(([slug, t]) => ({ slug, ...t }));
+          setItems(list.map(t => ({ ...emptyTech, ...t, slug: t.slug || createSlug(t.name) })));
+        }
       }
     })();
     return () => {
@@ -165,28 +173,28 @@ export default function TechnologiesEditor() {
               onClick={() => setActiveIdx(idx)}
               className={`p-4 border rounded-xl cursor-pointer transition-all flex items-center justify-between ${
                 activeIdx === idx
-                  ? 'border-[#34d99a]/35 bg-white/[0.04]'
+                  ? 'border-[#34d99a]/40 bg-[#34d99a]/5 shadow-sm'
                   : 'border-white/5 hover:border-white/10 bg-white/[0.01]'
               }`}
             >
-              <div>
+              <div className="min-w-0 pr-2">
                 <div className="flex items-center gap-2">
                   <span className="text-[9px] font-bold uppercase tracking-widest text-[#34d99a] bg-[#34d99a]/10 px-2 py-0.5 rounded">
                     {item.category}
                   </span>
-                  <span className="text-xs text-[#6b6f80] font-mono">/{item.slug}</span>
+                  <span className="text-xs text-[#6b6f80] font-mono truncate">/{item.slug}</span>
                 </div>
-                <h4 className="font-bold text-sm text-[#f0f0f3] mt-1">{item.name || 'Untitled Tech'}</h4>
+                <h4 className="font-bold text-sm text-[#f0f0f3] mt-1 truncate">{item.name || 'Untitled Tech'}</h4>
               </div>
-              <div className="flex items-center gap-1">
-                <button onClick={(e) => { e.stopPropagation(); moveItem(idx, 'up'); }} disabled={idx === 0} className="p-1 text-[#6b6f80] hover:text-white disabled:opacity-20">
-                  <ArrowUp size={14} />
+              <div className="flex items-center gap-1.5 shrink-0">
+                <button onClick={(e) => { e.stopPropagation(); moveItem(idx, 'up'); }} disabled={idx === 0} title="Move Up" className="p-1.5 text-[#6b6f80] hover:text-white disabled:opacity-20 bg-white/5 rounded hover:bg-white/10 transition-colors">
+                  <ArrowUp size={13} />
                 </button>
-                <button onClick={(e) => { e.stopPropagation(); moveItem(idx, 'down'); }} disabled={idx === items.length - 1} className="p-1 text-[#6b6f80] hover:text-white disabled:opacity-20">
-                  <ArrowDown size={14} />
+                <button onClick={(e) => { e.stopPropagation(); moveItem(idx, 'down'); }} disabled={idx === items.length - 1} title="Move Down" className="p-1.5 text-[#6b6f80] hover:text-white disabled:opacity-20 bg-white/5 rounded hover:bg-white/10 transition-colors">
+                  <ArrowDown size={13} />
                 </button>
-                <button onClick={(e) => { e.stopPropagation(); removeItem(idx); }} className="p-1 text-red-400/70 hover:text-red-400">
-                  <Trash2 size={14} />
+                <button onClick={(e) => { e.stopPropagation(); removeItem(idx); }} title="Delete Technology" className="p-1.5 text-red-400 bg-red-400/10 hover:bg-red-400/20 rounded border border-red-400/20 transition-colors">
+                  <Trash2 size={13} />
                 </button>
               </div>
             </div>
@@ -197,6 +205,23 @@ export default function TechnologiesEditor() {
         <div className="lg:col-span-3 stats-glass p-6 border border-white/5 rounded-2xl space-y-5">
           {items[activeIdx] ? (
             <>
+              {/* Form Header with prominent Delete Action */}
+              <div className="flex flex-wrap items-center justify-between gap-2 pb-3 border-b border-white/10">
+                <div>
+                  <h3 className="text-base font-bold text-white flex items-center gap-2">
+                    Editing: <span className="text-[#34d99a] font-mono">{items[activeIdx].name || 'Untitled Tech'}</span>
+                  </h3>
+                  <p className="text-xs text-[#6b6f80]">Modify fields below or remove this entry from your tech stack.</p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => removeItem(activeIdx)}
+                  className="flex items-center gap-1.5 text-xs text-red-400 bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 rounded-lg px-3 py-1.5 font-medium transition-all"
+                >
+                  <Trash2 size={13} /> Delete Entry
+                </button>
+              </div>
+
               <div className="grid gap-4 sm:grid-cols-2">
                 <div>
                   <label className="admin-label">Technology Name</label>
@@ -271,7 +296,7 @@ export default function TechnologiesEditor() {
                         className="admin-input flex-1"
                         placeholder="Use case e.g. MVP Development"
                       />
-                      <button onClick={() => removeArrayField(activeIdx, 'usedFor', uIdx)} className="text-red-400 p-2"><Trash2 size={12} /></button>
+                      <button onClick={() => removeArrayField(activeIdx, 'usedFor', uIdx)} className="text-red-400 p-2 hover:bg-red-400/10 rounded"><Trash2 size={12} /></button>
                     </div>
                   ))}
                   <button onClick={() => addArrayField(activeIdx, 'usedFor')} className="text-xs text-[#34d99a] hover:underline">+ Add Use Case</button>
@@ -291,7 +316,7 @@ export default function TechnologiesEditor() {
                         className="admin-input flex-1"
                         placeholder="Reason e.g. Component-based architecture"
                       />
-                      <button onClick={() => removeArrayField(activeIdx, 'whyWeUseIt', rIdx)} className="text-red-400 p-2"><Trash2 size={12} /></button>
+                      <button onClick={() => removeArrayField(activeIdx, 'whyWeUseIt', rIdx)} className="text-red-400 p-2 hover:bg-red-400/10 rounded"><Trash2 size={12} /></button>
                     </div>
                   ))}
                   <button onClick={() => addArrayField(activeIdx, 'whyWeUseIt')} className="text-xs text-[#34d99a] hover:underline">+ Add Reason</button>
@@ -310,7 +335,7 @@ export default function TechnologiesEditor() {
                         onChange={(e) => updateArrayField(activeIdx, 'relatedTech', rIdx, e.target.value)}
                         className="bg-transparent text-white outline-none w-24 font-mono text-xs"
                       />
-                      <button onClick={() => removeArrayField(activeIdx, 'relatedTech', rIdx)} className="text-red-400"><Trash2 size={10} /></button>
+                      <button onClick={() => removeArrayField(activeIdx, 'relatedTech', rIdx)} className="text-red-400 hover:opacity-80"><Trash2 size={10} /></button>
                     </div>
                   ))}
                   <button onClick={() => addArrayField(activeIdx, 'relatedTech')} className="text-xs bg-[#34d99a]/10 text-[#34d99a] border border-[#34d99a]/20 rounded-full px-3 py-1">+ Add Related Tech</button>
@@ -329,11 +354,30 @@ export default function TechnologiesEditor() {
                         onChange={(e) => updateArrayField(activeIdx, 'relatedServices', rIdx, e.target.value)}
                         className="bg-transparent text-white outline-none w-28 font-mono text-xs"
                       />
-                      <button onClick={() => removeArrayField(activeIdx, 'relatedServices', rIdx)} className="text-red-400"><Trash2 size={10} /></button>
+                      <button onClick={() => removeArrayField(activeIdx, 'relatedServices', rIdx)} className="text-red-400 hover:opacity-80"><Trash2 size={10} /></button>
                     </div>
                   ))}
                   <button onClick={() => addArrayField(activeIdx, 'relatedServices')} className="text-xs bg-[#34d99a]/10 text-[#34d99a] border border-[#34d99a]/20 rounded-full px-3 py-1">+ Add Related Service</button>
                 </div>
+              </div>
+
+              {/* Bottom Action Footer */}
+              <div className="pt-4 border-t border-white/10 flex items-center justify-between gap-4">
+                <button
+                  type="button"
+                  onClick={() => removeItem(activeIdx)}
+                  className="text-xs text-red-400 hover:text-red-300 hover:underline flex items-center gap-1"
+                >
+                  <Trash2 size={13} /> Delete this technology
+                </button>
+                <button
+                  type="button"
+                  onClick={handleSave}
+                  disabled={saving}
+                  className="admin-save-btn text-xs px-5 py-2.5 flex items-center gap-1.5"
+                >
+                  {saved ? <><CheckCircle2 size={14} /> Saved!</> : <><Save size={14} /> {saving ? 'Saving...' : 'Save Changes'}</>}
+                </button>
               </div>
             </>
           ) : (
