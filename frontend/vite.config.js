@@ -45,43 +45,56 @@ try {
   console.warn('Warning: Could not parse sitemap for prerender routes:', err.message);
 }
 
-export default defineConfig({
-  plugins: [
-    react(),
-    prerender({
-      staticDir: path.join(__dirname, 'dist'),
-      renderer: new PuppeteerRenderer({
-        renderAfterTime: 5000,
-        maxConcurrentRoutes: 4
-      }),
-      routes: prerenderRoutes,
-    })
-  ],
-  server: {
-    allowedHosts: true,
-    proxy: {
-      '/api': 'http://localhost:8000',
-      '/media': 'http://localhost:8000'
-    }
-  },
-  build: {
-    chunkSizeWarningLimit: 1000,
-    rollupOptions: {
-      output: {
-        manualChunks: {
-          // Core React — always needed, smallest initial payload
-          vendor: ['react', 'react-dom', 'react-router-dom', 'react-helmet-async'],
-          // UI animation — framer-motion is large but used across all pages
-          ui: ['framer-motion', 'lucide-react'],
-          // Analytics — tiny, separate so it doesn't block rendering
-          analytics: ['react-ga4'],
-          // Auth — only needed on /dashboard and clerk-protected routes
-          auth: ['@clerk/clerk-react'],
-          // Smooth scroll — only used on public (non-admin) routes
-          lenis: ['@studio-freight/lenis'],
+export default defineConfig(async () => {
+  let executablePath;
+  let args = [];
+  let headless = true;
+
+  if (process.env.VERCEL || process.env.CI) {
+    const chromium = (await import('@sparticuz/chromium')).default;
+    executablePath = await chromium.executablePath();
+    args = chromium.args;
+    headless = chromium.headless;
+  }
+
+  return {
+    plugins: [
+      react(),
+      prerender({
+        staticDir: path.join(__dirname, 'dist'),
+        renderer: new PuppeteerRenderer({
+          renderAfterTime: 5000,
+          maxConcurrentRoutes: 4,
+          launchOptions: {
+            executablePath,
+            args,
+            headless
+          }
+        }),
+        routes: prerenderRoutes,
+      })
+    ],
+    server: {
+      allowedHosts: true,
+      proxy: {
+        '/api': 'http://localhost:8000',
+        '/media': 'http://localhost:8000'
+      }
+    },
+    build: {
+      chunkSizeWarningLimit: 1000,
+      rollupOptions: {
+        output: {
+          manualChunks: {
+            vendor: ['react', 'react-dom', 'react-router-dom', 'react-helmet-async'],
+            ui: ['framer-motion', 'lucide-react'],
+            analytics: ['react-ga4'],
+            auth: ['@clerk/clerk-react'],
+            lenis: ['@studio-freight/lenis'],
+          }
         }
       }
     }
-  }
+  };
 });
 
