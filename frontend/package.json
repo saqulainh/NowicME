@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "vite",
     "prebuild": "python ../Backend/manage.py generate_sitemap || true",
-    "build": "vite build",
+    "build": "npx puppeteer browsers install chrome && vite build",
     "preview": "vite preview"
   },
   "dependencies": {
@@ -25,8 +25,10 @@
   },
   "devDependencies": {
     "@prerenderer/renderer-jsdom": "^1.1.9",
+    "@prerenderer/renderer-puppeteer": "^1.1.9",
     "@prerenderer/rollup-plugin": "^0.3.12",
     "@vitejs/plugin-react": "^4.3.3",
+    "puppeteer": "^22.0.0",
     "autoprefixer": "^10.4.20",
     "postcss": "^8.4.49",
     "tailwindcss": "^3.4.15",
