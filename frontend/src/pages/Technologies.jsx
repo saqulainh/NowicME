@@ -42,15 +42,15 @@ export default function Technologies() {
       "@context": "https://schema.org",
       "@type": "CollectionPage",
       "name": "Technology Stack — Nowic Studio",
-      "url": "https://www.nowicstdio.tech/technologies",
+      "url": "https://nowicstdio.tech/technologies",
       "description": "Explore the technologies Nowic Studio uses to build premium software products."
     },
     {
       "@context": "https://schema.org",
       "@type": "BreadcrumbList",
       "itemListElement": [
-        { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://www.nowicstdio.tech/" },
-        { "@type": "ListItem", "position": 2, "name": "Technologies", "item": "https://www.nowicstdio.tech/technologies" }
+        { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://nowicstdio.tech/" },
+        { "@type": "ListItem", "position": 2, "name": "Technologies", "item": "https://nowicstdio.tech/technologies" }
       ]
     }
   ];
@@ -60,7 +60,7 @@ export default function Technologies() {
       <SEO
         title="Technology Stack — Tools We Use to Build Software | Nowic Studio"
         description="Explore the technologies Nowic Studio uses: React, Next.js, Django, Node.js, PostgreSQL, OpenAI, and more. Learn why we chose each tool and how we use them."
-        canonicalUrl="https://www.nowicstdio.tech/technologies"
+        canonicalUrl="https://nowicstdio.tech/technologies"
         keywords="software technology stack, react development, django development, nodejs development, openai integration, web development tools"
         schema={schema}
       />

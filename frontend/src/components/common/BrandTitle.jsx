@@ -27,15 +27,15 @@ export default function BrandTitle({ className = '' }) {
   const studio = "STUDIO".split('');
 
   return (
-    <motion.h1 
+    <motion.div 
       className={`flex flex-wrap justify-center items-baseline gap-2 md:gap-4 ${className}`}
       variants={containerVars}
       initial="hidden"
       animate="show"
       style={{ fontFamily: "'Outfit', sans-serif" }}
+      aria-label="Nowic Studio"
     >
       {/* NOWIC: Bold, tight letter spacing */}
-      <span className="sr-only">NOWIC</span>
       <div className="flex font-black tracking-tighter text-[2.75rem] sm:text-[4rem] md:text-[6.5rem] leading-[0.85] text-white" aria-hidden="true">
         {nowic.map((char, i) => (
           <span key={`n-${i}`} className="inline-block overflow-hidden pb-1" aria-hidden="true">
@@ -52,7 +52,6 @@ export default function BrandTitle({ className = '' }) {
       </div>
 
       {/* STUDIO: Light/Thin, slightly looser spacing, premium gradient */}
-      <span className="sr-only">STUDIO</span>
       <div className="flex font-light tracking-wide text-[2.75rem] sm:text-[4rem] md:text-[6.5rem] leading-[0.85] text-transparent bg-clip-text bg-gradient-to-br from-[#bddfbc] via-[#a7cfaa] to-[#8cb88f]" aria-hidden="true">
         {studio.map((char, i) => (
           <span key={`s-${i}`} className="inline-block overflow-hidden pb-1" aria-hidden="true">
@@ -81,6 +80,6 @@ export default function BrandTitle({ className = '' }) {
           transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
         />
       </motion.div>
-    </motion.h1>
+    </motion.div>
   );
 }

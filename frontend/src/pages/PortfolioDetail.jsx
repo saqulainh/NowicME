@@ -20,22 +20,22 @@ export default function PortfolioDetail() {
       "@type": "CreativeWork",
       "name": study.title,
       "description": study.heroSummary,
-      "author": { "@type": "Organization", "name": "Nowic Studio", "url": "https://www.nowicstdio.tech" }
+      "author": { "@type": "Organization", "name": "Nowic Studio", "url": "https://nowicstdio.tech" }
     },
     {
       "@context": "https://schema.org",
       "@type": "BreadcrumbList",
       "itemListElement": [
-        { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://www.nowicstdio.tech/" },
-        { "@type": "ListItem", "position": 2, "name": "Portfolio", "item": "https://www.nowicstdio.tech/portfolio" },
-        { "@type": "ListItem", "position": 3, "name": study.title, "item": `https://www.nowicstdio.tech/portfolio/${slug}` }
+        { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://nowicstdio.tech/" },
+        { "@type": "ListItem", "position": 2, "name": "Portfolio", "item": "https://nowicstdio.tech/portfolio" },
+        { "@type": "ListItem", "position": 3, "name": study.title, "item": `https://nowicstdio.tech/portfolio/${slug}` }
       ]
     }
   ];
 
   return (
     <>
-      <SEO title={`${study.title} — Portfolio | Nowic Studio`} description={study.heroSummary} canonicalUrl={`https://www.nowicstdio.tech/portfolio/${slug}`} schema={schema} />
+      <SEO title={`${study.title} — Portfolio | Nowic Studio`} description={study.heroSummary} canonicalUrl={`https://nowicstdio.tech/portfolio/${slug}`} schema={schema} />
 
       <section className="relative pt-32 pb-24 overflow-hidden">
         <div className="container-shell relative z-10">

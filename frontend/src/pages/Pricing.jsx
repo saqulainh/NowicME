@@ -91,7 +91,7 @@ export default function Pricing() {
       "@context": "https://schema.org",
       "@type": "ProfessionalService",
       "name": "Nowic Studio",
-      "url": "https://www.nowicstdio.tech/pricing",
+      "url": "https://nowicstdio.tech/pricing",
       "description": "Transparent, milestone-based pricing for premium software development services.",
       "priceRange": "$$",
       "currenciesAccepted": "USD, INR",
@@ -121,8 +121,8 @@ export default function Pricing() {
       "@context": "https://schema.org",
       "@type": "BreadcrumbList",
       "itemListElement": [
-        { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://www.nowicstdio.tech/" },
-        { "@type": "ListItem", "position": 2, "name": "Pricing", "item": "https://www.nowicstdio.tech/pricing" }
+        { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://nowicstdio.tech/" },
+        { "@type": "ListItem", "position": 2, "name": "Pricing", "item": "https://nowicstdio.tech/pricing" }
       ]
     },
     {
@@ -141,7 +141,7 @@ export default function Pricing() {
       <SEO 
         title="Pricing — Transparent Software Development Costs | Nowic Studio"
         description="Clear, milestone-based pricing for premium software development. Starter websites from $1,499, SaaS MVPs from $5,999, AI integration from $3,999. No hidden fees, 100% code ownership."
-        canonicalUrl="https://www.nowicstdio.tech/pricing"
+        canonicalUrl="https://nowicstdio.tech/pricing"
         keywords="software development pricing, MVP development cost, SaaS development cost, AI integration pricing, website development cost, how much does it cost to build an MVP, software agency pricing"
         schema={schema}
       />

@@ -25,7 +25,7 @@ const privacySchema = [
     '@context': 'https://schema.org',
     '@type': 'WebPage',
     name: 'Privacy Policy — Nowic Studio',
-    url: 'https://www.nowicstdio.tech/privacy-policy',
+    url: 'https://nowicstdio.tech/privacy-policy',
     description:
       "Privacy Policy for Nowic Studio — how we collect, use, and protect your personal data in compliance with GDPR and India's Digital Personal Data Protection Act 2023.",
     datePublished: '2026-06-01',
@@ -33,15 +33,15 @@ const privacySchema = [
     publisher: {
       '@type': 'Organization',
       name: 'Nowic Studio',
-      url: 'https://www.nowicstdio.tech',
+      url: 'https://nowicstdio.tech',
     },
   },
   {
     '@context': 'https://schema.org',
     '@type': 'BreadcrumbList',
     itemListElement: [
-      { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://www.nowicstdio.tech/' },
-      { '@type': 'ListItem', position: 2, name: 'Privacy Policy', item: 'https://www.nowicstdio.tech/privacy-policy' },
+      { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://nowicstdio.tech/' },
+      { '@type': 'ListItem', position: 2, name: 'Privacy Policy', item: 'https://nowicstdio.tech/privacy-policy' },
     ],
   },
 ];
@@ -103,7 +103,7 @@ export default function PrivacyPolicy() {
       <SEO
         title="Privacy Policy — Nowic Studio"
         description="Nowic Studio's Privacy Policy explains how we collect, use, store, and protect your personal data. Compliant with GDPR and India's DPDP Act 2023."
-        canonicalUrl="https://www.nowicstdio.tech/privacy-policy"
+        canonicalUrl="https://nowicstdio.tech/privacy-policy"
         keywords="Nowic Studio privacy policy, data protection, GDPR, DPDP Act, personal data, software agency India"
         noIndex={false}
         schema={privacySchema}
@@ -214,7 +214,7 @@ export default function PrivacyPolicy() {
                 <strong className="text-text">Nowic Studio</strong> ("we," "us," or "our") is a premium software agency
                 headquartered in India. We build MVPs, SaaS platforms, AI-powered web applications, and digital products
                 for founders and businesses globally. Our website is available at{' '}
-                <a href="https://www.nowicstdio.tech" className="text-mint hover:underline">nowicstdio.tech</a>.
+                <a href="https://nowicstdio.tech" className="text-mint hover:underline">nowicstdio.tech</a>.
               </p>
               <p>
                 This Privacy Policy describes how we collect, use, disclose, and safeguard your personal information when

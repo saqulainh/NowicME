@@ -49,15 +49,15 @@ export default function TechnologyDetail() {
       "@type": "TechArticle",
       "headline": `${tech.name} Development — Nowic Studio`,
       "description": tech.description,
-      "author": { "@type": "Organization", "name": "Nowic Studio", "url": "https://www.nowicstdio.tech" }
+      "author": { "@type": "Organization", "name": "Nowic Studio", "url": "https://nowicstdio.tech" }
     },
     {
       "@context": "https://schema.org",
       "@type": "BreadcrumbList",
       "itemListElement": [
-        { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://www.nowicstdio.tech/" },
-        { "@type": "ListItem", "position": 2, "name": "Technologies", "item": "https://www.nowicstdio.tech/technologies" },
-        { "@type": "ListItem", "position": 3, "name": tech.name, "item": `https://www.nowicstdio.tech/technologies/${slug}` }
+        { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://nowicstdio.tech/" },
+        { "@type": "ListItem", "position": 2, "name": "Technologies", "item": "https://nowicstdio.tech/technologies" },
+        { "@type": "ListItem", "position": 3, "name": tech.name, "item": `https://nowicstdio.tech/technologies/${slug}` }
       ]
     }
   ];
@@ -67,7 +67,7 @@ export default function TechnologyDetail() {
       <SEO
         title={`${tech.name} Development Services | Nowic Studio`}
         description={tech.description}
-        canonicalUrl={`https://www.nowicstdio.tech/technologies/${slug}`}
+        canonicalUrl={`https://nowicstdio.tech/technologies/${slug}`}
         keywords={`${tech.name.toLowerCase()} development, ${tech.name.toLowerCase()} developer, ${tech.category.toLowerCase()} development, Nowic Studio`}
         schema={schema}
       />

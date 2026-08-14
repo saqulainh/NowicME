@@ -153,11 +153,11 @@ export default function Services() {
       "provider": {
         "@type": "Organization",
         "name": "Nowic Studio",
-        "url": "https://www.nowicstdio.tech"
+        "url": "https://nowicstdio.tech"
       },
       "name": "Software Development Services",
       "description": "End-to-end software development services including MVP development, SaaS platforms, AI app integration, business websites, API development, and admin dashboards.",
-      "url": "https://www.nowicstdio.tech/services",
+      "url": "https://nowicstdio.tech/services",
       "areaServed": "Worldwide",
       "hasOfferCatalog": {
         "@type": "OfferCatalog",
@@ -176,8 +176,8 @@ export default function Services() {
       "@context": "https://schema.org",
       "@type": "BreadcrumbList",
       "itemListElement": [
-        { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://www.nowicstdio.tech/" },
-        { "@type": "ListItem", "position": 2, "name": "Services", "item": "https://www.nowicstdio.tech/services" }
+        { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://nowicstdio.tech/" },
+        { "@type": "ListItem", "position": 2, "name": "Services", "item": "https://nowicstdio.tech/services" }
       ]
     },
     {
@@ -196,7 +196,7 @@ export default function Services() {
       <SEO 
         title="Software Development Services — MVP, SaaS, AI Apps | Nowic Studio"
         description="Nowic Studio offers end-to-end software development services: MVP development, SaaS platforms, AI app integration, business websites, API development, and admin dashboards. Shipped fast with premium quality."
-        canonicalUrl="https://www.nowicstdio.tech/services"
+        canonicalUrl="https://nowicstdio.tech/services"
         keywords="software development services, MVP development service, SaaS development, AI app integration, custom web development, business website development, API development, admin dashboard development"
         schema={servicesSchema}
       />

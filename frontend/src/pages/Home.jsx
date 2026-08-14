@@ -167,13 +167,13 @@ export default function Home() {
     "@graph": [
       {
         "@type": "Organization",
-        "@id": "https://www.nowicstdio.tech/#organization",
+        "@id": "https://nowicstdio.tech/#organization",
         "name": "Nowic Studio",
         "alternateName": ["Nowic", "NowicStdio"],
-        "url": "https://www.nowicstdio.tech/",
+        "url": "https://nowicstdio.tech/",
         "logo": {
           "@type": "ImageObject",
-          "url": "https://www.nowicstdio.tech/image.png",
+          "url": "https://nowicstdio.tech/image.png",
           "width": 512,
           "height": 512
         },
@@ -191,23 +191,23 @@ export default function Home() {
           "@type": "Person",
           "name": "Saqulain Haider",
           "jobTitle": "Founder & Lead Engineer",
-          "url": "https://www.nowicstdio.tech/about"
+          "url": "https://nowicstdio.tech/about"
         }
       },
       {
         "@type": "WebSite",
-        "@id": "https://www.nowicstdio.tech/#website",
-        "url": "https://www.nowicstdio.tech/",
+        "@id": "https://nowicstdio.tech/#website",
+        "url": "https://nowicstdio.tech/",
         "name": "Nowic Studio",
         "description": "Premium software agency for startups and businesses",
-        "publisher": { "@id": "https://www.nowicstdio.tech/#organization" }
+        "publisher": { "@id": "https://nowicstdio.tech/#organization" }
       },
       {
         "@type": "ProfessionalService",
-        "@id": "https://www.nowicstdio.tech/#service",
+        "@id": "https://nowicstdio.tech/#service",
         "name": "Nowic Studio",
-        "url": "https://www.nowicstdio.tech/",
-        "image": "https://www.nowicstdio.tech/image.png",
+        "url": "https://nowicstdio.tech/",
+        "image": "https://nowicstdio.tech/image.png",
         "description": "We design and build software products — MVPs, SaaS platforms, AI tools, and custom web applications — with a focus on speed, quality, and business outcomes.",
         "priceRange": "$$",
         "currenciesAccepted": "USD, INR",
@@ -262,7 +262,7 @@ export default function Home() {
       <SEO 
         title="Nowic Studio | MVP & SaaS Development Agency — AI-Powered Software"
         description="Nowic Studio builds premium MVPs, SaaS platforms, and AI-powered apps for startups — shipped in 4–6 weeks. India-based agency serving clients worldwide. Book a free intro call today."
-        canonicalUrl="https://www.nowicstdio.tech/"
+        canonicalUrl="https://nowicstdio.tech/"
         keywords="MVP development agency, SaaS development company, AI web app development, custom software development India, startup software agency, build MVP fast, hire software agency, React Django development, AI integration services, software development company"
         schema={homeSchema}
 
@@ -287,7 +287,7 @@ export default function Home() {
           <div className="flex flex-col items-center">
             {/* Entry eyebrow */}
             <MaskText delay={0.1}>
-              <p className="eyebrow">AI-Powered Software Agency</p>
+              <h1 className="eyebrow m-0">AI-Powered Software Agency</h1>
             </MaskText>
 
             <BrandTitle className="mt-5 text-6xl sm:text-7xl lg:text-[88px]" />
