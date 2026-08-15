@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { Calendar, Eye, Clock, ChevronLeft, BookOpen, Share2, Check, ArrowRight } from 'lucide-react';
+import { Calendar, Eye, Clock, ChevronLeft, BookOpen, Share2, Check, ArrowRight, AlertCircle } from 'lucide-react';
 import { api } from '../lib/api';
 import SEO from '../components/SEO';
 import Breadcrumbs from '../components/common/Breadcrumbs';
