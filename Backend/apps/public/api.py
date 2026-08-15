@@ -15,6 +15,7 @@ from django.core.exceptions import ValidationError as DjangoValidationError
 from django.http import HttpRequest
 from ninja import Router, Query
 from shared.auth import clerk_auth
+from shared.schemas import standard_responses
 
 from apps.public.models import ServiceOffering, PortfolioProject, ContactSubmission, SiteContent, BlogPost
 from apps.public.schemas import (
@@ -86,16 +87,17 @@ def list_site_content(request: HttpRequest):
     }
 
 
-@router.get('/site-content/{section}/', auth=None)
+@router.get('/site-content/{section}/', auth=None, response=standard_responses(dict))
 def get_site_content(request: HttpRequest, section: str):
     try:
         row = SiteContent.objects.only('section', 'data', 'updated_at').get(section=section)
+        data = SiteContentOut.from_orm(row).dict()
     except SiteContent.DoesNotExist:
-        raise NotFound(f"Site content '{section}' not found")
+        raise NotFound(f"Section '{section}' not found")
 
     return {
         'success': True,
-        'data': SiteContentOut.from_orm(row).dict(),
+        'data': data,
     }
 
 

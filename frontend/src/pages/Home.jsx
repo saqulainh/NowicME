@@ -1,4 +1,4 @@
-import { useEffect, useRef, useMemo, useState } from 'react';
+import { useEffect, useRef, useMemo, useState, lazy, Suspense } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
@@ -18,9 +18,11 @@ import {
 import SEO from '../components/SEO';
 import SectionHeading from '../components/common/SectionHeading';
 import ScrollReveal from '../components/reveal/ScrollReveal';
-import FloatingChips from '../components/hero/FloatingChips';
-import HeroDecor from '../components/hero/HeroDecor';
-import FloatingPanels from '../components/ui/FloatingPanels';
+
+// Lazy load heavy purely decorative components
+const FloatingChips = lazy(() => import('../components/hero/FloatingChips'));
+const HeroDecor = lazy(() => import('../components/hero/HeroDecor'));
+const FloatingPanels = lazy(() => import('../components/ui/FloatingPanels'));
 import BrandTitle from '../components/common/BrandTitle';
 import InteractiveCard from '../components/ui/InteractiveCard';
 import Magnetic from '../components/ui/Magnetic';
@@ -270,30 +272,32 @@ export default function Home() {
       {/* ═══ HERO ═══ */}
       <section className="relative overflow-hidden" style={{ minHeight: '700px' }}>
         {/* Spotlight beams + grid lines (local to Hero) */}
-        <HeroDecor />
+        <Suspense fallback={null}><HeroDecor /></Suspense>
 
         {/* Premium Floating Software Backgrounds — desktop only for performance */}
         {!isMobile && (
-          <FloatingPanels panels={[
-            { variant: 'analytics', top: '15%', right: '-2%', width: '280px', opacity: 0.18, delay: 0 },
-            { variant: 'code', bottom: '20%', left: '-5%', width: '260px', opacity: 0.15, delay: 2 }
-          ]} parallaxStrength={0.015} />
+          <Suspense fallback={null}>
+            <FloatingPanels panels={[
+              { variant: 'analytics', top: '15%', right: '-2%', width: '280px', opacity: 0.18, delay: 0 },
+              { variant: 'code', bottom: '20%', left: '-5%', width: '260px', opacity: 0.15, delay: 2 }
+            ]} parallaxStrength={0.015} />
+          </Suspense>
         )}
 
         {/* Floating tech chips — desktop only for performance */}
-        {!isMobile && <FloatingChips />}
+        {!isMobile && <Suspense fallback={null}><FloatingChips /></Suspense>}
 
-        <BoutiqueReveal delay={0.6} className="container-shell relative z-10 flex flex-col items-center justify-center text-center pt-28 pb-28 lg:pt-36 lg:pb-36">
+        <BoutiqueReveal delay={0.6} priority={true} className="container-shell relative z-10 flex flex-col items-center justify-center text-center pt-28 pb-28 lg:pt-36 lg:pb-36">
           <div className="flex flex-col items-center">
             {/* Entry eyebrow */}
-            <MaskText delay={0.1}>
+            <MaskText delay={0.1} priority={true}>
               <h1 className="eyebrow m-0">AI-Powered Software Agency</h1>
             </MaskText>
 
             <BrandTitle className="mt-5 text-6xl sm:text-7xl lg:text-[88px]" />
 
             {/* Tagline — styled subtitle */}
-            <MaskText delay={0.7} className="mt-6">
+            <MaskText delay={0.7} priority={true} className="mt-6">
               <p className="flex items-center justify-center gap-2 text-base font-medium tracking-tight text-mint/90 sm:text-xl">
                 <span className="h-px w-6 bg-mint/30" />
                 {brand.tagline}.
@@ -373,10 +377,12 @@ export default function Home() {
         {/* Engineering grid and floating panels — desktop only */}
         <div className="engineering-grid" />
         {!isMobile && (
-          <FloatingPanels panels={[
-            { variant: 'code', top: '15%', right: '-4%', width: '320px', opacity: 0.22, delay: 0 },
-            { variant: 'github', bottom: '10%', left: '0%', width: '340px', opacity: 0.2, delay: 1.5 }
-          ]} parallaxStrength={0.01} />
+          <Suspense fallback={null}>
+            <FloatingPanels panels={[
+              { variant: 'code', top: '15%', right: '-4%', width: '320px', opacity: 0.22, delay: 0 },
+              { variant: 'github', bottom: '10%', left: '0%', width: '340px', opacity: 0.2, delay: 1.5 }
+            ]} parallaxStrength={0.01} />
+          </Suspense>
         )}
 
         <div className="container-shell relative z-10">
@@ -428,7 +434,7 @@ export default function Home() {
                       
                       <div className="mt-6 flex items-center justify-between">
                         <Link to={`/services/${service.slug}`} className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-mint opacity-80 group-hover:opacity-100 hover:text-white transition-all">
-                          Learn More <ArrowRight size={12} />
+                          Explore {service.name} <ArrowRight size={12} />
                         </Link>
                       </div>
                     </InteractiveCard>
@@ -449,9 +455,11 @@ export default function Home() {
         {/* Engineering grid and AI workflow panels — desktop only */}
         <div className="engineering-grid" />
         {!isMobile && (
-          <FloatingPanels panels={[
-            { variant: 'ai', top: '25%', right: '15%', width: '320px', opacity: 0.25, delay: 0.5 }
-          ]} parallaxStrength={0.02} />
+          <Suspense fallback={null}>
+            <FloatingPanels panels={[
+              { variant: 'ai', top: '25%', right: '15%', width: '320px', opacity: 0.25, delay: 0.5 }
+            ]} parallaxStrength={0.02} />
+          </Suspense>
         )}
 
         <div className="container-shell relative z-10">
@@ -496,10 +504,12 @@ export default function Home() {
       <section className="relative overflow-hidden py-20">
         <div className="engineering-grid" />
         {!isMobile && (
-          <FloatingPanels panels={[
-            { variant: 'mobile', top: '35%', right: '-2%', width: '220px', opacity: 0.3, delay: 1 },
-            { variant: 'analytics', bottom: '15%', left: '2%', width: '300px', opacity: 0.22, delay: 2.5 }
-          ]} parallaxStrength={0.015} />
+          <Suspense fallback={null}>
+            <FloatingPanels panels={[
+              { variant: 'mobile', top: '35%', right: '-2%', width: '220px', opacity: 0.3, delay: 1 },
+              { variant: 'analytics', bottom: '15%', left: '2%', width: '300px', opacity: 0.22, delay: 2.5 }
+            ]} parallaxStrength={0.015} />
+          </Suspense>
         )}
 
         <div className="container-shell relative z-10">

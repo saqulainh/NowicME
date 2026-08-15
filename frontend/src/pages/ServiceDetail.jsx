@@ -43,7 +43,7 @@ export default function ServiceDetail() {
     return <NotFound />;
   }
 
-  const Icon = resolveIcon(service.icon);
+  const Icon = typeof service.icon === 'function' ? service.icon : resolveIcon(service.icon);
 
   const schema = [
     {

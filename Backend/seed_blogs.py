@@ -3,7 +3,7 @@ import django
 import sys
 
 # Setup Django environment
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'core.settings')
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'core.settings.base')
 django.setup()
 
 from apps.public.models import BlogPost

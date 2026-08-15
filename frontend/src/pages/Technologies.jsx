@@ -111,7 +111,7 @@ export default function Technologies() {
                 <h3 className="mt-2 font-display text-lg font-bold text-text group-hover:text-mint transition-colors">{tech.name}</h3>
                 <p className="mt-2 text-xs text-sub leading-relaxed flex-1">{tech.tagline}</p>
                 <span className="mt-4 inline-flex items-center gap-1 text-[11px] font-bold uppercase tracking-wider text-mint opacity-0 group-hover:opacity-100 transition-opacity">
-                  Learn More <ArrowRight size={12} />
+                  Explore {tech.name} <ArrowRight size={12} />
                 </span>
               </Link>
             </ScrollReveal>

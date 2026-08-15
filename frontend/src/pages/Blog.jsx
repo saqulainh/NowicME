@@ -142,6 +142,10 @@ export default function Blog() {
                                                 alt={post.title} 
                                                 loading="lazy"
                                                 className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-500" 
+                                                onError={(e) => {
+                                                    e.target.onerror = null;
+                                                    e.target.src = '/image.png';
+                                                }}
                                             />
                                         ) : (
                                             <div className="flex h-full w-full items-center justify-center text-[#4a4e5e]">

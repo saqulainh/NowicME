@@ -153,7 +153,7 @@ export default function TechnologyDetail() {
                       <h3 className="font-display text-base font-bold text-text group-hover:text-mint transition-colors">{service.title || service.name}</h3>
                       <p className="mt-2 text-xs text-sub leading-relaxed flex-1 line-clamp-2">{service.description}</p>
                       <span className="mt-3 inline-flex items-center gap-1 text-[11px] font-bold uppercase tracking-wider text-mint">
-                        Learn More <ArrowRight size={12} />
+                        Explore {service.title || service.name} <ArrowRight size={12} />
                       </span>
                     </Link>
                   </ScrollReveal>

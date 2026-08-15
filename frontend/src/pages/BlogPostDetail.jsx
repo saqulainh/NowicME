@@ -194,6 +194,10 @@ export default function BlogPostDetail() {
                             alt={post.title} 
                             loading="lazy"
                             className="h-full w-full object-cover" 
+                            onError={(e) => {
+                                e.target.onerror = null;
+                                e.target.src = '/image.png';
+                            }}
                         />
                     </div>
                 )}

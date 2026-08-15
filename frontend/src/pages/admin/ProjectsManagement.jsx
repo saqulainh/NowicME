@@ -268,7 +268,7 @@ export default function ProjectsManagement() {
                     <DollarSign size={10} /> Cost
                   </div>
                   <div className="text-xs font-medium text-[#f0f0f3]">
-                    ₹{parseFloat(project.cost).toLocaleString()}
+                    ₹{parseFloat(project.cost || 0).toLocaleString()}
                   </div>
                 </div>
               </div>

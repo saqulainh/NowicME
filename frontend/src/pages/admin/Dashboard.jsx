@@ -81,6 +81,12 @@ export default function Dashboard() {
         setTimeout(() => setToast(null), 3500);
     };
 
+    const withEmptyOn404 = (promise) => 
+        promise.catch(err => {
+            if (err.status === 404 || err.response?.status === 404) return { success: true, data: { data: null } };
+            throw err;
+        });
+
     const fetchDashboardData = async (isSilent = false) => {
         if (!isSilent) setLoading(true);
         else setRefreshing(true);
@@ -89,9 +95,9 @@ export default function Dashboard() {
             const [dashboardRes, invoicesRes, tasksRes, chartMetricsRes, scratchpadRes] = await Promise.allSettled([
                 api.admin_dashboard(token),
                 api.admin_getInvoices(token),
-                api.getSiteContentSection('quickTasks'),
-                api.getSiteContentSection('customAnalytics'),
-                api.getSiteContentSection('adminMemo')
+                withEmptyOn404(api.getSiteContentSection('quickTasks')),
+                withEmptyOn404(api.getSiteContentSection('customAnalytics')),
+                withEmptyOn404(api.getSiteContentSection('adminMemo'))
             ]);
 
             if (dashboardRes.status === 'fulfilled' && dashboardRes.value?.success) {
@@ -899,7 +905,7 @@ export default function Dashboard() {
                                     <div key={inv.id} className="flex justify-between items-center p-3 rounded-lg bg-white/[0.02] border border-white/[0.01] hover:border-white/5 hover:bg-white/[0.04] transition-all group/inv">
                                         <div className="min-w-0">
                                             <p className="text-xs font-bold text-[#f0f0f3] truncate">Invoice #{inv.invoice_number}</p>
-                                            <p className="text-[10px] text-[#6b6f80] truncate">Amount: ₹{parseFloat(inv.amount).toLocaleString('en-IN')} • Due: {inv.due_date}</p>
+                                            <p className="text-[10px] text-[#6b6f80] truncate">Amount: ₹{parseFloat(inv.amount || 0).toLocaleString('en-IN')} • Due: {inv.due_date}</p>
                                         </div>
                                         <button
                                             onClick={() => handleUpdateInvoiceStatus(inv.id, 'paid')}

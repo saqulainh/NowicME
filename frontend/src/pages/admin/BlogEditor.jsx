@@ -396,6 +396,10 @@ export default function BlogEditor() {
                                                 src={coverImageUrl}
                                                 alt="Cover preview"
                                                 className="h-full w-full object-cover"
+                                                onError={(e) => {
+                                                    e.target.onerror = null;
+                                                    e.target.src = '/image.png';
+                                                }}
                                             />
                                             <button
                                                 type="button"

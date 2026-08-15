@@ -354,7 +354,7 @@ export default function Contact() {
 
                       <div>
                         <span className="block text-[13px] font-semibold text-[#f0f0f3] mb-2 uppercase">Project Type</span>
-                        {servicesLoading ? (
+                        {choicesLoading ? (
                           <div className="flex items-center justify-center rounded-lg bg-[#16171e] py-2">
                             <LoadingSpinner size="sm" />
                           </div>
@@ -362,12 +362,10 @@ export default function Contact() {
                           <>
                             <select id="contact-type" name="project_type" value={form.project_type} onChange={handleChange} aria-label="Project Type" className={`field !py-0 !h-[36px] !px-3 !text-[12px] !cursor-pointer bg-[#16171e] focus:bg-[#1e2028] ${errors.project_type ? 'border-red-500/50' : ''}`}>
                               <option value="">Select type...</option>
-                              {orderedServices.map((service) => (
-                                <option key={service.slug} value={service.name} className="bg-[#0e0f14] text-[#f0f0f3]">{service.name}</option>
+                              {choices.project_types.map((p) => (
+                                <option key={p.value} value={p.value} className="bg-[#0e0f14] text-[#f0f0f3]">{p.label}</option>
                               ))}
-                              <option value="Other" className="bg-[#0e0f14] text-[#f0f0f3]">Other</option>
                             </select>
-                            {servicesError && <p className="mt-1 text-[11px] text-amber-300">Using backup service list while API is unavailable.</p>}
                           </>
                         )}
                         {errors.project_type && <p className="text-[10px] text-red-400 mt-1 pl-1">{errors.project_type}</p>}

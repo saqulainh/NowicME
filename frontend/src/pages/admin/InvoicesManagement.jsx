@@ -101,7 +101,7 @@ export default function InvoicesManagement() {
                                         <div className="text-xs text-[#6b6f80]">{inv.client?.email}</div>
                                     </td>
                                     <td className="px-6 py-4 font-bold text-[#f0f0f3]">
-                                        ₹{parseFloat(inv.amount).toLocaleString()}
+                                        ₹{parseFloat(inv.amount || 0).toLocaleString()}
                                     </td>
                                     <td className="px-6 py-4 text-xs text-[#6b6f80]">
                                         {new Date(inv.due_date).toLocaleDateString()}

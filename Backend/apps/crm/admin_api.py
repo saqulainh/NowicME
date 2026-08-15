@@ -5,7 +5,7 @@ Admin dashboard and management endpoints.
 """
 from datetime import timedelta
 from decimal import Decimal
-from typing import Optional
+from typing import List, Optional, Dict, Any
 
 from django.db.models import F, Q, Sum
 from django.http import HttpRequest
@@ -34,6 +34,7 @@ from shared.auth import clerk_auth, get_admin_user
 from shared.email import send_invoice_email, send_invoice_overdue, send_project_update_email
 from shared.exceptions import NotFound, PermissionDenied
 from shared.pagination import paginate
+from shared.schemas import standard_responses
 
 router = Router(tags=['Admin'], auth=clerk_auth)
 
@@ -47,10 +48,10 @@ class UserRoleUpdateIn(Schema):
 
 
 class SiteContentUpsertIn(Schema):
-    data: object
+    data: dict
 
 
-@router.get('/dashboard/')
+@router.get('/dashboard/', response=standard_responses(dict))
 def admin_dashboard(request: HttpRequest):
     admin = _admin(request)
 
@@ -114,7 +115,7 @@ def admin_dashboard(request: HttpRequest):
     }
 
 
-@router.get('/site-content/')
+@router.get('/site-content/', response=standard_responses(list))
 def list_site_content(request: HttpRequest):
     _admin(request)
     rows = SiteContent.objects.only('section', 'data', 'updated_at').order_by('section')
@@ -124,22 +125,23 @@ def list_site_content(request: HttpRequest):
     }
 
 
-@router.get('/site-content/{section}/')
+@router.get('/site-content/{section}/', response=standard_responses(dict))
 def get_site_content(request: HttpRequest, section: str):
     _admin(request)
     try:
         row = SiteContent.objects.only('section', 'data', 'updated_at').get(section=section)
+        data = SiteContentOut.from_orm(row).dict()
     except SiteContent.DoesNotExist:
-        raise NotFound(f"Site content '{section}' not found")
+        raise NotFound(f"Section '{section}' not found")
 
     return {
         'success': True,
-        'data': SiteContentOut.from_orm(row).dict(),
+        'data': data,
     }
 
 
-@router.put('/site-content/{section}/')
-@router.patch('/site-content/{section}/')
+@router.put('/site-content/{section}/', response=standard_responses(dict))
+@router.patch('/site-content/{section}/', response=standard_responses(dict))
 def upsert_site_content(request: HttpRequest, section: str, payload: SiteContentUpsertIn):
     _admin(request)
     row, _ = SiteContent.objects.update_or_create(section=section, defaults={'data': payload.data})
@@ -153,7 +155,7 @@ ALLOWED_IMAGE_TYPES = {'image/jpeg', 'image/png', 'image/webp', 'image/gif', 'im
 MAX_IMAGE_SIZE = 5 * 1024 * 1024  # 5 MB
 
 
-@router.post('/upload/media/')
+@router.post('/upload/media/', response=standard_responses(dict))
 def upload_media(request: HttpRequest, file: UploadedFile = File(...), folder: str = 'services'):
     """Upload an image file to cloud storage and return the URL."""
     _admin(request)
@@ -180,7 +182,7 @@ def upload_media(request: HttpRequest, file: UploadedFile = File(...), folder: s
     }
 
 
-@router.get('/me/')
+@router.get('/me/', response=standard_responses(dict))
 def admin_me(request: HttpRequest):
     admin = _admin(request)
     return {
@@ -195,7 +197,7 @@ def admin_me(request: HttpRequest):
     }
 
 
-@router.get('/users/')
+@router.get('/users/', response=standard_responses(dict))
 def list_users(
     request: HttpRequest,
     role: Optional[str] = Query(default=None),
@@ -219,7 +221,7 @@ def list_users(
     )
 
 
-@router.patch('/users/{clerk_user_id}/')
+@router.patch('/users/{clerk_user_id}/', response=standard_responses(dict))
 def update_user_role(request: HttpRequest, clerk_user_id: str, payload: UserRoleUpdateIn):
     admin = _admin(request)
 
@@ -252,7 +254,7 @@ def update_user_role(request: HttpRequest, clerk_user_id: str, payload: UserRole
     return {'success': True, 'message': 'Role updated'}
 
 
-@router.get('/search/')
+@router.get('/search/', response=standard_responses(dict))
 def global_search(request: HttpRequest, q: str = Query(...)):
     _admin(request)
 
@@ -300,7 +302,7 @@ def global_search(request: HttpRequest, q: str = Query(...)):
     }
 
 
-@router.post('/projects/{project_id}/updates/')
+@router.post('/projects/{project_id}/updates/', response=standard_responses(dict))
 def post_project_update(request: HttpRequest, project_id: int, payload: ProjectUpdateIn):
     admin = _admin(request)
     try:
@@ -340,7 +342,7 @@ def post_project_update(request: HttpRequest, project_id: int, payload: ProjectU
     return {'success': True, 'data': {'id': update.id}}
 
 
-@router.post('/projects/{project_id}/files/')
+@router.post('/projects/{project_id}/files/', response=standard_responses(dict))
 def upload_project_file(request: HttpRequest, project_id: int, payload: ProjectFileIn):
     _admin(request)
     try:
@@ -385,7 +387,7 @@ def _next_invoice_number() -> str:
     return f'{prefix}{seq:04d}'
 
 
-@router.post('/invoices/')
+@router.post('/invoices/', response=standard_responses(dict))
 def create_invoice(request: HttpRequest, payload: InvoiceCreateIn):
     _admin(request)
     try:
@@ -426,7 +428,7 @@ def create_invoice(request: HttpRequest, payload: InvoiceCreateIn):
     return {'success': True, 'data': {'id': invoice.id, 'invoice_number': invoice.invoice_number}}
 
 
-@router.patch('/invoices/{invoice_id}/')
+@router.patch('/invoices/{invoice_id}/', response=standard_responses(dict))
 def update_invoice(request: HttpRequest, invoice_id: int, payload: InvoiceUpdateIn):
     _admin(request)
     try:
@@ -466,7 +468,7 @@ def update_invoice(request: HttpRequest, invoice_id: int, payload: InvoiceUpdate
     return {'success': True, 'data': {'id': invoice.id, 'status': invoice.status}}
 
 
-@router.get('/invoices/')
+@router.get('/invoices/', response=standard_responses(list))
 def list_invoices(
     request: HttpRequest,
     status: Optional[str] = Query(default=None),
@@ -515,7 +517,7 @@ def list_invoices(
 
 # ─── Reviews Moderation ─────────────────────────────────────────────────────
 
-@router.get('/reviews/')
+@router.get('/reviews/', response=standard_responses(list))
 def list_all_reviews(request: HttpRequest):
     _admin(request)
     from apps.public.models import CustomerReview
@@ -526,7 +528,7 @@ def list_all_reviews(request: HttpRequest):
     return {'success': True, 'data': data}
 
 
-@router.patch('/reviews/{review_id}/')
+@router.patch('/reviews/{review_id}/', response=standard_responses(dict))
 def update_review(request: HttpRequest, review_id: int, is_approved: bool):
     _admin(request)
     from apps.public.models import CustomerReview
@@ -540,7 +542,7 @@ def update_review(request: HttpRequest, review_id: int, is_approved: bool):
         raise NotFound('Review not found')
 
 
-@router.delete('/reviews/{review_id}/')
+@router.delete('/reviews/{review_id}/', response=standard_responses(dict))
 def delete_review(request: HttpRequest, review_id: int):
     _admin(request)
     from apps.public.models import CustomerReview
@@ -585,7 +587,7 @@ def export_leads_csv(request: HttpRequest):
 
 # ─── Blog Management ─────────────────────────────────────────────────────────
 
-@router.get('/blog/')
+@router.get('/blog/', response=standard_responses(dict))
 def admin_list_blog_posts(
     request: HttpRequest,
     page: int = Query(default=1),
@@ -607,7 +609,7 @@ def admin_list_blog_posts(
     return paginate(qs, page=page, page_size=page_size, serializer=lambda p: BlogPostOut.from_orm(p).dict())
 
 
-@router.get('/blog/stats/')
+@router.get('/blog/stats/', response=standard_responses(dict))
 def admin_blog_stats(request: HttpRequest):
     """Return quick stats: total, published, drafts, total views."""
     _admin(request)
@@ -626,7 +628,7 @@ def admin_blog_stats(request: HttpRequest):
     }
 
 
-@router.get('/blog/{post_id}/')
+@router.get('/blog/{post_id}/', response=standard_responses(dict))
 def admin_get_blog_post(request: HttpRequest, post_id: int):
     """Get a single blog post by ID (admin)."""
     _admin(request)
@@ -637,7 +639,7 @@ def admin_get_blog_post(request: HttpRequest, post_id: int):
     return {'success': True, 'data': BlogPostOut.from_orm(post).dict()}
 
 
-@router.post('/blog/')
+@router.post('/blog/', response=standard_responses(dict))
 def admin_create_blog_post(request: HttpRequest, payload: BlogPostIn):
     admin = _admin(request)
     
@@ -703,7 +705,7 @@ class BlogPostUpdatePayload(Schema):
     read_time_minutes: Optional[int] = None
 
 
-@router.patch('/blog/{post_id}/')
+@router.patch('/blog/{post_id}/', response=standard_responses(dict))
 def admin_update_blog_post(request: HttpRequest, post_id: int, payload: BlogPostUpdatePayload):
     admin = _admin(request)
     try:
@@ -775,7 +777,7 @@ def admin_update_blog_post(request: HttpRequest, post_id: int, payload: BlogPost
         return {'success': False, 'error': str(exc)}
 
 
-@router.delete('/blog/{post_id}/')
+@router.delete('/blog/{post_id}/', response=standard_responses(dict))
 def admin_delete_blog_post(request: HttpRequest, post_id: int):
     admin = _admin(request)
     try:

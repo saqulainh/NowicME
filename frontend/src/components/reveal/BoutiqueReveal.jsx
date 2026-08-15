@@ -5,11 +5,12 @@ import { motion } from 'framer-motion';
  * BoutiqueReveal — The gold-standard entrance reveal.
  * Combines scale, blur-to-sharp, and opacity to simulate a camera lens focusing.
  * Best used as a wrapper for the entire Hero or main page containers.
+ * Set priority=true to prevent initial hiding (optimizes LCP).
  */
-export default function BoutiqueReveal({ children, delay = 0, className = '' }) {
+export default function BoutiqueReveal({ children, delay = 0, className = '', priority = false }) {
   return (
     <motion.div
-      initial={{ 
+      initial={priority ? false : { 
         opacity: 0, 
         scale: 1.05, 
         filter: 'blur(10px) brightness(1.5)' 
@@ -21,7 +22,7 @@ export default function BoutiqueReveal({ children, delay = 0, className = '' }) 
       }}
       transition={{ 
         duration: 1.8, 
-        delay: delay + 0.2, 
+        delay: priority ? 0 : delay + 0.2, 
         ease: [0.16, 1, 0.3, 1] 
       }}
       className={className}
