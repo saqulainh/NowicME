@@ -11,7 +11,7 @@ from django.http import HttpResponse
 from django.utils import timezone
 from django.views import View
 
-SITE_URL = "https://nowicstdio.tech"
+SITE_URL = "https://www.nowicstdio.tech"
 
 
 def _url_entry(loc: str, lastmod: str = None, changefreq: str = "monthly", priority: str = "0.7") -> str:

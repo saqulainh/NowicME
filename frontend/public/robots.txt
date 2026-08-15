@@ -1,9 +1,9 @@
 # ─── Nowic Studio — robots.txt ───
-# https://nowicstdio.tech/robots.txt
+# https://www.nowicstdio.tech/robots.txt
 
 User-agent: *
 Allow: /
-Sitemap: https://nowicstdio.tech/sitemap.xml
+Sitemap: https://www.nowicstdio.tech/sitemap.xml
 
 # Block admin and private routes from indexing
 Disallow: /admin
@@ -89,5 +89,5 @@ Crawl-delay: 10
 # ─── LLM knowledge files ───
 # https://llmstxt.org/
 # Direct AI crawlers to our structured knowledge file
-# llms.txt: https://nowicstdio.tech/llms.txt
-# llms-full.txt: https://nowicstdio.tech/llms-full.txt
+# llms.txt: https://www.nowicstdio.tech/llms.txt
+# llms-full.txt: https://www.nowicstdio.tech/llms-full.txt

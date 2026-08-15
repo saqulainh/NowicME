@@ -120,20 +120,20 @@ export default function BlogPostDetail() {
             "@type": "BlogPosting",
             "headline": post.title,
             "description": post.excerpt,
-            "image": post.cover_image_url || "https://nowicstdio.tech/image.png",
+            "image": post.cover_image_url || "https://www.nowicstdio.tech/image.png",
             "datePublished": post.created_at,
             "dateModified": post.updated_at,
             "author": {
                 "@type": "Organization",
                 "name": "Nowic Studio Team",
-                "url": "https://nowicstdio.tech"
+                "url": "https://www.nowicstdio.tech"
             },
             "publisher": {
                 "@type": "Organization",
                 "name": "Nowic Studio",
                 "logo": {
                     "@type": "ImageObject",
-                    "url": "https://nowicstdio.tech/image.png"
+                    "url": "https://www.nowicstdio.tech/image.png"
                 }
             }
         },
@@ -141,9 +141,9 @@ export default function BlogPostDetail() {
             "@context": "https://schema.org",
             "@type": "BreadcrumbList",
             "itemListElement": [
-                { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://nowicstdio.tech/" },
-                { "@type": "ListItem", "position": 2, "name": "Blog", "item": "https://nowicstdio.tech/blog" },
-                { "@type": "ListItem", "position": 3, "name": post.title, "item": `https://nowicstdio.tech/blog/${post.slug}` }
+                { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://www.nowicstdio.tech/" },
+                { "@type": "ListItem", "position": 2, "name": "Blog", "item": "https://www.nowicstdio.tech/blog" },
+                { "@type": "ListItem", "position": 3, "name": post.title, "item": `https://www.nowicstdio.tech/blog/${post.slug}` }
             ]
         }
     ];
@@ -153,7 +153,7 @@ export default function BlogPostDetail() {
             <SEO 
                 title={`${post.title} | Nowic Studio Blog`}
                 description={post.excerpt}
-                canonicalUrl={`https://nowicstdio.tech/blog/${post.slug}`}
+                canonicalUrl={`https://www.nowicstdio.tech/blog/${post.slug}`}
                 keywords={`${post.title.split(' ').join(', ')}, MVP development, software engineering, Nowic Studio`}
                 schema={postSchema}
             />

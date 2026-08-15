@@ -162,7 +162,7 @@ export default function CaseStudies() {
       "@type": "CollectionPage",
       "name": "Case Studies — Nowic Studio",
       "description": "Real projects, real results. Detailed breakdowns of products we've built for clients.",
-      "url": "https://nowicstdio.tech/case-studies",
+      "url": "https://www.nowicstdio.tech/case-studies",
       "mainEntity": {
         "@type": "ItemList",
         "itemListElement": projects.map((p, i) => ({
@@ -176,8 +176,8 @@ export default function CaseStudies() {
       "@context": "https://schema.org",
       "@type": "BreadcrumbList",
       "itemListElement": [
-        { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://nowicstdio.tech/" },
-        { "@type": "ListItem", "position": 2, "name": "Case Studies", "item": "https://nowicstdio.tech/case-studies" }
+        { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://www.nowicstdio.tech/" },
+        { "@type": "ListItem", "position": 2, "name": "Case Studies", "item": "https://www.nowicstdio.tech/case-studies" }
       ]
     }
   ];
@@ -187,7 +187,7 @@ export default function CaseStudies() {
       <SEO
         title="Case Studies | Nowic Studio"
         description="Real projects. Real results. Explore detailed case studies of MVPs, SaaS platforms, and AI products we've built for clients worldwide."
-        canonicalUrl="https://nowicstdio.tech/case-studies"
+        canonicalUrl="https://www.nowicstdio.tech/case-studies"
         keywords="software case studies, MVP development case study, SaaS success stories, AI product case studies, software agency portfolio"
         schema={schema}
       />

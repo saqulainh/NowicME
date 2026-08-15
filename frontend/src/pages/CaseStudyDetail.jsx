@@ -25,21 +25,21 @@ export default function CaseStudyDetail() {
       "author": {
         "@type": "Organization",
         "name": "Nowic Studio",
-        "url": "https://nowicstdio.tech"
+        "url": "https://www.nowicstdio.tech"
       },
       "publisher": {
         "@type": "Organization",
         "name": "Nowic Studio",
-        "logo": { "@type": "ImageObject", "url": "https://nowicstdio.tech/image.png" }
+        "logo": { "@type": "ImageObject", "url": "https://www.nowicstdio.tech/image.png" }
       }
     },
     {
       "@context": "https://schema.org",
       "@type": "BreadcrumbList",
       "itemListElement": [
-        { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://nowicstdio.tech/" },
-        { "@type": "ListItem", "position": 2, "name": "Case Studies", "item": "https://nowicstdio.tech/case-studies" },
-        { "@type": "ListItem", "position": 3, "name": study.title, "item": `https://nowicstdio.tech/case-studies/${slug}` }
+        { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://www.nowicstdio.tech/" },
+        { "@type": "ListItem", "position": 2, "name": "Case Studies", "item": "https://www.nowicstdio.tech/case-studies" },
+        { "@type": "ListItem", "position": 3, "name": study.title, "item": `https://www.nowicstdio.tech/case-studies/${slug}` }
       ]
     }
   ];
@@ -49,7 +49,7 @@ export default function CaseStudyDetail() {
       <SEO
         title={`${study.title} — Case Study | Nowic Studio`}
         description={study.heroSummary}
-        canonicalUrl={`https://nowicstdio.tech/case-studies/${slug}`}
+        canonicalUrl={`https://www.nowicstdio.tech/case-studies/${slug}`}
         keywords={`${study.category} case study, ${study.title}, software development case study, Nowic Studio`}
         schema={schema}
       />

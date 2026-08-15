@@ -113,7 +113,7 @@ export default function Booking() {
       "@context": "https://schema.org",
       "@type": "WebPage",
       "name": "Book a Strategy Call — Nowic Studio",
-      "url": "https://nowicstdio.tech/booking",
+      "url": "https://www.nowicstdio.tech/booking",
       "description": "Schedule a 1-on-1 strategy call with Nowic Studio founders. Discuss your project, get a roadmap, and start building.",
       "mainEntity": {
         "@type": "Service",
@@ -121,7 +121,7 @@ export default function Booking() {
         "provider": {
           "@type": "Organization",
           "name": "Nowic Studio",
-          "url": "https://nowicstdio.tech"
+          "url": "https://www.nowicstdio.tech"
         },
         "description": "Free 15-30 minute strategy call to discuss your software project requirements, timeline, and budget.",
         "offers": {
@@ -136,8 +136,8 @@ export default function Booking() {
       "@context": "https://schema.org",
       "@type": "BreadcrumbList",
       "itemListElement": [
-        { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://nowicstdio.tech/" },
-        { "@type": "ListItem", "position": 2, "name": "Booking", "item": "https://nowicstdio.tech/booking" }
+        { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://www.nowicstdio.tech/" },
+        { "@type": "ListItem", "position": 2, "name": "Booking", "item": "https://www.nowicstdio.tech/booking" }
       ]
     }
   ];
@@ -147,7 +147,7 @@ export default function Booking() {
       <SEO 
         title="Book a Strategy Call — Free Consultation | Nowic Studio"
         description="Schedule a free 1-on-1 strategy call with Nowic Studio founders. Discuss your software project, get a clear roadmap, timeline, and budget — no commitment required."
-        canonicalUrl="https://nowicstdio.tech/booking"
+        canonicalUrl="https://www.nowicstdio.tech/booking"
         keywords="book a call software developer, free consultation software development, schedule strategy call, software project consultation, book developer call"
         schema={bookingSchema}
       />

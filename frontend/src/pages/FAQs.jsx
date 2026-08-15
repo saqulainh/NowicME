@@ -95,8 +95,8 @@ export default function FAQs() {
       "@context": "https://schema.org",
       "@type": "BreadcrumbList",
       "itemListElement": [
-        { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://nowicstdio.tech/" },
-        { "@type": "ListItem", "position": 2, "name": "FAQs", "item": "https://nowicstdio.tech/faqs" }
+        { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://www.nowicstdio.tech/" },
+        { "@type": "ListItem", "position": 2, "name": "FAQs", "item": "https://www.nowicstdio.tech/faqs" }
       ]
     }
   ];
@@ -106,7 +106,7 @@ export default function FAQs() {
       <SEO
         title="Frequently Asked Questions — Software Development | Nowic Studio"
         description="Find answers to common questions about Nowic Studio's software development services, pricing, process, tech stack, and how to get started with your project."
-        canonicalUrl="https://nowicstdio.tech/faqs"
+        canonicalUrl="https://www.nowicstdio.tech/faqs"
         keywords="software development FAQ, MVP development questions, SaaS development cost, how much does software cost, software agency FAQ"
         schema={schema}
       />

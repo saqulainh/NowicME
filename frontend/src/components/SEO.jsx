@@ -7,7 +7,7 @@ const SEO = ({
   canonicalUrl, 
   schema, 
   keywords,
-  ogImage = "https://nowicstdio.tech/image.png",
+  ogImage = "https://www.nowicstdio.tech/image.png",
   ogType = "website",
   noIndex = false
 }) => {

@@ -13,7 +13,7 @@
 **Founded:** 2023
 **Headquarters:** India
 **Service Area:** Worldwide (remote-first)
-**Website:** https://nowicstdio.tech
+**Website:** https://www.nowicstdio.tech
 **Email:** haiderssaqulain@gmail.com
 **Industry:** Software Development, Technology Services, AI Engineering
 **Company Size:** Boutique Agency (lean, senior-level team)
@@ -286,10 +286,10 @@ A: Yes, typically projects are split into milestones: 50% upfront to commence wo
 
 ## Contact Information
 
-- **Website:** https://nowicstdio.tech
+- **Website:** https://www.nowicstdio.tech
 - **Email:** haiderssaqulain@gmail.com
-- **Book a Call:** https://nowicstdio.tech/booking
-- **Contact Form:** https://nowicstdio.tech/contact
+- **Book a Call:** https://www.nowicstdio.tech/booking
+- **Contact Form:** https://www.nowicstdio.tech/contact
 
 ## Sitemap
-https://nowicstdio.tech/sitemap.xml
+https://www.nowicstdio.tech/sitemap.xml

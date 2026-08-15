@@ -36,13 +36,13 @@ export default function Blog() {
             "@type": "Blog",
             "name": "Nowic Studio Blog",
             "description": "Expert insights on MVP development, SaaS architecture, web development, AI integration, and startup tech guides from Nowic Studio.",
-            "url": "https://nowicstdio.tech/blog",
+            "url": "https://www.nowicstdio.tech/blog",
             "publisher": {
                 "@type": "Organization",
                 "name": "Nowic Studio",
                 "logo": {
                     "@type": "ImageObject",
-                    "url": "https://nowicstdio.tech/image.png"
+                    "url": "https://www.nowicstdio.tech/image.png"
                 }
             }
         },
@@ -50,8 +50,8 @@ export default function Blog() {
             "@context": "https://schema.org",
             "@type": "BreadcrumbList",
             "itemListElement": [
-                { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://nowicstdio.tech/" },
-                { "@type": "ListItem", "position": 2, "name": "Blog", "item": "https://nowicstdio.tech/blog" }
+                { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://www.nowicstdio.tech/" },
+                { "@type": "ListItem", "position": 2, "name": "Blog", "item": "https://www.nowicstdio.tech/blog" }
             ]
         }
     ];
@@ -61,7 +61,7 @@ export default function Blog() {
             <SEO 
                 title="Blog & Tech Insights — MVP, SaaS & AI Guides | Nowic Studio"
                 description="Expert insights on building SaaS, MVP engineering, product design, AI application development, and startup tech strategy from the Nowic Studio team."
-                canonicalUrl="https://nowicstdio.tech/blog"
+                canonicalUrl="https://www.nowicstdio.tech/blog"
                 keywords="MVP development blog, SaaS architecture guide, AI integration tutorial, web development insights, startup tech blog, software engineering guides"
                 schema={blogSchema}
             />

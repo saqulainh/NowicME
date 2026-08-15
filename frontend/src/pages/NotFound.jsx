@@ -15,7 +15,7 @@ function NotFoundShell({ title, description, ctaLabel, ctaTo }) {
         <h1 className="mt-4 font-display text-4xl font-bold text-text sm:text-5xl">{title}</h1>
         <p className="mt-4 max-w-xl text-sub">{description}</p>
         <div className="mt-8 w-full max-w-md">
-          <form onSubmit={(e) => { e.preventDefault(); const q = e.target.search?.value || ''; if (!q) return; window.location.href = `https://www.google.com/search?q=site:nowicstdio.tech+${encodeURIComponent(q)}`; }} className="flex items-center gap-2">
+          <form onSubmit={(e) => { e.preventDefault(); const q = e.target.search?.value || ''; if (!q) return; window.location.href = `https://www.google.com/search?q=site:www.nowicstdio.tech+${encodeURIComponent(q)}`; }} className="flex items-center gap-2">
             <input name="search" placeholder="Search the site (e.g. 'MVP cost')" className="flex-1 rounded-lg border border-white/10 bg-bg/60 px-4 py-3 text-sm text-text" />
             <button type="submit" className="cta-btn">Search</button>
           </form>

@@ -14,13 +14,13 @@ export default function Breadcrumbs({ items }) {
         "@type": "ListItem",
         "position": 1,
         "name": "Home",
-        "item": "https://nowicstdio.tech/"
+        "item": "https://www.nowicstdio.tech/"
       },
       ...items.map((item, index) => ({
         "@type": "ListItem",
         "position": index + 2,
         "name": item.label,
-        "item": `https://nowicstdio.tech${item.path}`
+        "item": `https://www.nowicstdio.tech${item.path}`
       }))
     ]
   };

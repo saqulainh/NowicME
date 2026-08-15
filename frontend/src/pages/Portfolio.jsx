@@ -52,7 +52,7 @@ export default function Portfolio() {
       "@context": "https://schema.org",
       "@type": "CollectionPage",
       "name": "Portfolio - Nowic Studio",
-      "url": "https://nowicstdio.tech/portfolio",
+      "url": "https://www.nowicstdio.tech/portfolio",
       "description": "View our portfolio of MVPs, SaaS platforms, AI web apps, and custom digital products built with precision.",
       "mainEntity": {
         "@type": "ItemList",
@@ -63,7 +63,7 @@ export default function Portfolio() {
             "@type": "CreativeWork",
             "name": p.title,
             "description": p.description,
-            "image": resolveImageUrl(p.image_url) || "https://nowicstdio.tech/image.png",
+            "image": resolveImageUrl(p.image_url) || "https://www.nowicstdio.tech/image.png",
             "author": {
               "@type": "Organization",
               "name": "Nowic Studio"
@@ -76,8 +76,8 @@ export default function Portfolio() {
       "@context": "https://schema.org",
       "@type": "BreadcrumbList",
       "itemListElement": [
-        { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://nowicstdio.tech/" },
-        { "@type": "ListItem", "position": 2, "name": "Portfolio", "item": "https://nowicstdio.tech/portfolio" }
+        { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://www.nowicstdio.tech/" },
+        { "@type": "ListItem", "position": 2, "name": "Portfolio", "item": "https://www.nowicstdio.tech/portfolio" }
       ]
     }
   ];
@@ -87,7 +87,7 @@ export default function Portfolio() {
       <SEO 
         title="Portfolio — MVPs, SaaS & AI Products We've Built | Nowic Studio"
         description="Explore our portfolio of MVPs, SaaS platforms, AI web applications, and custom digital products. Real products, real impact — built with precision and purpose."
-        canonicalUrl="https://nowicstdio.tech/portfolio"
+        canonicalUrl="https://www.nowicstdio.tech/portfolio"
         keywords="software development portfolio, MVP case studies, SaaS product examples, AI app portfolio, web development work samples, custom software projects"
         schema={portfolioSchema}
       />

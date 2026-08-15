@@ -54,16 +54,16 @@ export default function ServiceDetail() {
       "provider": {
         "@type": "Organization",
         "name": "Nowic Studio",
-        "url": "https://nowicstdio.tech"
+        "url": "https://www.nowicstdio.tech"
       }
     },
     {
       "@context": "https://schema.org",
       "@type": "BreadcrumbList",
       "itemListElement": [
-        { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://nowicstdio.tech/" },
-        { "@type": "ListItem", "position": 2, "name": "Services", "item": "https://nowicstdio.tech/services" },
-        { "@type": "ListItem", "position": 3, "name": service.title, "item": `https://nowicstdio.tech/services/${slug}` }
+        { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://www.nowicstdio.tech/" },
+        { "@type": "ListItem", "position": 2, "name": "Services", "item": "https://www.nowicstdio.tech/services" },
+        { "@type": "ListItem", "position": 3, "name": service.title, "item": `https://www.nowicstdio.tech/services/${slug}` }
       ]
     },
     {
@@ -82,7 +82,7 @@ export default function ServiceDetail() {
       <SEO 
         title={`${service.title} Services | Nowic Studio`}
         description={service.description}
-        canonicalUrl={`https://nowicstdio.tech/services/${slug}`}
+        canonicalUrl={`https://www.nowicstdio.tech/services/${slug}`}
         keywords={`${service.title.toLowerCase()} services, software development, Nowic Studio`}
         schema={schema}
       />

@@ -169,12 +169,12 @@ export default function Contact() {
       "@context": "https://schema.org",
       "@type": "ContactPage",
       "name": "Contact Nowic Studio",
-      "url": "https://nowicstdio.tech/contact",
+      "url": "https://www.nowicstdio.tech/contact",
       "description": "Get in touch with Nowic Studio to discuss your software project. We respond within 24 hours.",
       "mainEntity": {
         "@type": "Organization",
         "name": "Nowic Studio",
-        "url": "https://nowicstdio.tech",
+        "url": "https://www.nowicstdio.tech",
         "contactPoint": {
           "@type": "ContactPoint",
           "contactType": "sales",
@@ -195,8 +195,8 @@ export default function Contact() {
       "@context": "https://schema.org",
       "@type": "BreadcrumbList",
       "itemListElement": [
-        { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://nowicstdio.tech/" },
-        { "@type": "ListItem", "position": 2, "name": "Contact", "item": "https://nowicstdio.tech/contact" }
+        { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://www.nowicstdio.tech/" },
+        { "@type": "ListItem", "position": 2, "name": "Contact", "item": "https://www.nowicstdio.tech/contact" }
       ]
     }
   ];
@@ -206,7 +206,7 @@ export default function Contact() {
       <SEO 
         title="Contact Us — Start Your Software Project | Nowic Studio"
         description="Get in touch with Nowic Studio to discuss your next project. We respond within 24 hours with a clear roadmap, timeline, and budget. Free discovery call included."
-        canonicalUrl="https://nowicstdio.tech/contact"
+        canonicalUrl="https://www.nowicstdio.tech/contact"
         keywords="contact Nowic Studio, hire software developer, get a quote software development, start a project, software development inquiry, book a call developer"
         schema={contactSchema}
       />

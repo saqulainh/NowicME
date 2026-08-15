@@ -21,14 +21,14 @@ export default function IndustryDetail() {
       "@type": "Article",
       "headline": `Software Development for ${industry.name} — Nowic Studio`,
       "description": industry.description,
-      "author": { "@type": "Organization", "name": "Nowic Studio", "url": "https://nowicstdio.tech" }
+      "author": { "@type": "Organization", "name": "Nowic Studio", "url": "https://www.nowicstdio.tech" }
     },
     {
       "@context": "https://schema.org",
       "@type": "BreadcrumbList",
       "itemListElement": [
-        { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://nowicstdio.tech/" },
-        { "@type": "ListItem", "position": 2, "name": industry.name, "item": `https://nowicstdio.tech/industries/${slug}` }
+        { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://www.nowicstdio.tech/" },
+        { "@type": "ListItem", "position": 2, "name": industry.name, "item": `https://www.nowicstdio.tech/industries/${slug}` }
       ]
     }
   ];
@@ -38,7 +38,7 @@ export default function IndustryDetail() {
       <SEO
         title={`Software Development for ${industry.name} | Nowic Studio`}
         description={industry.description}
-        canonicalUrl={`https://nowicstdio.tech/industries/${slug}`}
+        canonicalUrl={`https://www.nowicstdio.tech/industries/${slug}`}
         keywords={`${industry.name.toLowerCase()} software development, custom software for ${industry.name.toLowerCase()}, ${industry.name.toLowerCase()} technology solutions`}
         schema={schema}
       />
