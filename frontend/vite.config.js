@@ -37,8 +37,11 @@ try {
         }
         return pathname;
       });
+      // Slice dynamic routes locally to prevent the 30s Puppeteer timeout from crashing the build
+      // when testing locally with 30+ blog posts. Vercel build bypasses prerendering entirely.
+      const limitedDynamicRoutes = dynamicRoutes.slice(0, 5);
       // Merge and deduplicate
-      prerenderRoutes = [...new Set([...prerenderRoutes, ...dynamicRoutes])];
+      prerenderRoutes = [...new Set([...prerenderRoutes, ...limitedDynamicRoutes])];
     }
   }
 } catch (err) {
@@ -46,39 +49,37 @@ try {
 }
 
 export default defineConfig(async () => {
-  let executablePath;
-  let args = [];
-  let headless = true;
+  const isVercel = process.env.VERCEL === '1' || process.env.VERCEL === 'true';
 
-  if (process.env.VERCEL || process.env.CI) {
-    const chromium = (await import('@sparticuz/chromium')).default;
-    executablePath = await chromium.executablePath();
-    args = chromium.args;
-    headless = chromium.headless;
-  }
+  const plugins = [react()];
 
-  return {
-    plugins: [
-      react(),
+  if (!isVercel) {
+    plugins.push(
       prerender({
         staticDir: path.join(__dirname, 'dist'),
         renderer: new PuppeteerRenderer({
-          renderAfterTime: 5000,
-          maxConcurrentRoutes: 4,
-          launchOptions: {
-            executablePath,
-            args,
-            headless
-          }
+          renderAfterTime: 500,
+          maxConcurrentRoutes: 10,
+          timeout: 25000
         }),
         routes: prerenderRoutes,
       })
-    ],
+    );
+  }
+
+  return {
+    plugins,
     server: {
       allowedHosts: true,
       proxy: {
-        '/api': 'http://localhost:8000',
-        '/media': 'http://localhost:8000'
+        '/api': {
+          target: 'https://nowicstdio.tech',
+          changeOrigin: true
+        },
+        '/media': {
+          target: 'https://nowicstdio.tech',
+          changeOrigin: true
+        }
       }
     },
     build: {
