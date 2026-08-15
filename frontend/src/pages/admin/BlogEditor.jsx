@@ -4,62 +4,7 @@ import { Save, ChevronLeft, Eye, Edit3, Image, Upload, Trash2, CheckCircle2, Ale
 import { api } from '../../lib/api';
 import { useAuth } from '../../hooks/useAuth';
 
-// Simple Markdown parser
-function parseMarkdown(md = '') {
-    let html = md
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;");
-        
-    // Headers
-    html = html.replace(/^### (.*$)/gim, '<h3 class="text-base font-bold text-white mt-4 mb-2">$1</h3>');
-    html = html.replace(/^## (.*$)/gim, '<h2 class="text-lg font-bold text-white mt-6 mb-3">$1</h2>');
-    html = html.replace(/^# (.*$)/gim, '<h1 class="text-2xl font-black text-white mt-8 mb-4">$1</h1>');
-    
-    // Bold & Italic
-    html = html.replace(/\*\*(.*?)\*\*/gm, '<strong>$1</strong>');
-    html = html.replace(/\*(.*?)\*/gm, '<em>$1</em>');
-    
-    // Links
-    html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/gim, '<a href="$2" class="text-[#34d99a] hover:underline" target="_blank" rel="noopener noreferrer">$1</a>');
-    
-    // Code Blocks
-    html = html.replace(/```([\s\S]*?)```/gm, '<pre class="bg-black/40 border border-white/5 rounded-xl p-4 my-4 font-mono text-xs text-mint overflow-x-auto">$1</pre>');
-    html = html.replace(/`([^`]+)`/gim, '<code class="bg-white/5 px-1.5 py-0.5 rounded font-mono text-xs text-mint">$1</code>');
-    
-    // Blockquotes
-    html = html.replace(/^\> (.*$)/gim, '<blockquote class="border-l-2 border-[#34d99a] bg-white/[0.02] pl-4 py-1 my-4 italic text-[#b0b3c0]">$1</blockquote>');
-    
-    // List Items
-    html = html.replace(/^\- (.*$)/gim, '<li class="list-disc ml-6 my-1 text-sub">$1</li>');
-    
-    // Newlines to breaks
-    const lines = html.split('\n');
-    let output = [];
-    let inList = false;
-
-    for (let line of lines) {
-        if (line.trim().startsWith('<li')) {
-            if (!inList) {
-                output.push('<ul class="space-y-1 my-4">');
-                inList = true;
-            }
-            output.push(line);
-        } else {
-            if (inList) {
-                output.push('</ul>');
-                inList = false;
-            }
-            if (line.trim() && !line.trim().startsWith('<h') && !line.trim().startsWith('<blockquote') && !line.trim().startsWith('<pre')) {
-                output.push(`<p class="leading-relaxed text-sub mb-4">${line}</p>`);
-            } else {
-                output.push(line);
-            }
-        }
-    }
-    if (inList) output.push('</ul>');
-    return output.join('\n');
-}
+import MarkdownRenderer from '../../components/common/MarkdownRenderer';
 
 export default function BlogEditor() {
     const { id } = useParams();
@@ -462,10 +407,9 @@ export default function BlogEditor() {
                                 <span>Previewing draft</span>
                             </div>
                         </div>
-                        <div 
-                            className="blog-preview-content prose prose-invert max-w-none text-sub"
-                            dangerouslySetInnerHTML={{ __html: parseMarkdown(content || '*No content written yet.*') }}
-                        />
+                        <div className="prose prose-invert max-w-none text-[#b0b3c0]">
+                            <MarkdownRenderer content={content || '*No content written yet.*'} />
+                        </div>
                     </div>
                 </div>
             )}

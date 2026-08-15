@@ -88,23 +88,29 @@ def unread_count(request: HttpRequest):
 
 
 @router.get('/stream/')
-def notifications_stream(request: HttpRequest):
+def notifications_stream(request: HttpRequest, last_id: int = 0):
     clerk_user_id = request.auth
 
-    def event_stream():
-        last_id = 0
-        while True:
+    def event_stream(start_id):
+        last_event_id = request.headers.get('Last-Event-ID')
+        if last_event_id and last_event_id.isdigit():
+            start_id = int(last_event_id)
+        current_last_id = start_id
+        iterations = 0
+        # 6 iterations * 10 seconds = 60 seconds timeout
+        while iterations < 6:
             latest = Notification.objects.filter(recipient_clerk_id=clerk_user_id).only('id').first()
             latest_id = latest.id if latest else 0
-            if latest_id and latest_id > last_id:
+            if latest_id and latest_id > current_last_id:
                 unread = Notification.objects.filter(recipient_clerk_id=clerk_user_id, is_read=False).count()
                 payload = {'unread_count': unread, 'latest_id': latest_id}
-                yield f"event: notification\ndata: {json.dumps(payload)}\n\n"
-                last_id = latest_id
+                yield f"id: {latest_id}\nevent: notification\ndata: {json.dumps(payload)}\n\n"
+                current_last_id = latest_id
             else:
                 yield 'event: ping\ndata: {}\n\n'
             time.sleep(10)
+            iterations += 1
 
-    response = StreamingHttpResponse(event_stream(), content_type='text/event-stream')
+    response = StreamingHttpResponse(event_stream(last_id), content_type='text/event-stream')
     response['Cache-Control'] = 'no-cache'
     return response

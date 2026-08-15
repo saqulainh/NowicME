@@ -18,7 +18,7 @@ class Command(BaseCommand):
             profile = UserProfile.objects.create(
                 clerk_user_id=f'pending_admin_{email}',
                 email=email,
-                full_name=email.split('@')[0].capitalize(),
+                full_name=email.split('@')[0].replace('.', ' ').replace('_', ' ').title(),
                 role='admin'
             )
             self.stdout.write(self.style.SUCCESS(f'Created pending admin profile for {email}.'))

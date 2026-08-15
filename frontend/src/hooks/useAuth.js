@@ -1,4 +1,7 @@
+import { useCallback } from 'react';
 import { useAuth as useClerkAuth, useUser } from '@clerk/clerk-react';
+
+const fallbackGetApiToken = async () => 'dev_token';
 
 export function useAuth() {
   const publishableKey = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
@@ -11,7 +14,7 @@ export function useAuth() {
       isSignedIn: true,   // treat as signed-in for dev flow
       isLoaded: true,
       user: { fullName: 'Dev Admin', primaryEmailAddress: { emailAddress: 'dev@local' } },
-      getApiToken: async () => 'dev_token',
+      getApiToken: fallbackGetApiToken,
       userEmail: 'dev@local',
       userName: 'Dev Admin',
       isClerkConfigured: false,
@@ -21,10 +24,10 @@ export function useAuth() {
   const { getToken, isSignedIn, isLoaded } = useClerkAuth();
   const { user } = useUser();
 
-  async function getApiToken() {
+  const getApiToken = useCallback(async () => {
     if (!isSignedIn) return null;
     return await getToken();
-  }
+  }, [isSignedIn, getToken]);
 
   return {
     isSignedIn,

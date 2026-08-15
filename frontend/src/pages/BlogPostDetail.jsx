@@ -5,63 +5,6 @@ import { api, resolveImageUrl } from '../lib/api';
 import SEO from '../components/SEO';
 import Breadcrumbs from '../components/common/Breadcrumbs';
 
-// Simple Markdown parser
-function parseMarkdown(md = '') {
-    let html = md
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;");
-        
-    // Headers
-    html = html.replace(/^### (.*$)/gim, '<h3 class="text-lg font-bold text-white mt-6 mb-3">$1</h3>');
-    html = html.replace(/^## (.*$)/gim, '<h2 class="text-xl font-bold text-white mt-8 mb-4">$1</h2>');
-    html = html.replace(/^# (.*$)/gim, '<h1 class="text-3xl font-black text-white mt-10 mb-6">$1</h1>');
-    
-    // Bold & Italic
-    html = html.replace(/\*\*(.*?)\*\*/gm, '<strong>$1</strong>');
-    html = html.replace(/\*(.*?)\*/gm, '<em>$1</em>');
-    
-    // Links
-    html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/gim, '<a href="$2" class="text-[#34d99a] hover:underline" target="_blank" rel="noopener noreferrer">$1</a>');
-    
-    // Code Blocks
-    html = html.replace(/```([\s\S]*?)```/gm, '<pre class="bg-black/50 border border-white/5 rounded-2xl p-5 my-6 font-mono text-xs text-mint overflow-x-auto leading-relaxed">$1</pre>');
-    html = html.replace(/`([^`]+)`/gim, '<code class="bg-white/5 px-1.5 py-0.5 rounded font-mono text-xs text-mint">$1</code>');
-    
-    // Blockquotes
-    html = html.replace(/^\> (.*$)/gim, '<blockquote class="border-l-4 border-[#34d99a] bg-white/[0.02] pl-5 py-2 my-6 italic text-[#b0b3c0]">$1</blockquote>');
-    
-    // List Items
-    html = html.replace(/^\- (.*$)/gim, '<li class="list-disc ml-6 my-2 text-[#b0b3c0]">$1</li>');
-    
-    // Newlines to breaks
-    const lines = html.split('\n');
-    let output = [];
-    let inList = false;
-
-    for (let line of lines) {
-        if (line.trim().startsWith('<li')) {
-            if (!inList) {
-                output.push('<ul class="space-y-2 my-6">');
-                inList = true;
-            }
-            output.push(line);
-        } else {
-            if (inList) {
-                output.push('</ul>');
-                inList = false;
-            }
-            if (line.trim() && !line.trim().startsWith('<h') && !line.trim().startsWith('<blockquote') && !line.trim().startsWith('<pre')) {
-                output.push(`<p class="leading-relaxed text-[#b0b3c0] mb-5">${line}</p>`);
-            } else {
-                output.push(line);
-            }
-        }
-    }
-    if (inList) output.push('</ul>');
-    return output.join('\n');
-}
-
 export default function BlogPostDetail() {
     const { slug } = useParams();
     const [post, setPost] = useState(null);
@@ -236,11 +179,10 @@ export default function BlogPostDetail() {
                     </div>
                 </div>
 
-                {/* Article Body */}
-                <div 
-                    className="blog-post-body prose prose-invert max-w-none text-sub mb-16"
-                    dangerouslySetInnerHTML={{ __html: parseMarkdown(post.content) }}
-                />
+                {/* Content */}
+                <div className="prose prose-invert max-w-none text-[#b0b3c0]">
+                    <MarkdownRenderer content={post.content} />
+                </div>
 
                 {/* Bottom CTA / Author footer */}
                 <div className="border-t border-white/10 pt-10 flex flex-col sm:flex-row items-center justify-between gap-6">

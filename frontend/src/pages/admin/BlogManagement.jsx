@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
     Search, Plus, Edit, Trash2, Eye, Calendar, BookOpen,
@@ -92,22 +92,38 @@ export default function BlogManagement() {
         }
     }, [getApiToken, debouncedSearch, statusFilter]);
 
-    // On mount + when filters change: reset to page 1 and refetch
-    useEffect(() => {
-        if (page !== 1) {
-            // setPage triggers the page effect below
-            setPage(1);
-        } else {
-            // already page 1, just fetch directly
-            fetchPosts(1);
-        }
-        fetchStats();
-    }, [debouncedSearch, statusFilter]);
+    const isFirstRender = useRef(true);
+    const skipFetch = useRef(false);
+    const prevSearch = useRef(debouncedSearch);
+    const prevStatus = useRef(statusFilter);
 
-    // When page changes (from pagination buttons or filter reset)
+    // SINGLE source of truth for fetching
     useEffect(() => {
-        fetchPosts(page);
-    }, [page]);
+        if (skipFetch.current) {
+            skipFetch.current = false;
+            return;
+        }
+
+        const filtersChanged = prevSearch.current !== debouncedSearch || prevStatus.current !== statusFilter;
+        let targetPage = page;
+
+        if (filtersChanged || isFirstRender.current) {
+            if (filtersChanged) {
+                targetPage = 1;
+                prevSearch.current = debouncedSearch;
+                prevStatus.current = statusFilter;
+                
+                if (page !== 1) {
+                    skipFetch.current = true;
+                    setPage(1);
+                }
+            }
+            fetchStats();
+            isFirstRender.current = false;
+        }
+
+        fetchPosts(targetPage);
+    }, [page, debouncedSearch, statusFilter, fetchPosts]);
 
     const togglePublishStatus = async (post) => {
         setTogglingId(post.id);

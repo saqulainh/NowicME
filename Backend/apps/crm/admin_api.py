@@ -11,6 +11,7 @@ from django.db.models import F, Q, Sum
 from django.http import HttpRequest
 from django.utils import timezone
 import uuid
+from django.core.exceptions import ValidationError
 
 from django.core.files.storage import default_storage
 from ninja import File, Query, Router, Schema
@@ -161,10 +162,10 @@ def upload_media(request: HttpRequest, file: UploadedFile = File(...), folder: s
     _admin(request)
 
     if file.content_type not in ALLOWED_IMAGE_TYPES:
-        return {'success': False, 'error': 'Only image files (JPEG, PNG, WebP, GIF, SVG) are allowed.'}
+        raise ValidationError('Only image files (JPEG, PNG, WebP, GIF, SVG) are allowed.')
 
     if file.size > MAX_IMAGE_SIZE:
-        return {'success': False, 'error': 'File size must be under 5 MB.'}
+        raise ValidationError('File size must be under 5 MB.')
 
     ext = file.name.rsplit('.', 1)[-1].lower() if '.' in file.name else 'jpg'
     safe_folder = folder.strip('/').replace('..', '').replace('\\', '') or 'services'
