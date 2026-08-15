@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useContent } from '../context/ContentContext';
 import LoadingSpinner from '../components/LoadingSpinner';
@@ -6,9 +7,19 @@ import SectionHeading from '../components/common/SectionHeading';
 import ScrollReveal from '../components/reveal/ScrollReveal';
 import Breadcrumbs from '../components/common/Breadcrumbs';
 import NotFound from './NotFound';
-import { CheckCircle2, ArrowRight, HelpCircle } from 'lucide-react';
+import { CheckCircle2, ArrowRight, HelpCircle, BookOpen, Calendar } from 'lucide-react';
 import RelatedServices from '../components/common/RelatedServices';
 import { resolveIcon } from '../lib/icons';
+import { api, resolveImageUrl } from '../lib/api';
+
+/* 
+   Manual mapping of Service Slugs -> Array of relevant Blog Post Slugs.
+   Based on live production database slugs.
+*/
+const SERVICE_BLOG_MAPPING = {
+  'mvp-development': ['mvp-development-cost-india-2025'],
+  'ai-web-apps': ['ai-assisted-development-code-review'],
+};
 
 function toSlug(value) {
   return String(value || '')
@@ -27,6 +38,22 @@ function formatCurrency(value) {
 export default function ServiceDetail() {
   const { slug } = useParams();
   const { content, loading } = useContent();
+  const [relatedBlogs, setRelatedBlogs] = useState([]);
+
+  // Fetch matching blog posts for this specific service
+  useEffect(() => {
+    const mappedBlogSlugs = SERVICE_BLOG_MAPPING[slug] || [];
+    if (mappedBlogSlugs.length > 0) {
+      api.public_getBlogs().then(res => {
+        if (res.success) {
+          const matched = (res.data || []).filter(post => mappedBlogSlugs.includes(post.slug));
+          setRelatedBlogs(matched);
+        }
+      }).catch(() => {});
+    } else {
+      setRelatedBlogs([]);
+    }
+  }, [slug]);
 
   if (loading) {
     return (
@@ -203,6 +230,53 @@ export default function ServiceDetail() {
           </div>
         </div>
       </section>
+
+      {/* Related Resources (Blog) */}
+      {relatedBlogs.length > 0 && (
+        <section className="py-24 relative overflow-hidden bg-[#050806]">
+          <div className="container-shell">
+            <SectionHeading
+              eyebrow="Resources"
+              title="Related |Insights"
+              description="Deep dives and guides related to this service."
+            />
+            <div className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-3 max-w-5xl mx-auto">
+              {relatedBlogs.map((post, i) => (
+                <ScrollReveal key={post.slug} delay={i * 0.07}>
+                  <Link
+                    to={`/blog/${post.slug}`}
+                    className="group flex flex-col h-full rounded-2xl bg-white/[0.02] border border-white/5 hover:border-mint/20 hover:bg-white/[0.04] overflow-hidden transition-all"
+                  >
+                    {/* Cover image */}
+                    <div className="h-40 w-full overflow-hidden bg-surface/30 border-b border-white/5">
+                      {post.cover_image_url ? (
+                        <img src={resolveImageUrl(post.cover_image_url)} alt={post.title} loading="lazy" className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                      ) : (
+                        <div className="h-full w-full flex items-center justify-center text-[#3a3e50]">
+                          <BookOpen size={32} />
+                        </div>
+                      )}
+                    </div>
+                    {/* Content */}
+                    <div className="p-5 flex flex-col flex-1 gap-3">
+                      <div className="flex items-center gap-1.5 text-[10px] text-muted">
+                        <Calendar size={10} />
+                        {new Date(post.created_at).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' })}
+                      </div>
+                      <h3 className="font-display text-base font-bold text-text group-hover:text-mint transition-colors line-clamp-2">
+                        {post.title}
+                      </h3>
+                      <div className="mt-auto pt-2 flex items-center gap-1.5 text-[11px] font-black uppercase tracking-wider text-mint hover:text-white transition-colors">
+                        Read Article <ArrowRight size={12} />
+                      </div>
+                    </div>
+                  </Link>
+                </ScrollReveal>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* FAQs */}
       <section className="py-24 border-t border-white/5 bg-[#0a0b0f] relative overflow-hidden">

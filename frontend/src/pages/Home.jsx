@@ -14,6 +14,8 @@ import {
   Bot,
   Sparkles,
   Layers,
+  BookOpen,
+  Calendar,
 } from 'lucide-react';
 import SEO from '../components/SEO';
 import SectionHeading from '../components/common/SectionHeading';
@@ -32,7 +34,7 @@ import CTASection from '../components/common/CTASection';
 import LoadingSpinner from '../components/LoadingSpinner';
 import ErrorMessage from '../components/ErrorMessage';
 import { useContent } from '../context/ContentContext';
-import { BASE_URL } from '../lib/api';
+import { BASE_URL, api } from '../lib/api';
 import { brand, services as fallbackServices } from '../data/content';
 
 /* ── Mobile detection (avoids heavy decorative render on phones) ── */
@@ -135,6 +137,16 @@ export default function Home() {
   const servicesError = null;
   const portfolioLoading = loading;
   const portfolioError = null;
+
+  const [blogPosts, setBlogPosts] = useState([]);
+  const [blogLoading, setBlogLoading] = useState(true);
+
+  useEffect(() => {
+    api.public_getBlogs()
+      .then(res => { if (res.success) setBlogPosts((res.data || []).slice(0, 3)); })
+      .catch(() => {})
+      .finally(() => setBlogLoading(false));
+  }, []);
 
   const apiHighlights = Array.isArray(content?.highlights) ? content.highlights : [];
   const liveStats = content?.liveStats || {};
@@ -686,6 +698,81 @@ export default function Home() {
       </section>
 
 
+
+      {/* ═══ FROM THE BLOG ═══ */}
+      {(blogLoading || blogPosts.length > 0) && (
+      <section className="py-24 relative overflow-hidden">
+        <div className="engineering-grid" />
+        <div className="pointer-events-none absolute top-0 left-1/4 h-72 w-72 rounded-full bg-mint/[0.07] blur-[100px] z-0" />
+
+        <div className="container-shell relative z-10">
+          <SectionHeading
+            eyebrow="Blog"
+            title="From the |Blog"
+            description="Practical insights on MVP development, SaaS architecture, and building with AI."
+          />
+
+          {blogLoading ? (
+            <div className="mt-12 flex justify-center py-8">
+              <LoadingSpinner text="Loading articles..." />
+            </div>
+          ) : (
+            <div className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+              {blogPosts.map((post, i) => (
+                <ScrollReveal key={post.slug} delay={i * 0.07}>
+                  <InteractiveCard className="group h-full flex flex-col p-0 overflow-hidden">
+                    {/* Cover image */}
+                    <Link to={`/blog/${post.slug}`} className="block h-40 w-full shrink-0 overflow-hidden bg-surface/30 border-b border-white/5">
+                      {post.cover_image_url ? (
+                        <img
+                          src={resolveImageUrl(post.cover_image_url)}
+                          alt={post.title}
+                          loading="lazy"
+                          decoding="async"
+                          className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                        />
+                      ) : (
+                        <div className="h-full w-full flex items-center justify-center text-[#3a3e50]">
+                          <BookOpen size={32} />
+                        </div>
+                      )}
+                    </Link>
+
+                    {/* Content */}
+                    <div className="flex flex-col flex-1 p-5 gap-3">
+                      <div className="flex items-center gap-1.5 text-[10px] text-muted">
+                        <Calendar size={10} />
+                        {new Date(post.created_at).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' })}
+                      </div>
+                      <h3 className="font-display text-base font-bold text-text group-hover:text-mint transition-colors line-clamp-2">
+                        <Link to={`/blog/${post.slug}`}>{post.title}</Link>
+                      </h3>
+                      {post.excerpt && (
+                        <p className="text-sm text-sub leading-relaxed line-clamp-2">{post.excerpt}</p>
+                      )}
+                      <div className="mt-auto pt-3">
+                        <Link
+                          to={`/blog/${post.slug}`}
+                          className="inline-flex items-center gap-1.5 text-[11px] font-black uppercase tracking-wider text-mint hover:text-white transition-colors"
+                        >
+                          Read Article <ArrowRight size={12} />
+                        </Link>
+                      </div>
+                    </div>
+                  </InteractiveCard>
+                </ScrollReveal>
+              ))}
+            </div>
+          )}
+
+          <ScrollReveal className="mt-8 text-center" delay={0.15}>
+            <Link to="/blog" className="outline-btn">
+              View All Articles <ArrowRight size={14} className="ml-2" />
+            </Link>
+          </ScrollReveal>
+        </div>
+      </section>
+      )}
 
       {/* ═══ BRAND STATEMENT ═══ */}
       <section className="container-shell py-10">

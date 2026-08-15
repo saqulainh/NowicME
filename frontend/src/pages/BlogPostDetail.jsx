@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { Calendar, Eye, Clock, ChevronLeft, BookOpen, Share2, Check, ArrowRight, AlertCircle } from 'lucide-react';
-import { api } from '../lib/api';
+import { api, resolveImageUrl } from '../lib/api';
 import SEO from '../components/SEO';
 import Breadcrumbs from '../components/common/Breadcrumbs';
 
@@ -68,6 +68,7 @@ export default function BlogPostDetail() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
     const [copied, setCopied] = useState(false);
+    const [relatedPosts, setRelatedPosts] = useState([]);
 
     useEffect(() => {
         const fetchPost = async () => {
@@ -85,6 +86,19 @@ export default function BlogPostDetail() {
             }
         };
         fetchPost();
+    }, [slug]);
+
+    useEffect(() => {
+        api.public_getBlogs()
+            .then(res => {
+                if (res.success) {
+                    const others = (res.data || [])
+                        .filter(p => p.slug !== slug)
+                        .slice(0, 2);
+                    setRelatedPosts(others);
+                }
+            })
+            .catch(() => {});
     }, [slug]);
 
     const handleShare = () => {
@@ -190,7 +204,7 @@ export default function BlogPostDetail() {
                 {post.cover_image_url && (
                     <div className="w-full rounded-3xl overflow-hidden border border-white/10 bg-[#16171e] mb-10 aspect-[2/1]">
                         <img 
-                            src={post.cover_image_url} 
+                            src={resolveImageUrl(post.cover_image_url)} 
                             alt={post.title} 
                             loading="lazy"
                             className="h-full w-full object-cover" 
@@ -245,6 +259,46 @@ export default function BlogPostDetail() {
                 </div>
 
             </article>
+            
+            {/* ── Related Articles ── */}
+            {relatedPosts.length > 0 && (
+                <section className="container-shell max-w-3xl pb-24 z-10 relative">
+                    <div className="border-t border-white/10 pt-12">
+                        <h2 className="font-display text-xl font-bold text-text mb-6">
+                            Related Articles
+                        </h2>
+                        <div className="grid gap-4 sm:grid-cols-2">
+                            {relatedPosts.map(post => (
+                                <Link
+                                    key={post.slug}
+                                    to={`/blog/${post.slug}`}
+                                    className="group flex gap-4 p-4 rounded-2xl bg-white/[0.02] border border-white/5 hover:border-mint/20 hover:bg-white/[0.04] transition-all"
+                                >
+                                    {/* Thumbnail */}
+                                    <div className="h-16 w-16 shrink-0 rounded-xl overflow-hidden bg-white/5 border border-white/5">
+                                        {post.cover_image_url ? (
+                                            <img src={resolveImageUrl(post.cover_image_url)} alt={post.title} loading="lazy" className="h-full w-full object-cover" />
+                                        ) : (
+                                            <div className="h-full w-full flex items-center justify-center text-[#3a3e50]">
+                                                <BookOpen size={20} />
+                                            </div>
+                                        )}
+                                    </div>
+                                    {/* Text */}
+                                    <div className="flex flex-col justify-center gap-1 min-w-0">
+                                        <p className="text-sm font-bold text-text group-hover:text-mint transition-colors line-clamp-2 leading-snug">
+                                            {post.title}
+                                        </p>
+                                        <span className="inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider text-mint">
+                                            Read <ArrowRight size={10} />
+                                        </span>
+                                    </div>
+                                </Link>
+                            ))}
+                        </div>
+                    </div>
+                </section>
+            )}
         </div>
     );
 }
