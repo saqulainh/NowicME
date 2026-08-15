@@ -14,7 +14,7 @@ from django.db.models import F
 from django.core.exceptions import ValidationError as DjangoValidationError
 from django.http import HttpRequest
 from ninja import Router, Query
-from shared.auth import clerk_auth
+from shared.auth import clerk_auth, get_admin_user
 from shared.schemas import standard_responses
 
 from apps.public.models import ServiceOffering, PortfolioProject, ContactSubmission, SiteContent, BlogPost
@@ -333,6 +333,7 @@ def submit_review(request: HttpRequest, payload: ReviewIn):
 
 @router.get('/convert-paths/', auth=clerk_auth)
 def convert_paths_endpoint(request):
+    get_admin_user(request)
     from django.core.files.storage import default_storage
     from apps.public.models import SiteContent
     
