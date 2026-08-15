@@ -9,7 +9,7 @@ class AuditLog(models.Model):
     resource_id = models.CharField(max_length=100)
     old_value = models.JSONField(null=True)
     new_value = models.JSONField(null=True)
-    ip_address = models.GenericIPAddressField(null=True)
+    ip_address = models.GenericIPAddressField(null=True, blank=True, default=None)
     user_agent = models.CharField(max_length=500, blank=True)
     timestamp = models.DateTimeField(auto_now_add=True)
 

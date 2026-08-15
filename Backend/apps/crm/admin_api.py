@@ -5,7 +5,7 @@ Admin dashboard and management endpoints.
 """
 from datetime import timedelta
 from decimal import Decimal
-from typing import List, Optional, Dict, Any
+from typing import Optional
 
 from django.db.models import F, Q, Sum
 from django.http import HttpRequest
@@ -27,7 +27,7 @@ from apps.client.schemas import InvoiceCreateIn, InvoiceUpdateIn, ProjectFileIn,
 from apps.crm.models import Lead, Project
 from apps.notifications.utils import create_notification
 from apps.public.models import ContactSubmission, PortfolioProject, ServiceOffering, SiteContent, BlogPost
-from apps.public.schemas import SiteContentOut, BlogPostOut, BlogPostIn, BlogPostUpdateIn
+from apps.public.schemas import SiteContentOut, BlogPostOut, BlogPostIn
 from apps.users.models import UserProfile
 from apps.audit.utils import log_action
 from shared.audit import AuditAction

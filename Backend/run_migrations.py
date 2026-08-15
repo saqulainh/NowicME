@@ -11,7 +11,8 @@ if not database_url:
     sys.exit(1)
 
 os.environ['DATABASE_URL'] = database_url
-os.environ['SECRET_KEY'] = 'temp-secret-key-for-migrate'
+from django.core.management.utils import get_random_secret_key
+os.environ['SECRET_KEY'] = get_random_secret_key()
 os.environ['CLERK_JWKS_URL'] = 'https://clerk.nowicstudio.in'
 os.environ['CLERK_WEBHOOK_SECRET'] = 'temp'
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'core.settings.base')

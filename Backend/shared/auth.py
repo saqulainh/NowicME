@@ -151,7 +151,8 @@ def get_admin_user(request):
         admin_emails = getattr(settings, 'ADMIN_EMAILS', {'haiderssaqulain@gmail.com', 'amarkrydav@gmail.com', 'nowicstdo@gmail.com'})
         if profile.email and profile.email.lower() in admin_emails:
             profile.role = "admin"
-            profile.save(update_fields=["role"])
+            # Removed profile.save(update_fields=["role"]) to avoid unnecessary DB writes on every read request
+            # if the webhook hasn't fired yet. The webhook will eventually sync this, and the in-memory check is fast enough.
         else:
             raise PermissionDenied("Admin access required")
     return profile
@@ -177,5 +178,5 @@ def get_current_user(request):
     )
     if profile.email and profile.email.lower() in admin_emails and profile.role != "admin":
         profile.role = "admin"
-        profile.save(update_fields=["role"])
+        # Removed profile.save(update_fields=["role"]) to avoid unnecessary DB writes on read paths.
     return profile

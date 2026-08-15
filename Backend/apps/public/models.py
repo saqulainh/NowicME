@@ -140,7 +140,7 @@ class ContactSubmission(models.Model):
     priority = models.CharField(max_length=20, choices=PRIORITY_CHOICES, default='medium')
     replied_at = models.DateTimeField(null=True, blank=True)
     reply_note = models.TextField(blank=True)
-    ip_address = models.GenericIPAddressField(null=True, blank=True)
+    ip_address = models.GenericIPAddressField(null=True, blank=True, default=None)
     submitted_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:

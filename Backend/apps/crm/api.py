@@ -70,13 +70,13 @@ def list_leads(
     if search:
         qs = search_leads(search, qs)
 
-    return paginate(qs, page=page, page_size=page_size, serializer=lambda lead: LeadOut.from_orm(lead).dict())
+    return paginate(qs, page=page, page_size=page_size, serializer=lambda lead: LeadOut.from_orm(lead).model_dump())
 
 
 @router.post('/leads/')
 def create_lead(request: HttpRequest, payload: LeadIn) -> dict:
     admin = _admin(request)
-    data = payload.dict()
+    data = payload.model_dump()
     data['company_name'] = sanitize_string(data.get('company_name', ''))
     data['founder_name'] = sanitize_string(data.get('founder_name', ''))
     data['email'] = sanitize_email(data.get('email', ''))
@@ -103,7 +103,7 @@ def create_lead(request: HttpRequest, payload: LeadIn) -> dict:
         user_agent=request.META.get('HTTP_USER_AGENT', ''),
     )
 
-    return {'success': True, 'data': LeadOut.from_orm(lead).dict()}
+    return {'success': True, 'data': LeadOut.from_orm(lead).model_dump()}
 
 
 @router.get('/leads/{lead_id}/')
@@ -115,7 +115,7 @@ def get_lead(request: HttpRequest, lead_id: int) -> dict:
         ).get(id=lead_id, is_active=True)
     except Lead.DoesNotExist:
         raise NotFound(f'Lead #{lead_id} not found')
-    return {'success': True, 'data': LeadOut.from_orm(lead).dict()}
+    return {'success': True, 'data': LeadOut.from_orm(lead).model_dump()}
 
 
 @router.patch('/leads/{lead_id}/')
@@ -131,7 +131,7 @@ def update_lead(request: HttpRequest, lead_id: int, payload: LeadUpdate) -> dict
     old_data = LeadOut.from_orm(lead).model_dump(mode='json')
     previous_status = lead.status
 
-    update_data = payload.dict(exclude_none=True)
+    update_data = payload.model_dump(exclude_none=True)
     if 'company_name' in update_data:
         update_data['company_name'] = sanitize_string(update_data['company_name'])
     if 'founder_name' in update_data:
@@ -178,7 +178,7 @@ def update_lead(request: HttpRequest, lead_id: int, payload: LeadUpdate) -> dict
         user_agent=request.META.get('HTTP_USER_AGENT', ''),
     )
 
-    return {'success': True, 'data': LeadOut.from_orm(lead).dict()}
+    return {'success': True, 'data': LeadOut.from_orm(lead).model_dump()}
 
 
 @router.delete('/leads/{lead_id}/')
@@ -244,7 +244,7 @@ def stale_leads(request: HttpRequest):
 
     data = [
         {
-            **LeadOut.from_orm(lead).dict(),
+            **LeadOut.from_orm(lead).model_dump(),
             'days_since_update': max(0, (timezone.now() - lead.updated_at).days),
         }
         for lead in leads
@@ -263,7 +263,7 @@ def list_projects(
     projects = Project.objects.only('id', 'name', 'deadline', 'cost', 'progress', 'status', 'created_at')
     if status:
         projects = projects.filter(status=status)
-    return paginate(projects, page=page, page_size=page_size, serializer=lambda p: ProjectOut.from_orm(p).dict())
+    return paginate(projects, page=page, page_size=page_size, serializer=lambda p: ProjectOut.from_orm(p).model_dump())
 
 
 @router.post('/projects/')
@@ -298,7 +298,7 @@ def create_project(request: HttpRequest, payload: ProjectIn) -> dict:
         user_agent=request.META.get('HTTP_USER_AGENT', ''),
     )
 
-    return {'success': True, 'data': ProjectOut.from_orm(project).dict()}
+    return {'success': True, 'data': ProjectOut.from_orm(project).model_dump()}
 
 
 @router.patch('/projects/{project_id}/')
@@ -329,7 +329,7 @@ def update_project(request: HttpRequest, project_id: int, payload: ProjectStatus
         user_agent=request.META.get('HTTP_USER_AGENT', ''),
     )
 
-    return {'success': True, 'data': ProjectOut.from_orm(project).dict()}
+    return {'success': True, 'data': ProjectOut.from_orm(project).model_dump()}
 
 
 @router.get('/submissions/')
@@ -382,7 +382,7 @@ def list_submissions(
                 if submission.service_interest
                 else None
             ),
-        ).dict(),
+        ).model_dump(),
     )
 
 
@@ -460,7 +460,7 @@ def update_submission(request: HttpRequest, submission_id: int, payload: Submiss
                 if submission.service_interest
                 else None
             ),
-        ).dict(),
+        ).model_dump(),
     }
 
 
@@ -501,7 +501,7 @@ def get_submission(request: HttpRequest, submission_id: int) -> dict:
                 if submission.service_interest
                 else None
             ),
-        ).dict(),
+        ).model_dump(),
     }
 
 
