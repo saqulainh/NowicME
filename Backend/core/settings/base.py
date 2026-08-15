@@ -17,7 +17,7 @@ if raw_allowed_hosts:
 elif DEBUG:
     ALLOWED_HOSTS = ['localhost', '127.0.0.1']
 else:
-    ALLOWED_HOSTS = []
+    ALLOWED_HOSTS = ['nowicstdio.tech', '.nowicstdio.tech', '.onrender.com']
 
 DJANGO_APPS = [
     'django.contrib.admin',
@@ -159,7 +159,7 @@ STORAGES = {
 }
 
 LANGUAGE_CODE = 'en-us'
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Asia/Kolkata'
 USE_I18N = True
 USE_TZ = True
 
@@ -234,7 +234,7 @@ CELERY_BROKER_URL = os.getenv('REDIS_URL') or 'redis://localhost:6379/0'
 CELERY_RESULT_BACKEND = os.getenv('REDIS_URL') or 'redis://localhost:6379/0'
 CELERY_ACCEPT_CONTENT = ['json']
 CELERY_TASK_SERIALIZER = 'json'
-CELERY_TIMEZONE = 'UTC'
+CELERY_TIMEZONE = 'Asia/Kolkata'
 
 CELERY_BEAT_SCHEDULE = {
     'send-followup-reminders-daily': {

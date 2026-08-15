@@ -74,11 +74,12 @@ def get_available_slots(
     available = [slot for slot in ALL_SLOTS if slot not in booked_strs]
 
     # Past-date fix
-    today = timezone.now().date()
+    local_now = timezone.localtime(timezone.now())
+    today = local_now.date()
     if date < today:
         available = []
     elif date == today:
-        current_time = timezone.now().time()
+        current_time = local_now.time()
         available = [s for s in available if datetime.strptime(s, "%H:%M").time() > current_time]
 
     return {
@@ -118,12 +119,13 @@ def book_appointment(request: HttpRequest, payload: AppointmentIn) -> dict:
         raise NotFound(f"Booking service #{payload.service_id} not found")
 
     # 2. Add past-date validation
-    today = timezone.now().date()
+    local_now = timezone.localtime(timezone.now())
+    today = local_now.date()
     if payload.date < today:
         raise ConflictError("Cannot book a slot in the past")
         
     if payload.date == today:
-        current_time = timezone.now().time()
+        current_time = local_now.time()
         slot_time_str = payload.time_slot.strftime("%H:%M")
         slot_time = datetime.strptime(slot_time_str, "%H:%M").time()
         if slot_time <= current_time:

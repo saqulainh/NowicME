@@ -486,11 +486,18 @@ def list_invoices(
     if overdue:
         qs = qs.filter(status='overdue')
 
+    invoices = list(qs)
+    project_ids = [inv.project_id for inv in invoices if inv.project_id]
+
+    assignments = ProjectClientAssignment.objects.select_related('client').only(
+        'client__email', 'client__full_name', 'project_id'
+    ).filter(project_id__in=project_ids)
+
+    assignment_map = {a.project_id: a for a in assignments}
+
     data = []
-    for invoice in qs:
-        assignment = ProjectClientAssignment.objects.select_related('client').only(
-            'client__email', 'client__full_name', 'project_id'
-        ).filter(project=invoice.project).first()
+    for invoice in invoices:
+        assignment = assignment_map.get(invoice.project_id)
 
         data.append(
             {
@@ -506,8 +513,8 @@ def list_invoices(
                 'paid_at': invoice.paid_at,
                 'project': {'id': invoice.project_id, 'name': invoice.project.name},
                 'client': {
-                    'full_name': assignment.client.full_name if assignment else '',
-                    'email': assignment.client.email if assignment else '',
+                    'full_name': assignment.client.full_name if assignment and assignment.client else '',
+                    'email': assignment.client.email if assignment and assignment.client else '',
                 },
             }
         )
