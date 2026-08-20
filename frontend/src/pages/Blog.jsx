@@ -25,6 +25,8 @@ export default function Blog() {
                 setError('Failed to load blog posts. Please check back later.');
             } finally {
                 setLoading(false);
+                // Give React a moment to render the posts before snapping
+                setTimeout(() => document.dispatchEvent(new Event('prerender-trigger')), 100);
             }
         };
         fetchPosts();

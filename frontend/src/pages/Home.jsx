@@ -148,6 +148,13 @@ export default function Home() {
       .finally(() => setBlogLoading(false));
   }, []);
 
+  // Dispatch prerender event when all data is loaded
+  useEffect(() => {
+    if (!loading && !blogLoading) {
+      setTimeout(() => document.dispatchEvent(new Event('prerender-trigger')), 150);
+    }
+  }, [loading, blogLoading]);
+
   const apiHighlights = Array.isArray(content?.highlights) ? content.highlights : [];
   const liveStats = content?.liveStats || {};
 

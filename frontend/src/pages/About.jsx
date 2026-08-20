@@ -1,4 +1,5 @@
 import { motion } from 'framer-motion';
+import { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight, CheckCircle2 } from 'lucide-react';
 import SEO from '../components/SEO';
@@ -32,13 +33,19 @@ const teamValues = [
 ];
 
 export default function About() {
-  const { content = {} } = useContent();
+  const { content = {}, loading } = useContent();
   const brand = content.brand || {};
   const milestones = content.milestones || defaultMilestones;
   const whyUsItems = content.whyUs || whyUs;
   const teamValueItems = content.teamValues || teamValues;
   const brandName = brand.name || 'Nowic Studio';
   const tagline = brand.tagline || 'Vision to Version';
+
+  useEffect(() => {
+    if (!loading) {
+      setTimeout(() => document.dispatchEvent(new Event('prerender-trigger')), 150);
+    }
+  }, [loading]);
 
   const apiStats = Array.isArray(content?.stats) ? content.stats : [];
   const liveStats = content?.liveStats || {};

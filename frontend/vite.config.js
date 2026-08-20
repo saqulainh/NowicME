@@ -53,19 +53,32 @@ export default defineConfig(async () => {
 
   const plugins = [react()];
 
-  if (!isVercel) {
-    plugins.push(
-      prerender({
-        staticDir: path.join(__dirname, 'dist'),
-        renderer: new PuppeteerRenderer({
-          renderAfterTime: 500,
-          maxConcurrentRoutes: 10,
-          timeout: 25000
-        }),
-        routes: prerenderRoutes,
-      })
-    );
-  }
+  // Allow Vercel to run prerender, but wrap it to fail gracefully if it times out or crashes.
+  const basePrerenderPlugin = prerender({
+    staticDir: path.join(__dirname, 'dist'),
+    renderer: new PuppeteerRenderer({
+      renderAfterDocumentEvent: 'prerender-trigger', // Wait for React to fetch data
+      maxConcurrentRoutes: 5, // Reduced to save memory on Vercel
+      timeout: 30000 // 30s timeout per route
+    }),
+    routes: prerenderRoutes,
+  });
+
+  const safePrerenderPlugin = {
+    ...basePrerenderPlugin,
+    async writeBundle(...args) {
+      try {
+        console.log('\n[SSG] Starting safe prerendering...');
+        await basePrerenderPlugin.writeBundle.apply(this, args);
+        console.log('[SSG] Prerendering completed successfully.\n');
+      } catch (err) {
+        console.warn('\n[SSG WARNING] Prerendering failed or timed out. Skipping SSG for this build. Vercel will fallback to CSR.', err.message, '\n');
+        // Do not throw the error, allowing the build to succeed.
+      }
+    }
+  };
+
+  plugins.push(safePrerenderPlugin);
 
   return {
     plugins,

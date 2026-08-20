@@ -26,6 +26,8 @@ export default function BlogPostDetail() {
                 setError('Failed to load article. It might have been removed.');
             } finally {
                 setLoading(false);
+                // Give React a moment to render the post before snapping
+                setTimeout(() => document.dispatchEvent(new Event('prerender-trigger')), 150);
             }
         };
         fetchPost();
