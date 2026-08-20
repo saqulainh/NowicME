@@ -112,6 +112,12 @@
     </script>
   </head>
   <body>
+    <!-- Fallback for SSG prerendering: Ensure Puppeteer doesn't time out -->
+    <script>
+      setTimeout(function() {
+        document.dispatchEvent(new Event('prerender-trigger'));
+      }, 5000);
+    </script>
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
   </body>

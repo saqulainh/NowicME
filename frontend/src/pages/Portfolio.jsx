@@ -1,3 +1,4 @@
+import { useEffect as usePrerenderEffect } from 'react';
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -31,6 +32,13 @@ export default function Portfolio() {
   const [activeCategory, setActiveCategory] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
   const { content, loading } = useContent();
+
+  usePrerenderEffect(() => {
+    if (!loading) {
+      setTimeout(() => document.dispatchEvent(new Event('prerender-trigger')), 150);
+    }
+  }, [loading]);
+
   const allProjects = content?.portfolioItems || content?.portfolio || [];
   const error = null;
 

@@ -1,3 +1,4 @@
+import { useEffect as usePrerenderEffect } from 'react';
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
@@ -13,7 +14,14 @@ const techCategories = ['All', 'Frontend', 'Backend', 'Database', 'AI/ML', 'DevO
 
 export default function Technologies() {
   const [activeCategory, setActiveCategory] = useState('All');
-  const { content } = useContent();
+  const { content, loading } = useContent();
+
+  usePrerenderEffect(() => {
+    if (!loading) {
+      setTimeout(() => document.dispatchEvent(new Event('prerender-trigger')), 150);
+    }
+  }, [loading]);
+
   const [remoteTech, setRemoteTech] = useState(null);
 
   useEffect(() => {

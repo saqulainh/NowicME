@@ -1,3 +1,4 @@
+import { useEffect as usePrerenderEffect } from 'react';
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { HelpCircle, ChevronDown, ArrowRight } from 'lucide-react';

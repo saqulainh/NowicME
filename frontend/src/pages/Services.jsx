@@ -1,3 +1,4 @@
+import { useEffect as usePrerenderEffect } from 'react';
  import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { ArrowRight, CheckCircle2 } from 'lucide-react';
@@ -122,6 +123,13 @@ function FAQItem({ item, index }) {
 
 export default function Services() {
   const { content, loading } = useContent();
+
+  usePrerenderEffect(() => {
+    if (!loading) {
+      setTimeout(() => document.dispatchEvent(new Event('prerender-trigger')), 150);
+    }
+  }, [loading]);
+
   const services = content?.services || [];
   const error = null;
   const faqs = [

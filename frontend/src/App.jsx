@@ -1,4 +1,4 @@
-import { lazy, Suspense } from 'react';
+import { lazy, Suspense, useEffect } from 'react';
 import { Routes, Route, useLocation, Navigate } from 'react-router-dom';
 import SmoothScroll from './components/common/SmoothScroll';
 import Analytics from './components/Analytics';
@@ -53,6 +53,14 @@ import { Toaster } from 'sonner';
 export default function App() {
   const location = useLocation();
   const isAdmin = location.pathname.startsWith('/admin');
+
+  useEffect(() => {
+    // Fallback: Dispatch event after 10s to prevent Puppeteer 30s timeout on static routes
+    const timer = setTimeout(() => {
+      document.dispatchEvent(new Event('prerender-trigger'));
+    }, 10000);
+    return () => clearTimeout(timer);
+  }, [location.pathname]);
 
   return (
     <>

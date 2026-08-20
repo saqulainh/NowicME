@@ -1,3 +1,4 @@
+import { useEffect as usePrerenderEffect } from 'react';
 import { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -42,6 +43,13 @@ import { trackContactSubmit, trackFormStart } from '../components/Analytics';
 
 export default function Contact() {
   const { content, loading } = useContent();
+
+  usePrerenderEffect(() => {
+    if (!loading) {
+      setTimeout(() => document.dispatchEvent(new Event('prerender-trigger')), 150);
+    }
+  }, [loading]);
+
   const services = content?.services || [];
   const servicesLoading = loading;
   const servicesError = null;
