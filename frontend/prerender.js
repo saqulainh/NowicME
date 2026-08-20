@@ -132,12 +132,18 @@ async function prerender() {
             const html = await page.content();
             
             // Save HTML
-            const routeDir = path.join(distPath, route === '/' ? '' : route);
-            if (!fs.existsSync(routeDir)) {
-              fs.mkdirSync(routeDir, { recursive: true });
+            let htmlPath;
+            if (route === '/') {
+              htmlPath = path.join(distPath, 'index.html');
+            } else {
+              // Create flat .html file for Vercel cleanUrls support
+              htmlPath = path.join(distPath, `${route}.html`);
+              const routeDir = path.dirname(htmlPath);
+              if (!fs.existsSync(routeDir)) {
+                fs.mkdirSync(routeDir, { recursive: true });
+              }
             }
             
-            const htmlPath = path.join(routeDir, 'index.html');
             fs.writeFileSync(htmlPath, html.trim());
             console.log(`[Prerender] Saved: ${route}`);
 
