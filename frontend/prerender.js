@@ -119,7 +119,7 @@ async function prerender() {
             
             // Navigate
             await page.goto(`http://localhost:${port}${route}`, { 
-              waitUntil: 'networkidle0',
+              waitUntil: 'domcontentloaded',
               timeout: 30000 
             });
 
