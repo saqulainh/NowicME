@@ -17,7 +17,8 @@ async function generateSitemap() {
     // Fetch blog posts
     try {
       console.log('[Sitemap] Fetching blog posts...');
-      const response = await fetch('https://nowicstdio.tech/api/public/blogs');
+      const baseUrl = (process.env.VITE_API_BASE_URL || 'http://localhost:8000').replace(/\/$/, '');
+      const response = await fetch(`${baseUrl}/api/v1/public/blog/`);
       const data = await response.json();
       
       if (data.success && data.data) {
