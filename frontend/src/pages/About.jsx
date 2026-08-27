@@ -8,6 +8,19 @@ import ScrollReveal from '../components/reveal/ScrollReveal';
 import BrandLogo from '../components/common/BrandLogo';
 import { useContent } from '../context/ContentContext';
 import Breadcrumbs from '../components/common/Breadcrumbs';
+import { useScrollAnimation } from '../hooks/useScrollAnimation';
+import { useCountUp } from '../hooks/use-count-up';
+
+function StatCard({ stat }) {
+  const { ref, isVisible } = useScrollAnimation({ threshold: 0.1 });
+  const displayValue = useCountUp(stat.val, isVisible);
+  return (
+    <div ref={ref} className="rounded-xl bg-surface p-3">
+      <p className="font-display text-lg font-bold text-text">{displayValue}</p>
+      <p className="text-[10px] uppercase tracking-widest text-muted">{stat.label}</p>
+    </div>
+  );
+}
 
 const defaultMilestones = [
   { year: '2023', title: 'Studio Founded', desc: 'Nowic Studio was born from a belief: great products deserve great execution.' },
@@ -142,10 +155,7 @@ export default function About() {
 
                 <div className="mt-5 grid grid-cols-2 gap-2">
                   {statCards.map((s) => (
-                    <div key={s.label} className="rounded-xl bg-surface p-3">
-                      <p className="font-display text-lg font-bold text-text">{s.val}</p>
-                      <p className="text-[10px] uppercase tracking-widest text-muted">{s.label}</p>
-                    </div>
+                    <StatCard key={s.label} stat={s} />
                   ))}
                 </div>
               </div>

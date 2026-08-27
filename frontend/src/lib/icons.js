@@ -31,6 +31,7 @@ import {
   Terminal,
   Workflow,
   BrainCircuit,
+  TrendingUp,
 } from 'lucide-react';
 
 const ICON_MAP = {
@@ -58,6 +59,7 @@ const ICON_MAP = {
   Terminal,
   Workflow,
   BrainCircuit,
+  TrendingUp,
 };
 
 /**

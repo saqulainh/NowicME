@@ -25,6 +25,11 @@ const emptyService = {
     price_starting: '',
     delivery_days: '',
     image_url: '',
+    heroContent: { title: '', subtitle: '', description: '', image: { src: '', alt: '', hint: '' } },
+    introduction: '',
+    subServices: [],
+    process: [],
+    whyChooseUs: [],
     color: 'rgba(52,232,161,0.15)',
 };
 
@@ -54,6 +59,11 @@ export default function ServicesEditor() {
             benefits: Array.isArray(s.benefits) ? s.benefits : [],
             keyTech: Array.isArray(s.keyTech) ? s.keyTech : [],
             faqs: Array.isArray(s.faqs) ? s.faqs : [],
+            subServices: Array.isArray(s.subServices) ? s.subServices : [],
+            process: Array.isArray(s.process) ? s.process : [],
+            whyChooseUs: Array.isArray(s.whyChooseUs) ? s.whyChooseUs : [],
+            heroContent: s.heroContent || { title: '', subtitle: '', description: '', image: { src: '', alt: '', hint: '' } },
+            introduction: s.introduction || '',
         }));
 
         (async () => {
@@ -110,7 +120,7 @@ export default function ServicesEditor() {
     };
 
     const addItem = () => {
-        const newService = { ...emptyService, id: createId(), features: ['', '', ''], benefits: [], keyTech: [], faqs: [] };
+        const newService = { ...emptyService, id: createId(), features: ['', '', ''], benefits: [], keyTech: [], faqs: [], subServices: [], process: [], whyChooseUs: [] };
         setItems((prev) => [...prev, newService]);
         setActivePreviewIdx(items.length);
     };
@@ -342,6 +352,101 @@ export default function ServicesEditor() {
                                         </div>
                                     ))}
                                     <button onClick={() => addArrayField(idx, 'faqs', { q: '', a: '' })} className="text-xs text-[#34d99a] hover:underline">+ Add FAQ</button>
+                                </div>
+                            </div>
+
+                            {/* Deep Content Editors */}
+                            <div className="space-y-4 pt-4 border-t border-white/10">
+                                <h3 className="text-sm font-bold text-[#f0f0f3]">Deep Page Content (Detailed View)</h3>
+                                
+                                <div>
+                                    <label className="admin-label">Page Introduction</label>
+                                    <textarea value={item.introduction || ''} onChange={(e) => update(idx, 'introduction', e.target.value)} rows={3} className="admin-input resize-none !h-auto py-2" placeholder="Intro text" />
+                                </div>
+
+                                <div>
+                                    <label className="admin-label">Hero Details</label>
+                                    <div className="grid gap-2 bg-black/20 p-3 rounded-lg border border-white/5">
+                                        <input type="text" value={item.heroContent?.title || ''} onChange={(e) => update(idx, 'heroContent', { ...(item.heroContent || {}), title: e.target.value })} className="admin-input text-sm" placeholder="Hero Title" />
+                                        <input type="text" value={item.heroContent?.subtitle || ''} onChange={(e) => update(idx, 'heroContent', { ...(item.heroContent || {}), subtitle: e.target.value })} className="admin-input text-sm" placeholder="Hero Subtitle" />
+                                        <textarea value={item.heroContent?.description || ''} onChange={(e) => update(idx, 'heroContent', { ...(item.heroContent || {}), description: e.target.value })} rows={2} className="admin-input text-sm resize-none" placeholder="Hero Description" />
+                                    </div>
+                                </div>
+
+                                {/* Process */}
+                                <div>
+                                    <label className="admin-label">Process Steps</label>
+                                    <div className="space-y-3">
+                                        {(item.process || []).map((step, pIdx) => (
+                                            <div key={`proc-${pIdx}`} className="relative bg-black/20 p-3 rounded-lg border border-white/5 space-y-2">
+                                                <button onClick={() => removeArrayField(idx, 'process', pIdx)} className="absolute top-2 right-2 text-red-400 hover:text-red-300 p-1"><Trash2 size={12} /></button>
+                                                <div className="flex gap-2">
+                                                    <input type="text" value={step.step || ''} onChange={(e) => updateArrayField(idx, 'process', pIdx, { ...step, step: e.target.value })} className="admin-input w-16 text-sm" placeholder="No." />
+                                                    <input type="text" value={step.title || ''} onChange={(e) => updateArrayField(idx, 'process', pIdx, { ...step, title: e.target.value })} className="admin-input flex-1 text-sm" placeholder="Step Title" />
+                                                </div>
+                                                <textarea value={step.description || ''} onChange={(e) => updateArrayField(idx, 'process', pIdx, { ...step, description: e.target.value })} rows={2} className="admin-input text-sm resize-none py-2" placeholder="Description" />
+                                            </div>
+                                        ))}
+                                        <button onClick={() => addArrayField(idx, 'process', { step: '', title: '', description: '' })} className="text-xs text-[#34d99a] hover:underline">+ Add Step</button>
+                                    </div>
+                                </div>
+                                
+                                {/* Why Choose Us */}
+                                <div>
+                                    <label className="admin-label">Why Choose Us</label>
+                                    <div className="space-y-3">
+                                        {(item.whyChooseUs || []).map((wcu, wIdx) => (
+                                            <div key={`wcu-${wIdx}`} className="relative bg-black/20 p-3 rounded-lg border border-white/5 space-y-2">
+                                                <button onClick={() => removeArrayField(idx, 'whyChooseUs', wIdx)} className="absolute top-2 right-2 text-red-400 hover:text-red-300 p-1"><Trash2 size={12} /></button>
+                                                <div className="flex gap-2">
+                                                    <input type="text" value={wcu.icon || ''} onChange={(e) => updateArrayField(idx, 'whyChooseUs', wIdx, { ...wcu, icon: e.target.value })} className="admin-input w-24 text-sm" placeholder="Icon Name" />
+                                                    <input type="text" value={wcu.title || ''} onChange={(e) => updateArrayField(idx, 'whyChooseUs', wIdx, { ...wcu, title: e.target.value })} className="admin-input flex-1 text-sm" placeholder="Title" />
+                                                </div>
+                                                <textarea value={wcu.description || ''} onChange={(e) => updateArrayField(idx, 'whyChooseUs', wIdx, { ...wcu, description: e.target.value })} rows={2} className="admin-input text-sm resize-none py-2" placeholder="Description" />
+                                            </div>
+                                        ))}
+                                        <button onClick={() => addArrayField(idx, 'whyChooseUs', { icon: 'Star', title: '', description: '' })} className="text-xs text-[#34d99a] hover:underline">+ Add Reason</button>
+                                    </div>
+                                </div>
+                                
+                                {/* Sub Services */}
+                                <div>
+                                    <label className="admin-label">Sub-Services / Modules</label>
+                                    <div className="space-y-3">
+                                        {(item.subServices || []).map((sub, sIdx) => (
+                                            <div key={`sub-${sIdx}`} className="relative bg-black/20 p-3 rounded-lg border border-white/5 space-y-2">
+                                                <button onClick={() => removeArrayField(idx, 'subServices', sIdx)} className="absolute top-2 right-2 text-red-400 hover:text-red-300 p-1"><Trash2 size={12} /></button>
+                                                <div className="flex gap-2 pr-6">
+                                                    <input type="text" value={sub.icon || ''} onChange={(e) => updateArrayField(idx, 'subServices', sIdx, { ...sub, icon: e.target.value })} className="admin-input w-24 text-sm" placeholder="Icon Name" />
+                                                    <input type="text" value={sub.title || ''} onChange={(e) => updateArrayField(idx, 'subServices', sIdx, { ...sub, title: e.target.value })} className="admin-input flex-1 text-sm" placeholder="Sub-Service Title" />
+                                                </div>
+                                                <textarea value={sub.description || ''} onChange={(e) => updateArrayField(idx, 'subServices', sIdx, { ...sub, description: e.target.value })} rows={2} className="admin-input text-sm resize-none py-2" placeholder="Description" />
+                                                <div className="pt-2 border-t border-white/5">
+                                                    <label className="text-[10px] text-[#8b8fa3] uppercase tracking-wider mb-1 block">Features</label>
+                                                    <div className="space-y-1">
+                                                        {(sub.features || []).map((sf, sfIdx) => (
+                                                            <div key={`sf-${sfIdx}`} className="flex gap-2">
+                                                                <input type="text" value={sf} onChange={(e) => {
+                                                                    const newFeats = [...(sub.features || [])];
+                                                                    newFeats[sfIdx] = e.target.value;
+                                                                    updateArrayField(idx, 'subServices', sIdx, { ...sub, features: newFeats });
+                                                                }} className="admin-input text-xs" />
+                                                                <button onClick={() => {
+                                                                    const newFeats = (sub.features || []).filter((_, j) => j !== sfIdx);
+                                                                    updateArrayField(idx, 'subServices', sIdx, { ...sub, features: newFeats });
+                                                                }} className="text-red-400 hover:text-red-300 p-1"><Trash2 size={10} /></button>
+                                                            </div>
+                                                        ))}
+                                                        <button onClick={() => {
+                                                            const newFeats = [...(sub.features || []), ''];
+                                                            updateArrayField(idx, 'subServices', sIdx, { ...sub, features: newFeats });
+                                                        }} className="text-[10px] text-[#34d99a] hover:underline">+ Add Sub-Feature</button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        ))}
+                                        <button onClick={() => addArrayField(idx, 'subServices', { title: '', description: '', icon: 'Code2', features: [] })} className="text-xs text-[#34d99a] hover:underline">+ Add Sub-Service</button>
+                                    </div>
                                 </div>
                             </div>
 

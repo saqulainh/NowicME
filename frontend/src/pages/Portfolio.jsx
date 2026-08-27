@@ -2,16 +2,16 @@ import { useEffect as usePrerenderEffect } from 'react';
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowUpRight, ArrowRight, Github, Search } from 'lucide-react';
+import { ArrowUpRight, Search } from 'lucide-react';
 import SEO from '../components/SEO';
 import SectionHeading from '../components/common/SectionHeading';
 import ScrollReveal from '../components/reveal/ScrollReveal';
 import Breadcrumbs from '../components/common/Breadcrumbs';
-import { toProjectSlug } from '../data/caseStudyDetails';
 import { BASE_URL } from '../lib/api';
 import { useContent } from '../context/ContentContext';
 import LoadingSpinner from '../components/LoadingSpinner';
 import ErrorMessage from '../components/ErrorMessage';
+import { CaseStudyCard } from '../components/ui/CaseStudyCard';
 
 function resolveImageUrl(imageUrl) {
   if (!imageUrl) return '';
@@ -163,7 +163,7 @@ export default function Portfolio() {
           </div>
         ) : null}
 
-        <motion.div layout className="grid gap-4 md:grid-cols-2">
+        <motion.div layout className="grid gap-4 md:grid-cols-2 lg:grid-cols-1">
           {!loading && !error && (
           <AnimatePresence mode="popLayout">
             {filtered.map((item, i) => (
@@ -174,66 +174,9 @@ export default function Portfolio() {
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.97 }}
                 transition={{ duration: 0.3, delay: i * 0.05 }}
+                className="w-full"
               >
-                <motion.article
-                  whileHover={{ y: -4 }}
-                  transition={{ duration: 0.25 }}
-                  className="card group overflow-hidden h-full"
-                >
-                  {/* Preview */}
-                  <div className="relative h-48 overflow-hidden bg-surface">
-                    {resolveImageUrl(item.image_url) ? (
-                      <img
-                        src={resolveImageUrl(item.image_url)}
-                        alt={item.title}
-                        loading="lazy"
-                        className="h-full w-full object-cover"
-                      />
-                    ) : (
-                      <div className="h-full w-full bg-gradient-to-br from-white/10 via-white/5 to-transparent" />
-                    )}
-                    <div className="absolute inset-0 bg-bg/55 backdrop-blur-[1px]" />
-                    <span className="absolute left-4 top-4 text-xs font-semibold uppercase tracking-[0.15em] text-muted">
-                      {item.category}
-                    </span>
-                    {item.is_featured && (
-                      <span className="absolute right-3 top-3 rounded-full bg-mint/10 px-2.5 py-0.5 text-[10px] font-semibold text-mint">
-                        Featured
-                      </span>
-                    )}
-                    {/* Hover overlay */}
-                    {(item.live_url || item.github_url) && (
-                      <div className="absolute inset-0 flex items-center justify-center gap-3 bg-bg/60 backdrop-blur-sm opacity-0 transition-opacity duration-200 group-hover:opacity-100">
-                        {item.live_url && (
-                          <a href={item.live_url} className="portfolio-btn text-xs" target="_blank" rel="noopener noreferrer">
-                            <ArrowUpRight size={13} className="mr-1" /> Demo
-                          </a>
-                        )}
-                        {item.github_url && (
-                          <a href={item.github_url} className="portfolio-btn text-xs" target="_blank" rel="noopener noreferrer">
-                            <Github size={13} className="mr-1" /> Code
-                          </a>
-                        )}
-                      </div>
-                    )}
-                  </div>
-
-                  <div className="p-5">
-                    <h3 className="font-display text-lg font-bold text-text">{item.title}</h3>
-                    <p className="mt-2 text-sm leading-relaxed text-sub">{item.description}</p>
-                    <div className="mt-3 flex flex-wrap gap-1.5">
-                      {(item.tech_stack || []).map((tag) => (
-                        <span key={tag} className="tag">{tag}</span>
-                      ))}
-                    </div>
-                    <Link
-                      to={`/portfolio/${toProjectSlug(item.title)}`}
-                      className="mt-4 inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-mint hover:text-white transition-colors"
-                    >
-                      View Case Study <ArrowRight size={12} />
-                    </Link>
-                  </div>
-                </motion.article>
+                <CaseStudyCard project={item} index={i} isVisible={true} />
               </motion.div>
             ))}
           </AnimatePresence>
