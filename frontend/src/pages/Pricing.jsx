@@ -25,7 +25,8 @@ import SEO from '../components/SEO';
 import SectionHeading from '../components/common/SectionHeading';
 import ScrollReveal from '../components/reveal/ScrollReveal';
 import Breadcrumbs from '../components/common/Breadcrumbs';
-import { servicePricing, generalTiers, deliveryLifecycle } from '../data/pricingData';
+import { servicePricing as staticServicePricing, generalTiers as staticGeneralTiers, deliveryLifecycle as staticDeliveryLifecycle } from '../data/pricingData';
+import { useContent } from '../context/ContentContext';
 
 const SERVICE_TABS = [
   { id: 'website-development', label: 'Website Dev', icon: Globe },
@@ -62,6 +63,11 @@ const FAQS = [
 
 export default function Pricing() {
   const [activeTab, setActiveTab] = useState('website-development');
+  const { pricingData } = useContent() || {};
+  
+  const servicePricing = pricingData?.servicePricing || staticServicePricing;
+  const generalTiers = pricingData?.generalTiers || staticGeneralTiers;
+  const deliveryLifecycle = pricingData?.deliveryLifecycle || staticDeliveryLifecycle;
 
   usePrerenderEffect(() => {
     setTimeout(() => document.dispatchEvent(new Event('prerender-trigger')), 150);

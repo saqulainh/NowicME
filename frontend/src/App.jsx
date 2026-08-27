@@ -47,6 +47,7 @@ const TechnologiesEditor = lazy(() => import('./pages/admin/TechnologiesEditor')
 const ReviewsManagement = lazy(() => import('./pages/admin/ReviewsManagement'));
 const BlogManagement = lazy(() => import('./pages/admin/BlogManagement'));
 const BlogEditor = lazy(() => import('./pages/admin/BlogEditor'));
+const PricingEditor = lazy(() => import('./pages/admin/PricingEditor'));
 
 import { Toaster } from 'sonner';
 
@@ -107,6 +108,7 @@ export default function App() {
             <Route path="reviews" element={<ReviewsManagement />} />
             <Route path="brand" element={<BrandEditor />} />
             <Route path="services" element={<ServicesEditor />} />
+            <Route path="pricing" element={<PricingEditor />} />
             <Route path="technologies" element={<TechnologiesEditor />} />
             <Route path="portfolio" element={<PortfolioEditor />} />
             <Route path="blog" element={<BlogManagement />} />

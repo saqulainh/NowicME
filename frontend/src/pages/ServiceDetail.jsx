@@ -39,6 +39,8 @@ export default function ServiceDetail() {
   }, [slug]);
 
   const { content } = useContent();
+  const pricingData = content?.pricingData || {};
+  const currentServicePricing = pricingData?.servicePricing || servicePricing;
   
   // Use the new architecture data from backend if available, fallback to serviceDetails or mockServices
   const dynamicServices = content?.services || [];
@@ -107,7 +109,7 @@ export default function ServiceDetail() {
 
       <ServicePageClient service={service} />
 
-      <PricingSection pricing={servicePricing[slug] || servicePricing['default']} />
+      <PricingSection pricing={currentServicePricing[slug] || currentServicePricing['default']} />
 
       {/* Keep existing Related Resources (Blog) logic below the new UI */}
       {relatedBlogs.length > 0 && (

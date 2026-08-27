@@ -21,6 +21,7 @@ const sidebarLinks = [
     { to: '/admin/reviews', icon: Star, label: 'Reviews' },
     { to: '/admin/brand', icon: Settings, label: 'Brand' },
     { to: '/admin/services', icon: Briefcase, label: 'Services' },
+    { to: '/admin/pricing', icon: Briefcase, label: 'Pricing Models' },
     { to: '/admin/technologies', icon: Cpu, label: 'Technologies' },
     { to: '/admin/portfolio', icon: FolderOpen, label: 'Portfolio' },
     { to: '/admin/blog', icon: BookOpen, label: 'Blog' },
