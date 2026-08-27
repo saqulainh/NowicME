@@ -8,35 +8,33 @@ import LoadingSpinner from '../LoadingSpinner';
  */
 export default function Preloader() {
   const [loading, setLoading] = useState(true);
-  const [viewport, setViewport] = useState(() => {
-    if (typeof window !== 'undefined') {
-      return { width: window.innerWidth, height: window.innerHeight };
-    }
-    return { width: 1280, height: 720 };
-  });
+  const [viewport, setViewport] = useState({ width: 0, height: 0 });
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
+    setMounted(true);
+    setViewport({ width: window.innerWidth, height: window.innerHeight });
+
     // Artificial delay for that "Senior UI" premium splash feel
     const timer = setTimeout(() => {
       setLoading(false);
     }, 2000); // 2.0s to let the full G N I D A O L animation wave complete before exit
 
-    if (typeof window !== 'undefined') {
-      const updateViewport = () => {
-        setViewport({ width: window.innerWidth, height: window.innerHeight });
-      };
+    const updateViewport = () => {
+      setViewport({ width: window.innerWidth, height: window.innerHeight });
+    };
 
-      updateViewport();
-      window.addEventListener('resize', updateViewport);
+    window.addEventListener('resize', updateViewport);
 
-      return () => {
-        clearTimeout(timer);
-        window.removeEventListener('resize', updateViewport);
-      };
-    }
-
-    return () => clearTimeout(timer);
+    return () => {
+      clearTimeout(timer);
+      window.removeEventListener('resize', updateViewport);
+    };
   }, []);
+
+  if (!mounted) return null;
+
+
 
   const initialPath = `M0 0 L${viewport.width} 0 L${viewport.width} ${viewport.height} L0 ${viewport.height} Z`;
   const targetPath = `M0 0 L${viewport.width} 0 Q${viewport.width / 2} 0 0 0 Z`;
