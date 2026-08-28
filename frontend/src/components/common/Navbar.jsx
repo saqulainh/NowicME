@@ -12,9 +12,19 @@ const ICONS = {
   Star, Clock, Check, ShieldCheck, Gauge, Bot
 };
 
-function getIcon(name) {
+function getIcon(name, size = 20) {
   const Icon = ICONS[name];
-  return Icon ? <Icon size={20} /> : <CheckCircle2 size={20} />;
+  return Icon ? <Icon size={size} /> : <CheckCircle2 size={size} />;
+}
+
+// ContentContext may attach a resolved icon *component* (not a string name) —
+// handle both shapes so the mega menu always shows the right icon.
+function renderIcon(nameOrComponent, size = 20) {
+  if (nameOrComponent && typeof nameOrComponent !== 'string') {
+    const Comp = nameOrComponent;
+    return <Comp size={size} />;
+  }
+  return getIcon(nameOrComponent, size);
 }
 
 // Derive a valid route segment from existing service data — never "undefined".
@@ -164,7 +174,7 @@ export default function Navbar() {
                              <div className="relative z-10 flex-1 flex flex-col">
                                <div className="flex items-start gap-4 mb-6 pb-6 border-b border-white/5">
                                  <div className="w-12 h-12 rounded-xl bg-[#34d99a]/10 text-[#34d99a] flex items-center justify-center shrink-0">
-                                   {getIcon(hoveredService.icon)}
+                                   {renderIcon(hoveredService.icon || hoveredService.icon_name)}
                                  </div>
                                  <div>
                                    <h3 className="text-xl font-bold text-white mb-1">{hoveredService.name || hoveredService.title}</h3>
@@ -175,17 +185,28 @@ export default function Navbar() {
                                <div className="flex-1">
                                  <h4 className="text-[10px] uppercase tracking-widest text-[#6b6f80] font-bold mb-4">Included Capabilities</h4>
                                  <div className="grid grid-cols-2 gap-x-4 gap-y-4">
-                                   {(hoveredService.subServices || []).slice(0, 6).map((sub, idx) => (
-                                     <div key={idx} className="flex gap-3 group">
-                                       <div className="mt-0.5 text-[#34d99a]/70 group-hover:text-[#34d99a] transition-colors shrink-0">
-                                          {getIcon(sub.icon)}
+                                   {hoveredService.subServices && hoveredService.subServices.length > 0 ? (
+                                     hoveredService.subServices.slice(0, 6).map((sub, idx) => (
+                                       <div key={idx} className="flex gap-3 group">
+                                         <div className="mt-0.5 text-[#34d99a]/70 group-hover:text-[#34d99a] transition-colors shrink-0">
+                                            {renderIcon(sub.icon)}
+                                         </div>
+                                         <div>
+                                           <h5 className="text-sm font-bold text-white mb-0.5 group-hover:text-[#34d99a] transition-colors">{sub.title}</h5>
+                                           <p className="text-xs text-[#6b6f80] line-clamp-1">{sub.description}</p>
+                                         </div>
                                        </div>
-                                       <div>
-                                         <h5 className="text-sm font-bold text-white mb-0.5 group-hover:text-[#34d99a] transition-colors">{sub.title}</h5>
-                                         <p className="text-xs text-[#6b6f80] line-clamp-1">{sub.description}</p>
+                                     ))
+                                   ) : (
+                                     (hoveredService.features || []).slice(0, 6).map((feature, idx) => (
+                                       <div key={idx} className="flex gap-3 group items-start">
+                                         <div className="mt-0.5 text-[#34d99a]/70 group-hover:text-[#34d99a] transition-colors shrink-0">
+                                           <CheckCircle2 size={16} />
+                                         </div>
+                                         <h5 className="text-sm font-medium text-white group-hover:text-[#34d99a] transition-colors">{feature}</h5>
                                        </div>
-                                     </div>
-                                   ))}
+                                     ))
+                                   )}
                                  </div>
                                </div>
 
