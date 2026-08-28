@@ -63,7 +63,9 @@ const FAQS = [
 
 export default function Pricing() {
   const [activeTab, setActiveTab] = useState('website-development');
-  const { pricingData } = useContent() || {};
+  const { content: cmsContent } = useContent() || {};
+  const cmsPricingData = cmsContent?.pricingData;
+
   
   const servicePricing = pricingData?.servicePricing || staticServicePricing;
   const generalTiers = pricingData?.generalTiers || staticGeneralTiers;

@@ -240,7 +240,7 @@ export default function Services() {
           {orderedServices.map((service, i) => {
             const Icon = resolveIcon(service.icon_name);
             return (
-              <ScrollReveal key={service.title} delay={i * 0.06}>
+              <ScrollReveal key={service.slug || service.name || service.title || i} delay={i * 0.06}>
                 <InteractiveCard className="feature-card h-full">
                   {getServiceImageUrl(service) ? (
                     <div className="mb-5 overflow-hidden rounded-xl border border-white/5 bg-surface/30">

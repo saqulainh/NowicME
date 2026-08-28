@@ -16,12 +16,15 @@ def get_client_ip(request) -> str:
     Extract real client IP from the request.
 
     Honours X-Forwarded-For for deployments behind a proxy (e.g. Railway).
-    Takes only the first (leftmost) IP to prevent spoofing via appended IPs.
+    Takes only the LAST (rightmost) IP, which is the value appended by the
+    trusted reverse proxy (e.g. Railway/Render). The leftmost value is
+    client-controlled and trivially spoofable via a forged header, so it must
+    never be trusted for rate limiting.
     Falls back to REMOTE_ADDR if the header is absent.
     """
     x_forwarded_for = request.META.get("HTTP_X_FORWARDED_FOR")
     if x_forwarded_for:
-        return x_forwarded_for.split(",")[0].strip()
+        return x_forwarded_for.split(",")[-1].strip()
     return request.META.get("REMOTE_ADDR", "127.0.0.1")
 
 

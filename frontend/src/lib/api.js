@@ -40,12 +40,18 @@ export class ApiError extends Error {
 }
 
 export async function apiCall(endpoint, options = {}) {
+  // Pull `headers` out so the spread below can't clobber the merged headers
+  // (previously `...options` ran last and replaced the merged object, which
+  // silently dropped the default 'Content-Type: application/json' whenever
+  // the caller passed custom headers such as Authorization).
+  const { headers: extraHeaders, ...rest } = options;
+
   const response = await fetch(buildUrl(endpoint), {
+    ...rest,
     headers: {
       'Content-Type': 'application/json',
-      ...(options.headers || {}),
+      ...(extraHeaders || {}),
     },
-    ...options,
   });
 
   const data = await parseResponse(response);

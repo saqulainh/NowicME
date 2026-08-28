@@ -140,7 +140,7 @@ export default function Navbar() {
                                   : 'text-[#8b8fa3] hover:text-white hover:bg-white/5'
                               }`}
                             >
-                              <span className="text-sm font-medium">{srv.title}</span>
+                              <span className="text-sm font-medium">{srv.name || srv.title}</span>
                               <ChevronRight size={14} className={hoveredService?.id === srv.id ? 'opacity-100' : 'opacity-0'} />
                             </Link>
                           ))}
@@ -157,7 +157,7 @@ export default function Navbar() {
                                    {getIcon(hoveredService.icon)}
                                  </div>
                                  <div>
-                                   <h3 className="text-xl font-bold text-white mb-1">{hoveredService.title}</h3>
+                                   <h3 className="text-xl font-bold text-white mb-1">{hoveredService.name || hoveredService.title}</h3>
                                    <p className="text-sm text-[#8b8fa3] line-clamp-2">{hoveredService.headline || hoveredService.description}</p>
                                  </div>
                                </div>
@@ -184,7 +184,7 @@ export default function Navbar() {
                                    to={`/services/${hoveredService.slug}`}
                                    className="inline-flex items-center gap-1.5 text-sm font-bold text-[#34d99a] hover:text-white transition-colors"
                                  >
-                                   Explore {hoveredService.title} <ArrowRight size={14} />
+                                   Explore {hoveredService.name || hoveredService.title} <ArrowRight size={14} />
                                  </Link>
                                </div>
                              </div>
@@ -251,7 +251,7 @@ export default function Navbar() {
                             to={`/services/${srv.slug}`}
                             className="block rounded-lg px-3 py-2 text-sm font-medium text-[#8b8fa3] hover:text-[#34d99a] hover:bg-[#34d99a]/5 transition-colors"
                           >
-                            {srv.title}
+                            {srv.name || srv.title}
                           </Link>
                         ))}
                       </div>

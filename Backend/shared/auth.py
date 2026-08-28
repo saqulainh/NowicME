@@ -12,6 +12,7 @@ import jwt
 import requests
 from django.conf import settings
 from django.core.cache import cache
+from django.db import IntegrityError
 from ninja.security import HttpBearer
 
 from shared.exceptions import PermissionDenied
@@ -147,6 +148,10 @@ def get_admin_user(request):
     except UserProfile.DoesNotExist:
         raise PermissionDenied("User profile not found")
 
+    # Soft-deleted users (Clerk user.deleted webhook) must not retain access.
+    if not profile.is_active:
+        raise PermissionDenied("Account is deactivated")
+
     if profile.role != "admin":
         admin_emails = getattr(settings, 'ADMIN_EMAILS', {'haiderssaqulain@gmail.com', 'amarkrydav@gmail.com', 'nowicstdo@gmail.com'})
         if profile.email and profile.email.lower() in admin_emails:
@@ -172,10 +177,19 @@ def get_current_user(request):
         raise PermissionDenied("Authentication required")
 
     admin_emails = getattr(settings, 'ADMIN_EMAILS', {'haiderssaqulain@gmail.com', 'amarkrydav@gmail.com', 'nowicstdo@gmail.com'})
-    profile, _ = UserProfile.objects.get_or_create(
-        clerk_user_id=clerk_user_id,
-        defaults={"role": "client"},
-    )
+    try:
+        profile, _ = UserProfile.objects.get_or_create(
+            clerk_user_id=clerk_user_id,
+            defaults={"role": "client"},
+        )
+    except IntegrityError:
+        # email is unique + NOT NULL; a second profile created without an email
+        # would violate the constraint (e.g. webhook hasn't fired yet).
+        raise PermissionDenied("User profile could not be provisioned")
+
+    # Soft-deleted users must not get fresh profiles/access via this path.
+    if not profile.is_active:
+        raise PermissionDenied("Account is deactivated")
     if profile.email and profile.email.lower() in admin_emails and profile.role != "admin":
         profile.role = "admin"
         # Removed profile.save(update_fields=["role"]) to avoid unnecessary DB writes on read paths.

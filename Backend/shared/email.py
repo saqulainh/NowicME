@@ -9,6 +9,7 @@ import logging
 from smtplib import SMTPException
 from django.conf import settings
 from django.core.mail import send_mail
+from django.utils import timezone
 
 logger = logging.getLogger(__name__)
 
@@ -303,7 +304,7 @@ def send_invoice_email(
   <table class="info-table">
     <tr><td>Client</td><td>{client_name}</td></tr>
     <tr><td>Project</td><td>{project_name}</td></tr>
-    <tr><td>Issue Date</td><td>{settings.TIME_ZONE}</td></tr>
+    <tr><td>Issue Date</td><td>{timezone.localdate().strftime('%d %b %Y')}</td></tr>
     <tr><td>Due Date</td><td>{due_date}</td></tr>
   </table>
   <div class="highlight">

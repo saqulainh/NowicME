@@ -30,7 +30,10 @@ import { trackBookingSubmit, trackPricingClick } from '../components/Analytics';
 import { toast } from 'sonner';
 
 export default function Booking() {
-  const today = new Date().toISOString().split('T')[0];
+  // Business-timezone (IST) calendar date. toISOString() is UTC, which lags
+  // IST by 5.5h — before 5:30 AM local it would offer yesterday as min date.
+  // 'en-CA' locale yields the YYYY-MM-DD format the date input expects.
+  const today = new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Kolkata' });
   const { isSignedIn, getApiToken } = useAuth();
   const publishableKey = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
   const normalizedClerkKey = typeof publishableKey === 'string' ? publishableKey.trim() : '';

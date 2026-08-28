@@ -257,8 +257,9 @@ def cancel_appointment(
     if appointment.clerk_user_id != clerk_user_id:
         raise NotFound(f"Appointment #{appointment_id} not found")
 
-    # Past-date check
-    today = timezone.now().date()
+    # Past-date check (use local calendar date — TIME_ZONE is Asia/Kolkata,
+    # while timezone.now() is UTC and can be a day behind around midnight)
+    today = timezone.localdate()
     if appointment.date < today:
         raise ConflictError("Cannot cancel a past booking")
 
