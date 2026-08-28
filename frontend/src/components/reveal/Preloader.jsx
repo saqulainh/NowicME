@@ -6,7 +6,7 @@ export default function Preloader() {
   const [viewport, setViewport] = useState({ width: 0, height: 0 });
   const [mounted, setMounted] = useState(false);
   const [progress, setProgress] = useState(0);
-  const [phase, setPhase] = useState('counting'); // counting -> logo -> exit
+  const [phase, setPhase] = useState('loading'); // loading -> exit
 
   useEffect(() => {
     setMounted(true);
@@ -17,9 +17,9 @@ export default function Preloader() {
     };
     window.addEventListener('resize', updateViewport);
 
-    // Fast progress counter logic (takes ~0.6s to reach 100)
+    // Fast progress counter logic (takes ~1.5s to reach 100)
     let startTime;
-    const duration = 600;
+    const duration = 1500;
 
     const animateProgress = (timestamp) => {
       if (!startTime) startTime = timestamp;
@@ -31,14 +31,11 @@ export default function Preloader() {
       if (currentProgress < 100) {
         requestAnimationFrame(animateProgress);
       } else {
-        // Reached 100%, switch to logo reveal phase fast
-        setTimeout(() => setPhase('logo'), 100);
-        
-        // After logo reveal, switch to exit phase quickly
-        setTimeout(() => setPhase('exit'), 1000);
+        // Reached 100%, hold for a tiny bit, then exit
+        setTimeout(() => setPhase('exit'), 300);
 
         // Finally unmount preloader
-        setTimeout(() => setLoading(false), 1800);
+        setTimeout(() => setLoading(false), 1200);
       }
     };
     
@@ -51,7 +48,7 @@ export default function Preloader() {
 
   if (!mounted) return null;
 
-  // The liquid SVG curve animation (made faster)
+  // The liquid SVG curve animation
   const initialPath = `M0 0 L${viewport.width} 0 L${viewport.width} ${viewport.height} L0 ${viewport.height} Z`;
   const targetPath = `M0 0 L${viewport.width} 0 Q${viewport.width / 2} 0 0 0 Z`;
 
@@ -77,52 +74,56 @@ export default function Preloader() {
             <div className="relative flex flex-col items-center justify-center w-full max-w-sm px-6">
               
               <AnimatePresence mode="wait">
-                {/* PHASE 1: Counting Phase */}
-                {phase === 'counting' && (
+                {/* PHASE: Loading (Logo + Progress) */}
+                {phase === 'loading' && (
                   <motion.div
-                    key="counter"
-                    initial={{ opacity: 0, y: 20 }}
+                    key="loader"
+                    initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -20, filter: 'blur(5px)' }}
                     transition={{ duration: 0.4 }}
-                    className="flex flex-col items-center w-full"
+                    className="flex flex-col items-center w-full gap-8"
                   >
-                    <div className="text-[#34d99a] font-display font-bold text-6xl tracking-tighter mb-4">
-                      {progress}%
-                    </div>
-                    {/* Progress Bar */}
-                    <div className="w-full h-[2px] bg-white/10 rounded-full overflow-hidden">
+                    {/* LOGO with Shine Effect */}
+                    <div className="relative overflow-hidden flex justify-center items-center rounded-xl">
+                      {/* 
+                         mix-blend-screen helps remove black background from images 
+                         if the logo has a black background. It blends perfectly with dark themes.
+                      */}
+                      <img 
+                        src="/image.png" 
+                        alt="Logo" 
+                        className="w-48 h-auto object-contain mix-blend-screen opacity-90"
+                      />
+                      
+                      {/* SHINE EFFECT OVERLAY */}
                       <motion.div 
-                        className="h-full bg-[#34d99a]"
-                        initial={{ width: '0%' }}
-                        animate={{ width: `${progress}%` }}
-                        transition={{ ease: "linear", duration: 0.1 }}
+                        className="absolute top-0 bottom-0 w-1/2 bg-gradient-to-r from-transparent via-white/50 to-transparent skew-x-[-20deg]"
+                        initial={{ left: '-100%' }}
+                        animate={{ left: '200%' }}
+                        transition={{ 
+                          repeat: Infinity, 
+                          duration: 1.2, 
+                          ease: "easeInOut",
+                          repeatDelay: 0.2
+                        }}
                       />
                     </div>
-                  </motion.div>
-                )}
 
-                {/* PHASE 2: Logo Reveal Phase */}
-                {phase === 'logo' && (
-                  <motion.div
-                    key="logo"
-                    initial={{ opacity: 0, scale: 0.9, filter: 'blur(10px)' }}
-                    animate={{ opacity: 1, scale: 1, filter: 'blur(0px)' }}
-                    exit={{ opacity: 0, scale: 1.1, filter: 'blur(10px)' }}
-                    transition={{ duration: 0.8, ease: "easeOut" }}
-                    className="flex flex-col items-center text-center"
-                  >
-                    <h1 className="text-white font-display font-bold text-5xl md:text-7xl tracking-widest uppercase">
-                      NOWIC
-                    </h1>
-                    <motion.div 
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: 0.3, duration: 0.5 }}
-                      className="text-[#34d99a] text-sm md:text-base font-medium tracking-[0.2em] uppercase mt-2"
-                    >
-                      Studio
-                    </motion.div>
+                    {/* Progress Counter & Bar (Smaller & Minimal) */}
+                    <div className="flex flex-col items-center w-full max-w-[200px] gap-2">
+                      <div className="text-[#34d99a] font-mono text-sm tracking-widest font-semibold">
+                        {progress}%
+                      </div>
+                      <div className="w-full h-[2px] bg-white/10 rounded-full overflow-hidden">
+                        <motion.div 
+                          className="h-full bg-[#34d99a] shadow-[0_0_10px_rgba(52,217,154,0.5)]"
+                          initial={{ width: '0%' }}
+                          animate={{ width: `${progress}%` }}
+                          transition={{ ease: "linear", duration: 0.1 }}
+                        />
+                      </div>
+                    </div>
                   </motion.div>
                 )}
               </AnimatePresence>
