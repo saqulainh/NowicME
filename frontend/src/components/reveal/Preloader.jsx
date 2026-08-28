@@ -85,7 +85,7 @@ export default function Preloader() {
                     className="flex flex-col items-center w-full gap-8"
                   >
                     {/* LOGO with Shine Effect */}
-                    <div className="relative overflow-hidden flex justify-center items-center rounded-xl">
+                    <div className="relative overflow-hidden flex justify-center items-center w-64 h-16">
                       {/* 
                          mix-blend-screen helps remove black background from images 
                          if the logo has a black background. It blends perfectly with dark themes.
@@ -93,8 +93,8 @@ export default function Preloader() {
                       <img 
                         src="/image.png" 
                         alt="Logo" 
-                        className="w-32 h-auto object-contain mix-blend-screen"
-                        style={{ filter: 'brightness(3) contrast(1.2)' }}
+                        className="w-full h-full object-cover mix-blend-screen opacity-90"
+                        style={{ transform: 'scale(2.5)' }}
                       />
                       
                       {/* SHINE EFFECT OVERLAY */}
