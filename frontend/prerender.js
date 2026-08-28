@@ -123,8 +123,13 @@ async function prerender() {
               timeout: 30000 
             });
 
-            // Wait for the custom event to fire, or timeout after 10 seconds just in case
-            await page.waitForFunction('window.prerenderTriggerFired === true', { timeout: 15000 }).catch(() => {
+            // Wait for the custom event to fire or the DOM to be ready, avoiding the 15s timeout
+            await page.waitForFunction(() => {
+                if (window.prerenderTriggerFired) return true;
+                const root = document.getElementById('root');
+                const hasPreloader = document.querySelector('.z-\\[9999\\]');
+                return root && root.innerHTML.length > 50 && !hasPreloader;
+            }, { timeout: 15000 }).catch(() => {
                 console.warn(`[Prerender] Warning: prerender-trigger timeout on ${route}. Capturing anyway.`);
             });
 
