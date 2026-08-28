@@ -17,9 +17,9 @@ export default function Preloader() {
     };
     window.addEventListener('resize', updateViewport);
 
-    // Fast progress counter logic (takes ~1.2s to reach 100)
+    // Fast progress counter logic (takes ~0.6s to reach 100)
     let startTime;
-    const duration = 1200;
+    const duration = 600;
 
     const animateProgress = (timestamp) => {
       if (!startTime) startTime = timestamp;
@@ -31,14 +31,14 @@ export default function Preloader() {
       if (currentProgress < 100) {
         requestAnimationFrame(animateProgress);
       } else {
-        // Reached 100%, switch to logo reveal phase
-        setTimeout(() => setPhase('logo'), 200);
+        // Reached 100%, switch to logo reveal phase fast
+        setTimeout(() => setPhase('logo'), 100);
         
-        // After logo reveal, switch to exit phase
-        setTimeout(() => setPhase('exit'), 1400);
+        // After logo reveal, switch to exit phase quickly
+        setTimeout(() => setPhase('exit'), 1000);
 
         // Finally unmount preloader
-        setTimeout(() => setLoading(false), 2400);
+        setTimeout(() => setLoading(false), 1800);
       }
     };
     
@@ -51,7 +51,7 @@ export default function Preloader() {
 
   if (!mounted) return null;
 
-  // The liquid SVG curve animation
+  // The liquid SVG curve animation (made faster)
   const initialPath = `M0 0 L${viewport.width} 0 L${viewport.width} ${viewport.height} L0 ${viewport.height} Z`;
   const targetPath = `M0 0 L${viewport.width} 0 Q${viewport.width / 2} 0 0 0 Z`;
 
@@ -59,7 +59,7 @@ export default function Preloader() {
     initial: { d: initialPath },
     exit: { 
       d: targetPath, 
-      transition: { duration: 1.1, ease: [0.76, 0, 0.24, 1] } 
+      transition: { duration: 0.8, ease: [0.76, 0, 0.24, 1] } 
     }
   };
 
