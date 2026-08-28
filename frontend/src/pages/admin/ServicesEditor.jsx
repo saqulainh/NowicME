@@ -70,7 +70,13 @@ export default function ServicesEditor() {
             try {
                 const data = await fetchSection('services');
                 if (mounted) {
-                    setItems(normalize(data || defaultServices));
+                    // Auto-heal logic: If the DB returns the 8 old incorrect services,
+                    // we forcefully load the 6 correct defaultServices so the admin can save and overwrite the DB.
+                    if (data && data.length === 8) {
+                        setItems(normalize(defaultServices));
+                    } else {
+                        setItems(normalize(data || defaultServices));
+                    }
                 }
             } catch (err) {
                 console.error('Failed to load services:', err);
