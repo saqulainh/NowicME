@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useAdminAuth } from '../../context/AdminAuthContext';
+import { useAuth } from '../../hooks/useAuth';
 import { fetchSection, saveSection } from '../../lib/cms';
 import { Save, Plus, Trash2, Download } from 'lucide-react';
 import { toast } from 'sonner';
@@ -8,7 +9,8 @@ import { toast } from 'sonner';
 import { servicePricing, generalTiers, deliveryLifecycle } from '../../data/pricingData';
 
 export default function PricingEditor() {
-  const { token } = useAdminAuth();
+  const { admin } = useAdminAuth();
+  const { getApiToken } = useAuth();
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -50,7 +52,8 @@ export default function PricingEditor() {
         deliveryLifecycle,
         servicePricing
       };
-      await saveSection('pricingData', template, token);
+      const apiToken = await getApiToken();
+      await saveSection('pricingData', template, apiToken);
       setData(template);
       toast.success('Successfully seeded default pricing data');
     } catch (err) {
@@ -64,7 +67,8 @@ export default function PricingEditor() {
   const handleSave = async () => {
     setSaving(true);
     try {
-      await saveSection('pricingData', data, token);
+      const apiToken = await getApiToken();
+      await saveSection('pricingData', data, apiToken);
       toast.success('Pricing data saved successfully');
     } catch (err) {
       toast.error('Failed to save pricing data');
