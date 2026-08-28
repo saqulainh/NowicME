@@ -4,6 +4,7 @@ import { Calendar, Eye, Clock, ChevronLeft, BookOpen, Share2, Check, ArrowRight,
 import { api, resolveImageUrl } from '../lib/api';
 import SEO from '../components/SEO';
 import Breadcrumbs from '../components/common/Breadcrumbs';
+import MarkdownRenderer from '../components/common/MarkdownRenderer';
 
 export default function BlogPostDetail() {
     const { slug } = useParams();
