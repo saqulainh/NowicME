@@ -12,8 +12,10 @@ export default function PricingEditor() {
   const { admin } = useAdminAuth();
   const { getApiToken } = useAuth();
   const [data, setData] = useState(null);
+  const [jsonText, setJsonText] = useState('');
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [jsonError, setJsonError] = useState(false);
 
   useEffect(() => {
     loadData();
@@ -25,13 +27,16 @@ export default function PricingEditor() {
       const dbData = await fetchSection('pricingData');
       if (dbData) {
         setData(dbData);
+        setJsonText(JSON.stringify(dbData, null, 2));
       } else {
         // Fallback to empty state
-        setData({
+        const emptyData = {
           generalTiers: [],
           deliveryLifecycle: [],
           servicePricing: {}
-        });
+        };
+        setData(emptyData);
+        setJsonText(JSON.stringify(emptyData, null, 2));
       }
     } catch (err) {
       toast.error('Failed to load pricing data');
@@ -55,6 +60,7 @@ export default function PricingEditor() {
       const apiToken = await getApiToken();
       await saveSection('pricingData', template, apiToken);
       setData(template);
+      setJsonText(JSON.stringify(template, null, 2));
       toast.success('Successfully seeded default pricing data');
     } catch (err) {
       toast.error('Failed to seed data');
@@ -65,6 +71,10 @@ export default function PricingEditor() {
   };
 
   const handleSave = async () => {
+    if (jsonError) {
+      toast.error('Cannot save: Invalid JSON format');
+      return;
+    }
     setSaving(true);
     try {
       const apiToken = await getApiToken();
@@ -99,8 +109,8 @@ export default function PricingEditor() {
           </button>
           <button 
             onClick={handleSave}
-            disabled={saving}
-            className="flex items-center gap-2 px-4 py-2 bg-[#34d99a] text-[#050806] rounded-lg font-medium hover:bg-[#2cb27e] transition-colors"
+            disabled={saving || jsonError}
+            className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors ${jsonError ? 'bg-red-500/50 text-white cursor-not-allowed' : 'bg-[#34d99a] text-[#050806] hover:bg-[#2cb27e]'}`}
           >
             <Save className="w-4 h-4" />
             {saving ? 'Saving...' : 'Save Changes'}
@@ -109,20 +119,28 @@ export default function PricingEditor() {
       </div>
 
       <div className="space-y-12">
-        {/* We can build out full JSON tree editors here if needed, but for now a simple JSON editor handles everything perfectly for complex nested structures until the UI is built out */}
         <section className="bg-white/5 border border-white/10 rounded-2xl p-6">
-          <h2 className="text-xl font-bold text-white mb-4">Raw Configuration (JSON)</h2>
-          <p className="text-sm text-[#8b8fa3] mb-4">Advanced editor for all pricing structures (Tiers, Lifecycle, Packages).</p>
+          <div className="flex justify-between items-center mb-4">
+             <div>
+                <h2 className="text-xl font-bold text-white mb-1">Raw Configuration (JSON)</h2>
+                <p className="text-sm text-[#8b8fa3]">Edit the JSON directly. Ensure quotes and brackets are correct.</p>
+             </div>
+             {jsonError && <span className="text-red-400 text-sm font-medium">Invalid JSON! Please fix syntax errors before saving.</span>}
+          </div>
+          
           <textarea
-            value={JSON.stringify(data, null, 2)}
+            value={jsonText}
             onChange={(e) => {
+              const val = e.target.value;
+              setJsonText(val);
               try {
-                setData(JSON.parse(e.target.value));
+                setData(JSON.parse(val));
+                setJsonError(false);
               } catch (err) {
-                // Ignore invalid JSON while typing
+                setJsonError(true);
               }
             }}
-            className="w-full h-[600px] bg-[#0A0F0C] text-[#34d99a] font-mono text-sm p-4 rounded-xl border border-white/10 focus:border-[#34d99a] focus:ring-1 focus:ring-[#34d99a] outline-none"
+            className={`w-full h-[600px] bg-[#0A0F0C] font-mono text-sm p-4 rounded-xl border outline-none ${jsonError ? 'text-red-400 border-red-500/50 focus:border-red-500' : 'text-[#34d99a] border-white/10 focus:border-[#34d99a] focus:ring-1 focus:ring-[#34d99a]'}`}
           />
         </section>
       </div>
