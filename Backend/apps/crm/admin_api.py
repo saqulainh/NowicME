@@ -5,7 +5,7 @@ Admin dashboard and management endpoints.
 """
 from datetime import timedelta
 from decimal import Decimal
-from typing import Optional
+from typing import Optional, Any
 
 from django.db.models import F, Q, Sum
 from django.http import HttpRequest
@@ -49,7 +49,7 @@ class UserRoleUpdateIn(Schema):
 
 
 class SiteContentUpsertIn(Schema):
-    data: dict
+    data: Any
 
 
 @router.get('/dashboard/', response=standard_responses(dict))
