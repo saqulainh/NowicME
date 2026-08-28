@@ -13,7 +13,22 @@ import { useCountUp } from '../hooks/use-count-up';
 
 function StatCard({ stat }) {
   const { ref, isVisible } = useScrollAnimation({ threshold: 0.1 });
-  const displayValue = useCountUp(stat.val, isVisible);
+  // useCountUp returns { count, startAnimation } — extract properly (rendering
+  // the hook object directly crashes React with "Objects are not valid as a
+  // React child" and blanks the whole About page).
+  const raw = String(stat.val ?? '');
+  const match = raw.match(/^(\d+(?:\.\d+)?)(.*)$/);
+  const end = match ? parseFloat(match[1]) : null;
+  const suffix = match ? match[2] : raw;
+  const { count, startAnimation } = useCountUp(end ?? 0);
+
+  useEffect(() => {
+    if (isVisible && end !== null) {
+      startAnimation();
+    }
+  }, [isVisible, end, startAnimation]);
+
+  const displayValue = end === null ? raw : `${count}${suffix}`;
   return (
     <div ref={ref} className="rounded-xl bg-surface p-3">
       <p className="font-display text-lg font-bold text-text">{displayValue}</p>
@@ -207,7 +222,7 @@ export default function About() {
 
               <div className="space-y-8">
                 {milestones.map((m, i) => (
-                  <ScrollReveal key={m.year} delay={i * 0.08}>
+                  <ScrollReveal key={`${m.year}-${i}`} delay={i * 0.08}>
                     <div className="relative">
                       <div className="absolute -left-12 flex h-8 w-8 items-center justify-center rounded-lg bg-surface text-xs font-bold text-mint">
                         '{m.year.slice(2)}
