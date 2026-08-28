@@ -93,7 +93,8 @@ export default function Preloader() {
                       <img 
                         src="/image.png" 
                         alt="Logo" 
-                        className="w-48 h-auto object-contain mix-blend-screen opacity-90"
+                        className="w-32 h-auto object-contain mix-blend-screen"
+                        style={{ filter: 'brightness(3) contrast(1.2)' }}
                       />
                       
                       {/* SHINE EFFECT OVERLAY */}
