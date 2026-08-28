@@ -17,6 +17,16 @@ function getIcon(name) {
   return Icon ? <Icon size={20} /> : <CheckCircle2 size={20} />;
 }
 
+// Derive a valid route segment from existing service data — never "undefined".
+function servicePath(service) {
+  if (!service) return '/services';
+  const slug = service.slug || String(service.name || service.title || '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/(^-|-$)/g, '');
+  return `/services/${slug}`;
+}
+
 const navLinks = [
   { label: 'Home', path: '/' },
   { label: 'Services', path: '/services', hasMegaMenu: true },
@@ -131,8 +141,8 @@ export default function Navbar() {
                           <h3 className="text-[10px] uppercase tracking-widest text-[#6b6f80] font-bold mb-3 pl-3">Our Services</h3>
                           {services.map(srv => (
                             <Link 
-                              key={srv.id} 
-                              to={`/services/${srv.slug}`}
+                              key={srv.id || srv.slug} 
+                              to={servicePath(srv)}
                               onMouseEnter={() => setHoveredService(srv)}
                               className={`flex items-center justify-between px-3 py-2.5 rounded-lg transition-all ${
                                 hoveredService?.id === srv.id 
@@ -181,7 +191,7 @@ export default function Navbar() {
 
                                <div className="mt-6 pt-4 text-right">
                                  <Link 
-                                   to={`/services/${hoveredService.slug}`}
+                                   to={servicePath(hoveredService)}
                                    className="inline-flex items-center gap-1.5 text-sm font-bold text-[#34d99a] hover:text-white transition-colors"
                                  >
                                    Explore {hoveredService.name || hoveredService.title} <ArrowRight size={14} />
@@ -247,8 +257,8 @@ export default function Navbar() {
                       <div className="pl-4 pr-2 py-2 space-y-1 border-l border-white/10 ml-4 mt-1">
                         {services.map(srv => (
                           <Link 
-                            key={srv.id} 
-                            to={`/services/${srv.slug}`}
+                            key={srv.id || srv.slug} 
+                            to={servicePath(srv)}
                             className="block rounded-lg px-3 py-2 text-sm font-medium text-[#8b8fa3] hover:text-[#34d99a] hover:bg-[#34d99a]/5 transition-colors"
                           >
                             {srv.name || srv.title}

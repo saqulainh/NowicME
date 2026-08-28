@@ -452,7 +452,7 @@ export default function Home() {
                       </ul>
                       
                       <div className="mt-6 flex items-center justify-between">
-                        <Link to={`/services/${service.slug}`} className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-mint opacity-80 group-hover:opacity-100 hover:text-white transition-all">
+                        <Link to={service.slug ? `/services/${service.slug}` : `/services/${toSlug(service.name || service.title)}`} className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-mint opacity-80 group-hover:opacity-100 hover:text-white transition-all">
                           Explore {service.name} <ArrowRight size={12} />
                         </Link>
                       </div>

@@ -67,9 +67,9 @@ export default function Pricing() {
   const cmsPricingData = cmsContent?.pricingData;
 
   
-  const servicePricing = pricingData?.servicePricing || staticServicePricing;
-  const generalTiers = pricingData?.generalTiers || staticGeneralTiers;
-  const deliveryLifecycle = pricingData?.deliveryLifecycle || staticDeliveryLifecycle;
+  const servicePricing = cmsPricingData?.servicePricing || staticServicePricing;
+  const generalTiers = cmsPricingData?.generalTiers || staticGeneralTiers;
+  const deliveryLifecycle = cmsPricingData?.deliveryLifecycle || staticDeliveryLifecycle;
 
   usePrerenderEffect(() => {
     setTimeout(() => document.dispatchEvent(new Event('prerender-trigger')), 150);
