@@ -44,29 +44,41 @@ export function ContentProvider({ children }) {
     const { data: content, isLoading: loading, refetch } = useQuery({
         queryKey: ['siteContent'],
         queryFn: async () => {
-            const [contentRes, statsRes, reviewsRes] = await Promise.allSettled([
+            const [contentRes, statsRes, reviewsRes, servicesRes] = await Promise.allSettled([
                 api.getSiteContent(),
                 api.getStats(),
                 api.public_getReviews(),
+                // Fetch services separately — the bulk endpoint returns corrupted data
+                // for services on the live server; the dedicated endpoint is always correct.
+                api.getSiteContentSection('services'),
             ]);
 
             const rows = contentRes.status === 'fulfilled' ? (contentRes.value?.data || []) : [];
             const liveStats = statsRes.status === 'fulfilled' ? (statsRes.value?.data || {}) : {};
             const liveReviews = reviewsRes.status === 'fulfilled' ? (reviewsRes.value?.data || []) : [];
 
+            // Services from the dedicated endpoint (section-level data field)
+            const servicesRaw = servicesRes.status === 'fulfilled'
+                ? (servicesRes.value?.data?.data ?? servicesRes.value?.data ?? [])
+                : [];
+
             const merged = { liveStats, reviews: liveReviews };
             rows.forEach((row) => {
                 if (row.section && row.data !== undefined) {
                     let val = row.data;
-                    if (row.section === 'services') {
-                        val = normalizeServices(val);
-                        val = attachIcons(val, 'icon');
-                    } else if (['stats', 'highlights', 'whyUs'].includes(row.section)) {
+                    // Services will be overridden below — skip the bulk value
+                    if (row.section === 'services') return;
+                    if (['stats', 'highlights', 'whyUs'].includes(row.section)) {
                         val = attachIcons(val);
                     }
                     merged[row.section] = val;
                 }
             });
+
+            // Always use the dedicated services endpoint data
+            const normalizedServices = normalizeServices(Array.isArray(servicesRaw) ? servicesRaw : []);
+            merged.services = attachIcons(normalizedServices, 'icon');
+
             return merged;
         },
         staleTime: 5 * 60 * 1000, // 5 minutes
