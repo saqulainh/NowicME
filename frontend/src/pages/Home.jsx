@@ -98,16 +98,19 @@ function toSlug(value) {
 }
 
 function mapFallbackService(service, index) {
+  // The new fallback in content.js is already fully normalized.
   return {
-    name: service.title,
-    slug: toSlug(service.title || `service-${index + 1}`),
-    tagline: service.headline || service.title,
-    description: service.description,
+    slug: service.slug || toSlug(service.name || service.title || `service-${index + 1}`),
+    name: service.name || service.title || '',
+    tagline: service.tagline || service.headline || '',
+    description: service.description || '',
     features: Array.isArray(service.features) ? service.features : [],
-    icon_name: service.icon?.name || 'Code2',
-    price_starting: null,
-    delivery_days: null,
-    order: index + 1,
+    icon_name: service.icon_name || 'Code2',
+    image_url: service.image_url || null,
+    price_starting: service.price_starting ?? null,
+    delivery_days: service.delivery_days ?? null,
+    order: service.order ?? index,
+    id: service.id || service.slug || toSlug(service.name || service.title || `service-${index + 1}`),
   };
 }
 

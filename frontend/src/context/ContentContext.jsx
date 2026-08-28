@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect } from 'react';
+import { createContext, useContext } from 'react';
 import { api } from '../lib/api';
 
 const ContentContext = createContext(null);
@@ -7,11 +7,15 @@ const ContentContext = createContext(null);
 import {
     Bot, Building2, LayoutDashboard, Rocket, Gauge, ShieldCheck,
     Cpu, Layers, Sparkles, Code2, Globe, Zap, Trophy, Users, Star,
+    Smartphone, TrendingUp, Palette,
 } from 'lucide-react';
+
+import { services as STATIC_SERVICES } from '../data/content';
 
 const ICON_MAP = {
     Bot, Building2, LayoutDashboard, Rocket, Gauge, ShieldCheck,
     Cpu, Layers, Sparkles, Code2, Globe, Zap, Trophy, Users, Star,
+    Smartphone, TrendingUp, Palette,
 };
 
 function resolveIcon(name) {
@@ -26,15 +30,15 @@ function attachIcons(items, iconField = 'icon') {
     }));
 }
 
-function normalizeServices(items) {
-    if (!Array.isArray(items)) return items;
-    return items.map((item) => ({
-        ...item,
-        name: item.name || item.title || '',
-        tagline: item.tagline || item.headline || '',
-        icon_name: item.icon_name || item.icon || 'Rocket',
-        price_starting: item.price_starting ?? item.startingPrice ?? null,
-        delivery_days: item.delivery_days ?? item.deliveryTime ?? null,
+// Services are managed as static data in content.js — the single source of truth.
+// This avoids inconsistencies caused by different DB environments on local vs Render.
+function buildServices() {
+    return STATIC_SERVICES.map((svc, idx) => ({
+        ...svc,
+        name: svc.name || svc.title || '',
+        tagline: svc.tagline || svc.headline || '',
+        icon_name: svc.icon_name || (typeof svc.icon === 'string' ? svc.icon : null) || 'Rocket',
+        order: svc.order ?? idx,
     }));
 }
 
@@ -42,32 +46,24 @@ import { useQuery } from '@tanstack/react-query';
 
 export function ContentProvider({ children }) {
     const { data: content, isLoading: loading, refetch } = useQuery({
-        queryKey: ['siteContent'],
+        queryKey: ['siteContent', 'v3'],
         queryFn: async () => {
-            const [contentRes, statsRes, reviewsRes, servicesRes] = await Promise.allSettled([
+            const [contentRes, statsRes, reviewsRes] = await Promise.allSettled([
                 api.getSiteContent(),
                 api.getStats(),
                 api.public_getReviews(),
-                // Fetch services separately — the bulk endpoint returns corrupted data
-                // for services on the live server; the dedicated endpoint is always correct.
-                api.getSiteContentSection('services'),
             ]);
 
             const rows = contentRes.status === 'fulfilled' ? (contentRes.value?.data || []) : [];
             const liveStats = statsRes.status === 'fulfilled' ? (statsRes.value?.data || {}) : {};
             const liveReviews = reviewsRes.status === 'fulfilled' ? (reviewsRes.value?.data || []) : [];
 
-            // Services from the dedicated endpoint (section-level data field)
-            const servicesRaw = servicesRes.status === 'fulfilled'
-                ? (servicesRes.value?.data?.data ?? servicesRes.value?.data ?? [])
-                : [];
-
             const merged = { liveStats, reviews: liveReviews };
             rows.forEach((row) => {
                 if (row.section && row.data !== undefined) {
-                    let val = row.data;
-                    // Services will be overridden below — skip the bulk value
+                    // Skip services — we use static data as source of truth
                     if (row.section === 'services') return;
+                    let val = row.data;
                     if (['stats', 'highlights', 'whyUs'].includes(row.section)) {
                         val = attachIcons(val);
                     }
@@ -75,13 +71,14 @@ export function ContentProvider({ children }) {
                 }
             });
 
-            // Always use the dedicated services endpoint data
-            const normalizedServices = normalizeServices(Array.isArray(servicesRaw) ? servicesRaw : []);
-            merged.services = attachIcons(normalizedServices, 'icon');
+            // Services: always use the static content.js list as source of truth.
+            // This guarantees consistent service names, slugs, and icons across
+            // local and production regardless of which DB Render is pointing to.
+            merged.services = buildServices();
 
             return merged;
         },
-        staleTime: 5 * 60 * 1000, // 5 minutes
+        staleTime: 5 * 60 * 1000,
         refetchOnWindowFocus: false,
     });
 
@@ -101,3 +98,4 @@ export function useContent() {
 }
 
 export default ContentContext;
+

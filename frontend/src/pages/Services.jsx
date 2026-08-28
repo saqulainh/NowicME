@@ -71,22 +71,20 @@ function getServiceImageUrl(service) {
 }
 
 function mapFallbackService(service, index) {
-  const mapped = {
-    name: service.title,
-    slug: toSlug(service.title || `service-${index + 1}`),
-    tagline: service.headline || service.title,
-    description: service.description,
-    features: Array.isArray(service.features) ? service.features : [],
-    icon_name: service.icon?.name || 'Code2',
-    image_url: service.image_url || service.image || null,
-    price_starting: null,
-    delivery_days: null,
-    order: index + 1,
-  };
-
+  // The new fallback in content.js is already fully normalized (slug, name, tagline, etc.).
+  // Just ensure missing fields have sane defaults.
   return {
-    ...mapped,
-    image_url: getServiceImageUrl(mapped),
+    slug: service.slug || toSlug(service.title || `service-${index + 1}`),
+    name: service.name || service.title || '',
+    tagline: service.tagline || service.headline || '',
+    description: service.description || '',
+    features: Array.isArray(service.features) ? service.features : [],
+    icon_name: service.icon_name || 'Code2',
+    image_url: service.image_url || getServiceImageUrl(service),
+    price_starting: service.price_starting ?? null,
+    delivery_days: service.delivery_days ?? null,
+    order: service.order ?? index,
+    id: service.id || service.slug || toSlug(service.title || `service-${index + 1}`),
   };
 }
 
