@@ -27,6 +27,8 @@ Verify production has all of the following:
 - `EMAIL_HOST_USER`
 - `EMAIL_HOST_PASSWORD`
 - `ADMIN_EMAIL`
+- `ADMIN_EMAILS=haiderssaqulain@gmail.com,amarkrydav@gmail.com,nowicstdo@gmail.com`
+- `CLERK_SECRET_KEY` (optional, for auto-fetching verified user details from Clerk)
 - `DEFAULT_FROM_EMAIL`
 - `TEAM_MEMBERS_COUNT`
 - `DJANGO_SETTINGS_MODULE=core.settings.prod`

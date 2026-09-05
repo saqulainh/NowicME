@@ -136,6 +136,7 @@ ADMIN_EMAILS = {e.strip().lower() for e in raw_admin_emails.split(',') if e.stri
 
 CLERK_JWKS_URL = os.environ['CLERK_JWKS_URL']
 CLERK_WEBHOOK_SECRET = os.environ['CLERK_WEBHOOK_SECRET']
+CLERK_SECRET_KEY = os.getenv('CLERK_SECRET_KEY', '').strip()
 CLERK_AUDIENCE = os.getenv('CLERK_AUDIENCE', '').strip()
 CLERK_ISSUER = os.getenv('CLERK_ISSUER', '').strip()
 

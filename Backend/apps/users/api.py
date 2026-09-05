@@ -127,13 +127,26 @@ def clerk_webhook(request: HttpRequest):
                 },
             )
         except IntegrityError:
-            logger.warning("Clerk webhook user.created email conflict for user %s", clerk_user_id)
-            return 409, {
-                "success": False,
-                "error": "Email already linked to another user",
-                "code": "EMAIL_CONFLICT",
-            }
-        logger.info("Created UserProfile for %s", clerk_user_id)
+            # Email already exists with another clerk_user_id (e.g. pending_admin or previous ID).
+            # Update the existing profile with the new Clerk User ID.
+            profile = UserProfile.objects.filter(email__iexact=email).first()
+            if profile:
+                profile.clerk_user_id = clerk_user_id
+                if full_name:
+                    profile.full_name = full_name
+                profile.is_active = True
+                if is_admin_email:
+                    profile.role = "admin"
+                profile.save()
+                logger.info("Re-linked existing UserProfile to new clerk_user_id %s for %s", clerk_user_id, email)
+            else:
+                logger.warning("Clerk webhook user.created email conflict for user %s", clerk_user_id)
+                return 409, {
+                    "success": False,
+                    "error": "Email already linked to another user",
+                    "code": "EMAIL_CONFLICT",
+                }
+        logger.info("Created or synced UserProfile for %s", clerk_user_id)
 
     elif event_type == "user.updated":
         try:
@@ -167,12 +180,23 @@ def clerk_webhook(request: HttpRequest):
                     profile.role = "admin"
                 profile.save()
         except IntegrityError:
-            logger.warning("Clerk webhook user.updated email conflict for user %s", clerk_user_id)
-            return 409, {
-                "success": False,
-                "error": "Email already linked to another user",
-                "code": "EMAIL_CONFLICT",
-            }
+            profile = UserProfile.objects.filter(email__iexact=email).first()
+            if profile:
+                profile.clerk_user_id = clerk_user_id
+                if full_name:
+                    profile.full_name = full_name
+                profile.is_active = True
+                if is_admin_email:
+                    profile.role = "admin"
+                profile.save()
+                logger.info("Re-linked existing UserProfile in user.updated to %s for %s", clerk_user_id, email)
+            else:
+                logger.warning("Clerk webhook user.updated email conflict for user %s", clerk_user_id)
+                return 409, {
+                    "success": False,
+                    "error": "Email already linked to another user",
+                    "code": "EMAIL_CONFLICT",
+                }
         logger.info("Updated UserProfile for %s", clerk_user_id)
 
     elif event_type == "user.deleted":

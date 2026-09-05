@@ -91,6 +91,7 @@ class ClerkAuth(HttpBearer):
                 issuer=clerk_issuer or None,
                 options=decode_options,
             )
+            request.clerk_payload = payload
             return payload.get("sub")
         except jwt.ExpiredSignatureError:
             logger.debug("Clerk JWT expired")
@@ -122,10 +123,52 @@ class APIKeyAuth(HttpBearer):
 api_key_auth = APIKeyAuth()
 
 
+def extract_email_from_payload(payload: dict) -> str:
+    """Extract email address if present in Clerk JWT claims."""
+    if not isinstance(payload, dict):
+        return ""
+    email = payload.get("email") or payload.get("primary_email_address") or payload.get("email_address") or ""
+    if not email and "claims" in payload and isinstance(payload["claims"], dict):
+        email = payload["claims"].get("email") or payload["claims"].get("primary_email_address") or ""
+    return str(email).strip().lower()
+
+
+def fetch_clerk_user_details(clerk_user_id: str) -> dict:
+    """If CLERK_SECRET_KEY is configured, fetch verified user details directly from Clerk."""
+    clerk_secret = getattr(settings, 'CLERK_SECRET_KEY', '') or os.getenv('CLERK_SECRET_KEY', '')
+    if not clerk_secret:
+        return {}
+    try:
+        resp = requests.get(
+            f"https://api.clerk.com/v1/users/{clerk_user_id}",
+            headers={"Authorization": f"Bearer {clerk_secret}"},
+            timeout=5
+        )
+        if resp.status_code == 200:
+            data = resp.json()
+            emails = data.get("email_addresses", [])
+            primary_id = data.get("primary_email_address_id")
+            email = ""
+            for e in emails:
+                if e.get("id") == primary_id:
+                    email = e.get("email_address", "")
+                    break
+            if not email and emails:
+                email = emails[0].get("email_address", "")
+            first = data.get("first_name") or ""
+            last = data.get("last_name") or ""
+            full_name = f"{first} {last}".strip()
+            return {"email": email.strip().lower(), "full_name": full_name}
+    except Exception as exc:
+        logger.warning("Failed to fetch Clerk user details: %s", exc)
+    return {}
+
+
 def get_admin_user(request):
     """
     Dependency: ensure the authenticated user has role='admin'.
     Raises PermissionDenied if not found or insufficient role.
+    Auto-promotes/links if email is in ADMIN_EMAILS.
     Returns a UserProfile instance.
     """
     from apps.users.models import UserProfile  # avoid circular import
@@ -143,9 +186,42 @@ def get_admin_user(request):
             role="admin"
         )
 
+    admin_emails = getattr(settings, 'ADMIN_EMAILS', {'haiderssaqulain@gmail.com', 'amarkrydav@gmail.com', 'nowicstdo@gmail.com'})
+
+    profile = None
     try:
         profile = UserProfile.objects.get(clerk_user_id=clerk_user_id)
     except UserProfile.DoesNotExist:
+        # Profile not found by clerk_user_id. Attempt auto-recovery/linking.
+        payload = getattr(request, 'clerk_payload', {})
+        email = extract_email_from_payload(payload)
+        full_name = ""
+
+        if not email:
+            details = fetch_clerk_user_details(clerk_user_id)
+            email = details.get("email", "")
+            full_name = details.get("full_name", "")
+
+        if email:
+            profile = UserProfile.objects.filter(email__iexact=email).first()
+            if profile:
+                profile.clerk_user_id = clerk_user_id
+                if full_name and not profile.full_name:
+                    profile.full_name = full_name
+                if email.lower() in admin_emails:
+                    profile.role = "admin"
+                profile.is_active = True
+                profile.save()
+            elif email.lower() in admin_emails:
+                profile = UserProfile.objects.create(
+                    clerk_user_id=clerk_user_id,
+                    email=email.lower(),
+                    full_name=full_name or email.split('@')[0].replace('.', ' ').replace('_', ' ').title(),
+                    role="admin",
+                    is_active=True,
+                )
+
+    if not profile:
         raise PermissionDenied("User profile not found")
 
     # Soft-deleted users (Clerk user.deleted webhook) must not retain access.
@@ -153,11 +229,9 @@ def get_admin_user(request):
         raise PermissionDenied("Account is deactivated")
 
     if profile.role != "admin":
-        admin_emails = getattr(settings, 'ADMIN_EMAILS', {'haiderssaqulain@gmail.com', 'amarkrydav@gmail.com', 'nowicstdo@gmail.com'})
         if profile.email and profile.email.lower() in admin_emails:
             profile.role = "admin"
-            # Removed profile.save(update_fields=["role"]) to avoid unnecessary DB writes on every read request
-            # if the webhook hasn't fired yet. The webhook will eventually sync this, and the in-memory check is fast enough.
+            profile.save(update_fields=["role"])
         else:
             raise PermissionDenied("Admin access required")
     return profile
@@ -166,7 +240,7 @@ def get_admin_user(request):
 def get_current_user(request):
     """
     Dependency: return the UserProfile for the authenticated Clerk user.
-    Creates a new profile with role='client' if it doesn't exist yet.
+    Creates a new profile if it doesn't exist yet.
     Auto-promotes to 'admin' if email is in ADMIN_EMAILS.
     Returns a UserProfile instance.
     """
@@ -177,20 +251,54 @@ def get_current_user(request):
         raise PermissionDenied("Authentication required")
 
     admin_emails = getattr(settings, 'ADMIN_EMAILS', {'haiderssaqulain@gmail.com', 'amarkrydav@gmail.com', 'nowicstdo@gmail.com'})
+
     try:
-        profile, _ = UserProfile.objects.get_or_create(
-            clerk_user_id=clerk_user_id,
-            defaults={"role": "client"},
-        )
-    except IntegrityError:
-        # email is unique + NOT NULL; a second profile created without an email
-        # would violate the constraint (e.g. webhook hasn't fired yet).
-        raise PermissionDenied("User profile could not be provisioned")
+        profile = UserProfile.objects.get(clerk_user_id=clerk_user_id)
+    except UserProfile.DoesNotExist:
+        payload = getattr(request, 'clerk_payload', {})
+        email = extract_email_from_payload(payload)
+        full_name = ""
+
+        if not email:
+            details = fetch_clerk_user_details(clerk_user_id)
+            email = details.get("email", "")
+            full_name = details.get("full_name", "")
+
+        if email:
+            profile = UserProfile.objects.filter(email__iexact=email).first()
+            if profile:
+                profile.clerk_user_id = clerk_user_id
+                if full_name and not profile.full_name:
+                    profile.full_name = full_name
+                if email.lower() in admin_emails:
+                    profile.role = "admin"
+                profile.is_active = True
+                profile.save()
+            else:
+                profile = UserProfile.objects.create(
+                    clerk_user_id=clerk_user_id,
+                    email=email.lower(),
+                    full_name=full_name or email.split('@')[0].title(),
+                    role="admin" if email.lower() in admin_emails else "client",
+                    is_active=True,
+                )
+        else:
+            try:
+                profile, _ = UserProfile.objects.get_or_create(
+                    clerk_user_id=clerk_user_id,
+                    defaults={
+                        "email": f"{clerk_user_id}@placeholder.nowicstudio.in",
+                        "role": "client",
+                        "is_active": True,
+                    },
+                )
+            except IntegrityError:
+                raise PermissionDenied("User profile could not be provisioned")
 
     # Soft-deleted users must not get fresh profiles/access via this path.
     if not profile.is_active:
         raise PermissionDenied("Account is deactivated")
     if profile.email and profile.email.lower() in admin_emails and profile.role != "admin":
         profile.role = "admin"
-        # Removed profile.save(update_fields=["role"]) to avoid unnecessary DB writes on read paths.
+        profile.save(update_fields=["role"])
     return profile
