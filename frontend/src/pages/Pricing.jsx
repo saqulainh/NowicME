@@ -259,7 +259,8 @@ export default function Pricing() {
         </div>
       </section>
 
-      {/* Section 1: General Engagement Tiers (Growth vs Enterprise) */}
+      {false && (<>
+      {/* Legacy package blocks replaced by the detailed category catalogue below. */}
       <section className="pb-24 relative z-10">
         <div className="container-shell">
           <div className="text-center max-w-2xl mx-auto mb-16">
@@ -453,6 +454,8 @@ export default function Pricing() {
           </div>
         </div>
       </section>
+
+      </>)}
 
       {/* Section 3: 5-Step Agile Delivery Lifecycle */}
       <section className="py-24 relative overflow-hidden">
