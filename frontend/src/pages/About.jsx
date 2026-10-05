@@ -1,7 +1,7 @@
 import { motion } from 'framer-motion';
 import { useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, CheckCircle2 } from 'lucide-react';
+import { ArrowRight, CheckCircle2, Linkedin } from 'lucide-react';
 import SEO from '../components/SEO';
 import SectionHeading from '../components/common/SectionHeading';
 import ScrollReveal from '../components/reveal/ScrollReveal';
@@ -60,12 +60,22 @@ const teamValues = [
   'Continuous improvement mindset',
 ];
 
+const defaultTeamProfiles = [
+  { name: 'Saqulain Haider', role: 'Founder & Lead Engineer', initials: 'SH', linkedin: '' },
+  { name: 'Amark Rydav', role: 'Engineering & Operations', initials: 'AR', linkedin: '' },
+  { name: 'Product Design Team', role: 'UI/UX & Product Design', initials: 'PD', linkedin: '' },
+  { name: 'Engineering Team', role: 'Full-Stack Delivery', initials: 'ET', linkedin: '' },
+];
+
 export default function About() {
   const { content = {}, loading } = useContent();
   const brand = content.brand || {};
   const milestones = content.milestones || defaultMilestones;
   const whyUsItems = content.whyUs || whyUs;
   const teamValueItems = content.teamValues || teamValues;
+  const teamProfiles = Array.isArray(content.teamProfiles) && content.teamProfiles.length > 0
+    ? content.teamProfiles
+    : defaultTeamProfiles;
   const brandName = brand.name || 'Nowic Studio';
   const tagline = brand.tagline || 'Vision to Version';
 
@@ -175,6 +185,57 @@ export default function About() {
                 </div>
               </div>
             </ScrollReveal>
+          </div>
+        </div>
+      </section>
+
+      {/* Team */}
+      <section className="relative overflow-hidden py-20">
+        <div className="pointer-events-none absolute inset-0 opacity-40 [background-image:radial-gradient(#34d99a_0.7px,transparent_0.7px)] [background-size:16px_16px]" />
+        <div className="container-shell relative">
+          <div className="mx-auto max-w-2xl text-center">
+            <p className="eyebrow">The People</p>
+            <h2 className="mt-4 font-display text-4xl font-extrabold leading-tight text-text sm:text-5xl">
+              Meet our <span className="text-gradient">team</span>
+            </h2>
+            <p className="mt-5 text-base leading-relaxed text-sub">
+              The people bringing strategy, design and engineering together for every project.
+            </p>
+          </div>
+
+          <div className="mx-auto mt-12 grid max-w-5xl gap-5 sm:grid-cols-2 lg:grid-cols-4">
+            {teamProfiles.map((member, index) => {
+              const name = member.name || member.title || 'Nowic Studio Team';
+              const role = member.role || member.position || 'Product Delivery';
+              const initials = member.initials || name.split(' ').map((part) => part[0]).join('').slice(0, 2).toUpperCase();
+              return (
+                <ScrollReveal key={`${name}-${index}`} delay={index * 0.07}>
+                  <article className="group h-full rounded-2xl border border-white/10 bg-white/[0.03] p-5 text-center transition-all hover:-translate-y-1 hover:border-mint/40 hover:shadow-[0_18px_50px_rgba(52,217,154,0.08)]">
+                    <div className="relative mx-auto flex h-32 w-32 items-center justify-center overflow-hidden rounded-full border-4 border-white/80 bg-gradient-to-br from-mint/30 via-surface to-white/5 text-3xl font-display font-black text-mint shadow-[0_0_0_1px_rgba(52,217,154,0.25)]">
+                      {member.image_url || member.image ? (
+                        <img src={member.image_url || member.image} alt={name} className="h-full w-full object-cover" loading="lazy" />
+                      ) : (
+                        initials
+                      )}
+                      <span className="absolute bottom-1 right-2 h-3 w-3 rounded-full border-2 border-panel bg-mint" aria-label="Available" />
+                    </div>
+                    <h3 className="mt-5 font-display text-lg font-bold text-text">{name}</h3>
+                    <p className="mx-auto mt-2 inline-flex rounded-full border border-mint/20 bg-mint/5 px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-mint">
+                      {role}
+                    </p>
+                    <div className="mt-5 flex min-h-5 justify-center">
+                      {member.linkedin ? (
+                        <a href={member.linkedin} target="_blank" rel="noopener noreferrer" aria-label={`${name} on LinkedIn`} className="text-muted transition-colors hover:text-mint">
+                          <Linkedin size={15} />
+                        </a>
+                      ) : (
+                        <span className="text-muted/40" aria-hidden="true"><Linkedin size={15} /></span>
+                      )}
+                    </div>
+                  </article>
+                </ScrollReveal>
+              );
+            })}
           </div>
         </div>
       </section>
