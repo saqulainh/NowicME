@@ -42,8 +42,6 @@ const navLinks = [
   { label: 'Services', path: '/services', hasMegaMenu: true },
   { label: 'Pricing', path: '/pricing' },
   { label: 'Portfolio', path: '/portfolio' },
-  { label: 'Technologies', path: '/technologies' },
-  { label: 'Blog', path: '/blog' },
   { label: 'About', path: '/about' },
   { label: 'Contact', path: '/contact' },
 ];

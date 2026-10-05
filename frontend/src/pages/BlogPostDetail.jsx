@@ -80,7 +80,7 @@ export default function BlogPostDetail() {
             "@type": "BlogPosting",
             "headline": post.title,
             "description": post.excerpt,
-            "image": post.cover_image_url || "https://www.nowicstdio.tech/image.png",
+            "image": resolveImageUrl(post.cover_image_url) || "https://www.nowicstdio.tech/image.png",
             "datePublished": post.created_at,
             "dateModified": post.updated_at,
             "author": {

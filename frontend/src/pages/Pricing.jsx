@@ -16,7 +16,8 @@ import {
   Bot, 
   TrendingUp, 
   Palette, 
-  Users, 
+  Server,
+  Cloud,
   CheckCircle2,
   Calendar,
   Rocket
@@ -32,10 +33,10 @@ const SERVICE_TABS = [
   { id: 'website-development', label: 'Website Dev', icon: Globe },
   { id: 'mobile-app-development', label: 'Mobile Apps', icon: Smartphone },
   { id: 'custom-software', label: 'SaaS & ERP', icon: Layers },
-  { id: 'ai-services', label: 'AI & Automation', icon: Bot },
-  { id: 'digital-marketing', label: 'SEO & Marketing', icon: TrendingUp },
-  { id: 'graphics-designing', label: 'Branding & Design', icon: Palette },
-  { id: 'resource-outsource', label: 'Staff Augmentation', icon: Users },
+  { id: 'backend-api-data', label: 'Backend & Data', icon: Server },
+  { id: 'ai-automation', label: 'AI & Automation', icon: Bot },
+  { id: 'cloud-devops-security', label: 'Cloud & Security', icon: Cloud },
+  { id: 'design-seo-marketing', label: 'Design & Growth', icon: Palette },
 ];
 
 const FAQS = [

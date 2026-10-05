@@ -1,4 +1,4 @@
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useLocation } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { caseStudyDetails } from '../data/caseStudyDetails';
 import SEO from '../components/SEO';
@@ -12,6 +12,10 @@ import LoadingSpinner from '../components/LoadingSpinner';
 
 export default function PortfolioDetail() {
   const { slug } = useParams();
+  const { pathname } = useLocation();
+  const isCaseStudyRoute = pathname.startsWith('/case-studies/');
+  const detailBasePath = isCaseStudyRoute ? '/case-studies' : '/portfolio';
+  const detailLabel = isCaseStudyRoute ? 'Case Studies' : 'Portfolio';
   const staticStudy = caseStudyDetails[slug];
   const [apiStudy, setApiStudy] = useState(null);
   const [loading, setLoading] = useState(!staticStudy);
@@ -65,8 +69,8 @@ export default function PortfolioDetail() {
       "@type": "BreadcrumbList",
       "itemListElement": [
         { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://www.nowicstdio.tech/" },
-        { "@type": "ListItem", "position": 2, "name": "Portfolio", "item": "https://www.nowicstdio.tech/portfolio" },
-        { "@type": "ListItem", "position": 3, "name": study.title, "item": `https://www.nowicstdio.tech/portfolio/${slug}` }
+        { "@type": "ListItem", "position": 2, "name": detailLabel, "item": `https://www.nowicstdio.tech${detailBasePath}` },
+        { "@type": "ListItem", "position": 3, "name": study.title, "item": `https://www.nowicstdio.tech${detailBasePath}/${slug}` }
       ]
     }
   ];
@@ -75,11 +79,11 @@ export default function PortfolioDetail() {
 
   return (
     <>
-      <SEO title={`${study.title} — Portfolio | Nowic Studio`} description={study.heroSummary || study.description} canonicalUrl={`https://www.nowicstdio.tech/portfolio/${slug}`} schema={schema} />
+      <SEO title={`${study.title} — ${detailLabel} | Nowic Studio`} description={study.heroSummary || study.description} canonicalUrl={`https://www.nowicstdio.tech${detailBasePath}/${slug}`} schema={schema} />
 
       <section className="relative pt-32 pb-24 overflow-hidden">
         <div className="container-shell relative z-10">
-          <Breadcrumbs items={[{ label: 'Portfolio', path: '/portfolio' }, { label: study.title, path: `/portfolio/${slug}` }]} />
+          <Breadcrumbs items={[{ label: detailLabel, path: detailBasePath }, { label: study.title, path: `${detailBasePath}/${slug}` }]} />
 
           <div className="max-w-4xl mx-auto mt-12">
             {imageUrl && (

@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { SignInButton, SignUpButton, UserButton } from '@clerk/clerk-react';
+import { SignInButton, UserButton } from '@clerk/clerk-react';
 import { useAuth } from '../hooks/useAuth';
 
 export default function AuthButtons() {
@@ -26,20 +26,12 @@ export default function AuthButtons() {
   }
 
   return (
-    <div className="flex items-center gap-3">
+    <div className="flex items-center">
       <SignInButton mode="modal">
         <button type="button" className="cursor-pointer text-sm opacity-70 transition hover:opacity-100">
           Sign In
         </button>
       </SignInButton>
-      <SignUpButton mode="modal">
-        <button
-          type="button"
-          className="cursor-pointer rounded-lg bg-white px-4 py-2 text-sm font-medium text-black transition hover:opacity-90"
-        >
-          Get Started
-        </button>
-      </SignUpButton>
     </div>
   );
 }

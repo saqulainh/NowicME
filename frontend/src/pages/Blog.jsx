@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Calendar, Eye, Clock, BookOpen, ArrowRight, Search } from 'lucide-react';
-import { api } from '../lib/api';
+import { api, resolveImageUrl } from '../lib/api';
 import SEO from '../components/SEO';
 import SectionHeading from '../components/common/SectionHeading';
 import ScrollReveal from '../components/reveal/ScrollReveal';
@@ -19,6 +19,8 @@ export default function Blog() {
                 const response = await api.public_getBlogs();
                 if (response.success) {
                     setPosts(response.data || []);
+                } else {
+                    setError(response.error || response.message || 'Failed to load blog posts. Please check back later.');
                 }
             } catch (err) {
                 console.error('Failed to load blog posts:', err);
@@ -140,7 +142,7 @@ export default function Blog() {
                                     <Link to={`/blog/${post.slug}`} className="block overflow-hidden rounded-2xl aspect-[1.8/1] bg-[#16171e] relative mb-5">
                                         {post.cover_image_url ? (
                                             <img 
-                                                src={post.cover_image_url} 
+                                                src={resolveImageUrl(post.cover_image_url)} 
                                                 alt={post.title} 
                                                 loading="lazy"
                                                 className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-500" 
