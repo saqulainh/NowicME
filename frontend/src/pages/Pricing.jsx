@@ -20,8 +20,7 @@ import {
   Cloud,
   CheckCircle2,
   Calendar,
-  Rocket,
-  ChevronDown
+  Rocket
 } from 'lucide-react';
 import SEO from '../components/SEO';
 import SectionHeading from '../components/common/SectionHeading';
@@ -65,7 +64,19 @@ const FAQS = [
 ];
 
 function DetailedPricingCatalogue() {
-  const [openCategory, setOpenCategory] = useState('websites');
+  const [activeCategoryId, setActiveCategoryId] = useState('websites');
+  const activeCategory = pricingCatalogue.find((category) => category.id === activeCategoryId) || pricingCatalogue[0];
+
+  const selectCategory = (categoryId) => {
+    setActiveCategoryId(categoryId);
+    window.requestAnimationFrame(() => {
+      document.getElementById('pricing-category-content')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+  };
+
+  const jumpToChild = (childName) => {
+    document.getElementById(`pricing-${activeCategory.id}-${childName}`)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
 
   return (
     <section className="py-24 border-y border-white/5 bg-[#050806]">
@@ -80,43 +91,66 @@ function DetailedPricingCatalogue() {
           </p>
         </div>
 
-        <div className="max-w-5xl mx-auto space-y-3">
-          {pricingCatalogue.map((category) => {
-            const isOpen = openCategory === category.id;
-            return (
-              <div key={category.id} className="border border-white/10 rounded-2xl overflow-hidden bg-white/[0.02]">
-                <button
-                  type="button"
-                  onClick={() => setOpenCategory(isOpen ? '' : category.id)}
-                  aria-expanded={isOpen}
-                  className="w-full flex items-center justify-between gap-5 px-5 py-5 text-left hover:bg-white/[0.03] transition-colors"
-                >
-                  <span>
-                    <span className="block text-lg font-display font-bold text-white">{category.name}</span>
-                    <span className="block mt-1 text-xs text-[#8b8fa3]">{category.summary}</span>
-                  </span>
-                  <ChevronDown size={18} className={`shrink-0 text-[#34d99a] transition-transform ${isOpen ? 'rotate-180' : ''}`} />
-                </button>
+        <div className="grid gap-8 lg:grid-cols-[250px_minmax(0,1fr)] items-start">
+          <aside className="lg:sticky lg:top-24 rounded-2xl border border-white/10 bg-white/[0.02] p-3">
+            <p className="px-3 pb-3 text-[10px] font-bold uppercase tracking-[0.18em] text-[#8b8fa3]">Categories</p>
+            <div className="space-y-1">
+              {pricingCatalogue.map((category) => {
+                const isActive = activeCategory.id === category.id;
+                return (
+                  <button
+                    key={category.id}
+                    type="button"
+                    onClick={() => selectCategory(category.id)}
+                    aria-current={isActive ? 'page' : undefined}
+                    className={`w-full flex items-center justify-between gap-3 rounded-xl px-3 py-3 text-left text-xs font-semibold transition-colors ${isActive ? 'bg-[#34d99a] text-[#050806]' : 'text-[#cbd5e1] hover:bg-white/5 hover:text-white'}`}
+                  >
+                    <span>{category.name}</span>
+                    <ArrowRight size={13} />
+                  </button>
+                );
+              })}
+            </div>
+            <div className="mt-5 rounded-xl border border-[#34d99a]/20 bg-[#34d99a]/5 p-4">
+              <p className="text-xs font-bold text-white">Need a custom quote?</p>
+              <p className="mt-2 text-xs leading-relaxed text-[#8b8fa3]">Complex products are scoped around modules, workflows and integrations.</p>
+              <Link to="/contact" className="mt-3 inline-flex items-center gap-1 text-xs font-bold text-[#34d99a]">Contact Us <ArrowRight size={12} /></Link>
+            </div>
+          </aside>
 
-                {isOpen && (
-                  <div className="border-t border-white/10 p-3 sm:p-5 space-y-3">
-                    {category.children.map((child) => (
-                      <article key={child.name} className="rounded-xl border border-white/5 bg-[#0e0f14]/80 p-4 sm:p-5">
-                        <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
-                          <h3 className="text-base font-bold text-white">{child.name}</h3>
-                          <span className="shrink-0 text-sm font-bold text-[#34d99a]">{child.price}</span>
-                        </div>
-                        <p className="mt-3 text-xs leading-relaxed text-[#cbd5e1]">{child.details}</p>
-                        <p className="mt-3 border-t border-white/5 pt-3 text-xs leading-relaxed text-[#8b8fa3]">
-                          <span className="font-semibold text-[#34d99a]">Includes / scope: </span>{child.includes}
-                        </p>
-                      </article>
-                    ))}
-                  </div>
-                )}
+          <div id="pricing-category-content" className="min-w-0 scroll-mt-24">
+            <div className="border-b border-white/10 pb-6">
+              <p className="eyebrow">Selected Category</p>
+              <h3 className="mt-2 text-3xl font-display font-bold text-white">{activeCategory.name}</h3>
+              <p className="mt-3 max-w-3xl text-sm leading-relaxed text-[#8b8fa3]">{activeCategory.summary}</p>
+              <div className="mt-5 flex flex-wrap items-center gap-2">
+                <span className="mr-1 text-[10px] font-bold uppercase tracking-widest text-[#8b8fa3]">Jump to:</span>
+                {activeCategory.children.map((child) => (
+                  <button key={child.name} type="button" onClick={() => jumpToChild(child.name)} className="rounded-full border border-white/10 bg-white/5 px-3 py-2 text-[11px] font-semibold text-[#cbd5e1] hover:border-[#34d99a]/40 hover:text-[#34d99a] transition-colors">
+                    {child.name}
+                  </button>
+                ))}
               </div>
-            );
-          })}
+            </div>
+
+            <div className="mt-8 space-y-4">
+              {activeCategory.children.map((child) => (
+                <article id={`pricing-${activeCategory.id}-${child.name}`} key={child.name} className="scroll-mt-28 overflow-hidden rounded-2xl border border-white/10 bg-[#0e0f14]/80">
+                  <div className="flex items-start justify-between gap-4 border-b border-white/10 bg-white/[0.02] px-5 py-5">
+                    <div>
+                      <h4 className="text-xl font-display font-bold text-white">{child.name}</h4>
+                      <p className="mt-2 text-xs leading-relaxed text-[#8b8fa3]">{child.details}</p>
+                    </div>
+                    <span className="shrink-0 rounded-full bg-[#34d99a] px-3 py-1.5 text-xs font-bold text-[#050806]">{child.price}</span>
+                  </div>
+                  <div className="p-5">
+                    <p className="text-[10px] font-bold uppercase tracking-widest text-[#34d99a]">Includes / scope</p>
+                    <p className="mt-3 text-sm leading-relaxed text-[#cbd5e1]">{child.includes}</p>
+                  </div>
+                </article>
+              ))}
+            </div>
+          </div>
         </div>
 
         <div className="max-w-5xl mx-auto mt-12 rounded-2xl border border-[#34d99a]/20 bg-[#34d99a]/5 p-6 sm:p-8">
