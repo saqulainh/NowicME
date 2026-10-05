@@ -45,12 +45,26 @@ const defaultMilestones = [
 ];
 
 const whyUs = [
-  { title: 'Execution-First Process', desc: 'We ship in tight sprints with clear milestones — no delays, no excuses.', icon: CheckCircle2 },
-  { title: 'Senior-Level Code Quality', desc: 'Every project uses clean architecture, proper patterns, and scalable structure.', icon: CheckCircle2 },
-  { title: 'AI-Augmented Speed', desc: 'We leverage AI workflows to deliver 3× faster without compromising quality.', icon: CheckCircle2 },
-  { title: 'Premium UI from Day 1', desc: 'Your product will look and feel premium — because first impressions win customers.', icon: CheckCircle2 },
-  { title: 'Transparent Collaboration', desc: 'Weekly demos, direct founder access, clear progress — you\'re never in the dark.', icon: CheckCircle2 },
-  { title: 'Architecture That Scales', desc: 'We build for today and tomorrow — clean code that grows with your business.', icon: CheckCircle2 },
+  { title: 'One Technical Partner', desc: 'Web, mobile, SaaS, AI, APIs and cloud delivery under one accountable engineering team.', icon: CheckCircle2 },
+  { title: 'Built Around Your Workflow', desc: 'We learn your users, operations and bottlenecks before choosing a solution or stack.', icon: CheckCircle2 },
+  { title: 'Product-Minded Engineering', desc: 'We design for adoption, performance, maintainability and the next stage of growth.', icon: CheckCircle2 },
+  { title: 'Transparent Execution', desc: 'Clear scope, milestones, demos and commercial decisions from discovery to handover.', icon: CheckCircle2 },
+  { title: 'Security & Quality by Default', desc: 'Testing, access control, documentation and deployment discipline are part of the work.', icon: CheckCircle2 },
+  { title: 'Long-Term Support', desc: 'After launch, we can continue with maintenance, scaling, security and product improvements.', icon: CheckCircle2 },
+];
+
+const coreExpertise = [
+  { title: 'Web Products', description: 'Responsive marketing sites, CMS platforms, e-commerce and high-performance web applications.' },
+  { title: 'Mobile Applications', description: 'Flutter, React Native, Swift and Kotlin products for Android, iOS and cross-platform delivery.' },
+  { title: 'AI & Automation', description: 'Practical assistants, search, document workflows, integrations and business process automation.' },
+  { title: 'Custom Software', description: 'CRM, ERP, admin systems, SaaS platforms and API-first architecture for complex operations.' },
+];
+
+const deliveryStandards = [
+  { title: 'Clear Commercials', description: 'Scope, features, pricing, milestones, third-party costs and handover terms are documented before build.' },
+  { title: 'Scalable Foundations', description: 'We plan the architecture so an MVP can evolve into a reliable production system without needless rewrites.' },
+  { title: 'Useful Design', description: 'Interfaces are made to be understood, trusted and used repeatedly across devices and workflows.' },
+  { title: 'Post-Launch Ownership', description: 'Warranty support, maintenance, technical assistance and growth planning continue after release.' },
 ];
 
 const teamValues = [
@@ -159,7 +173,7 @@ export default function About() {
                 <span className="text-gradient">obsessed with outcomes</span>
               </h1>
               <p className="mt-5 text-lg leading-relaxed text-sub">
-                {brandName} partners with founders and teams to design, build, and launch high-performance digital products — faster than you think possible.
+                {brandName} is an India-based software studio helping founders and growing teams turn business ideas into reliable digital products — from first prototype to production scale.
               </p>
               <div className="mt-7 flex flex-wrap gap-3">
                 <Link to="/contact" className="cta-btn">
@@ -236,6 +250,30 @@ export default function About() {
                 </ScrollReveal>
               );
             })}
+          </div>
+        </div>
+      </section>
+
+      {/* Core expertise */}
+      <section className="py-20">
+        <div className="container-shell">
+          <SectionHeading
+            eyebrow="What We Do"
+            title="Technology that creates |business value"
+            description="We combine product thinking, modern engineering and direct collaboration to solve the problem behind the brief."
+          />
+          <div className="mt-12 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+            {coreExpertise.map((item, index) => (
+              <ScrollReveal key={item.title} delay={index * 0.06}>
+                <div className="card h-full p-6">
+                  <div className="mb-5 flex h-10 w-10 items-center justify-center rounded-xl bg-mint/10 text-mint">
+                    <span className="font-display text-sm font-black">0{index + 1}</span>
+                  </div>
+                  <h3 className="font-display text-base font-bold text-text">{item.title}</h3>
+                  <p className="mt-2 text-sm leading-relaxed text-sub">{item.description}</p>
+                </div>
+              </ScrollReveal>
+            ))}
           </div>
         </div>
       </section>
@@ -331,6 +369,30 @@ export default function About() {
                   </motion.li>
                 ))}
               </ul>
+            </div>
+          </div>
+        </ScrollReveal>
+      </section>
+
+      {/* Delivery standards */}
+      <section className="container-shell pb-20">
+        <ScrollReveal>
+          <div className="rounded-2xl border border-mint/20 bg-mint/5 p-8 sm:p-12">
+            <div className="grid gap-10 lg:grid-cols-[0.8fr_1.2fr]">
+              <div>
+                <p className="eyebrow">Why Nowic</p>
+                <h2 className="mt-4 font-display text-3xl font-bold text-text sm:text-4xl">We build with <span className="text-gradient">purpose</span></h2>
+                <p className="mt-4 text-sm leading-relaxed text-sub">Our standards keep the work practical, transparent and ready for the next stage of your business.</p>
+                <Link to="/contact" className="cta-btn mt-7 inline-flex items-center gap-2">Work With Us <ArrowRight size={15} /></Link>
+              </div>
+              <div className="grid gap-5 sm:grid-cols-2">
+                {deliveryStandards.map((item) => (
+                  <div key={item.title}>
+                    <h3 className="font-display text-sm font-bold text-text">{item.title}</h3>
+                    <p className="mt-2 text-sm leading-relaxed text-sub">{item.description}</p>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         </ScrollReveal>
