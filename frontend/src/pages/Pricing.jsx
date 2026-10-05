@@ -20,13 +20,15 @@ import {
   Cloud,
   CheckCircle2,
   Calendar,
-  Rocket
+  Rocket,
+  ChevronDown
 } from 'lucide-react';
 import SEO from '../components/SEO';
 import SectionHeading from '../components/common/SectionHeading';
 import ScrollReveal from '../components/reveal/ScrollReveal';
 import Breadcrumbs from '../components/common/Breadcrumbs';
 import { servicePricing as staticServicePricing, generalTiers as staticGeneralTiers, deliveryLifecycle as staticDeliveryLifecycle } from '../data/pricingData';
+import { pricingCatalogue, pricingTerms } from '../data/pricingCatalogue';
 import { useContent } from '../context/ContentContext';
 
 const SERVICE_TABS = [
@@ -61,6 +63,77 @@ const FAQS = [
     answer: "Absolutely. Once your MVP gains market traction, we seamlessly transition your platform to dedicated sprint cycles, custom SLA retainers, and multi-tenant cloud scaling."
   }
 ];
+
+function DetailedPricingCatalogue() {
+  const [openCategory, setOpenCategory] = useState('websites');
+
+  return (
+    <section className="py-24 border-y border-white/5 bg-[#050806]">
+      <div className="container-shell">
+        <div className="max-w-3xl mx-auto text-center mb-14">
+          <p className="eyebrow">Complete Rate Card</p>
+          <h2 className="mt-3 text-3xl font-display font-bold text-white sm:text-4xl">
+            Parent categories, <span className="text-gradient">clear child services</span>
+          </h2>
+          <p className="mt-4 text-sm text-[#8b8fa3]">
+            Starting prices and scope details for websites, applications, software, infrastructure, growth and support.
+          </p>
+        </div>
+
+        <div className="max-w-5xl mx-auto space-y-3">
+          {pricingCatalogue.map((category) => {
+            const isOpen = openCategory === category.id;
+            return (
+              <div key={category.id} className="border border-white/10 rounded-2xl overflow-hidden bg-white/[0.02]">
+                <button
+                  type="button"
+                  onClick={() => setOpenCategory(isOpen ? '' : category.id)}
+                  aria-expanded={isOpen}
+                  className="w-full flex items-center justify-between gap-5 px-5 py-5 text-left hover:bg-white/[0.03] transition-colors"
+                >
+                  <span>
+                    <span className="block text-lg font-display font-bold text-white">{category.name}</span>
+                    <span className="block mt-1 text-xs text-[#8b8fa3]">{category.summary}</span>
+                  </span>
+                  <ChevronDown size={18} className={`shrink-0 text-[#34d99a] transition-transform ${isOpen ? 'rotate-180' : ''}`} />
+                </button>
+
+                {isOpen && (
+                  <div className="border-t border-white/10 p-3 sm:p-5 space-y-3">
+                    {category.children.map((child) => (
+                      <article key={child.name} className="rounded-xl border border-white/5 bg-[#0e0f14]/80 p-4 sm:p-5">
+                        <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+                          <h3 className="text-base font-bold text-white">{child.name}</h3>
+                          <span className="shrink-0 text-sm font-bold text-[#34d99a]">{child.price}</span>
+                        </div>
+                        <p className="mt-3 text-xs leading-relaxed text-[#cbd5e1]">{child.details}</p>
+                        <p className="mt-3 border-t border-white/5 pt-3 text-xs leading-relaxed text-[#8b8fa3]">
+                          <span className="font-semibold text-[#34d99a]">Includes / scope: </span>{child.includes}
+                        </p>
+                      </article>
+                    ))}
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+
+        <div className="max-w-5xl mx-auto mt-12 rounded-2xl border border-[#34d99a]/20 bg-[#34d99a]/5 p-6 sm:p-8">
+          <h3 className="text-xl font-display font-bold text-white">Terms, taxes & third-party charges</h3>
+          <div className="mt-5 grid gap-3 md:grid-cols-2">
+            {pricingTerms.map((term) => (
+              <p key={term} className="flex items-start gap-2 text-xs leading-relaxed text-[#cbd5e1]">
+                <Check size={14} className="mt-0.5 shrink-0 text-[#34d99a]" />
+                <span>{term}</span>
+              </p>
+            ))}
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
 
 export default function Pricing() {
   const [activeTab, setActiveTab] = useState('website-development');
@@ -423,6 +496,8 @@ export default function Pricing() {
           </div>
         </div>
       </section>
+
+      <DetailedPricingCatalogue />
 
       {/* Section 5: FAQs */}
       <section className="py-24 relative overflow-hidden">
